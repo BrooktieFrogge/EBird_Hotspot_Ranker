@@ -1,30 +1,54 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <router-view/>
 </template>
+  
+<script lang="ts">
+import { defineComponent } from 'vue';
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+export default defineComponent({
+  name: 'App',
+});
+</script>
+  
+<style>
+* {
+  box-sizing: border-box;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  
+html, body {
+  touch-action: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+  
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  
+  height: 100%;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+  
+body {
+  overflow: hidden;
+}
+  
+#app {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+  
+svg {
+  height: 1.3em;
+  width: 1.3em;
+  display: block;
+  margin: auto;
+}
+  
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 </style>
+  
