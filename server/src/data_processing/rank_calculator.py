@@ -115,8 +115,7 @@ def calculate_metrics(df, raw_weights, month_row):
                         used_weeks_map[f"{current_month}_w{week_counter}"] = w
 
         total_weight = sum(weights_to_use)
-        print(f" - columns used: {len(cols_to_keep)} | total sample size: {total_weight}")   
-        
+
         ### calculate wtd-rf
         
         # ensure numeric
@@ -136,6 +135,7 @@ def calculate_metrics(df, raw_weights, month_row):
         
         return final[['Rank', 'Species', 'wtd-rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
 
+# may not be needed anymore, still good for debug
 def process_file(filepath, filename):
         print(f"processing {filename}...")
 
@@ -192,35 +192,84 @@ def process_file(filepath, filename):
         
         final.to_csv(out_csv, index=False)
         create_summary(out_txt, filename, total_weight, final, used_weeks_map, loc_name)
-        print(f" - saved: {out_csv}")
+        print(f"[success] | saved: {out_csv}")
 
-def process_data(raw_tsv, loc_id, start_year, end_year):
+# fetch location data with a login, the main idea for now
+def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
         print(f"processing data for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()
-        pass
+        
+        month_row = lines[MONTH_ROW_INDEX].replace('\n', '').split('\t')
+        sample_row = lines[SAMPLE_SIZE_ROW_INDEX].replace('\n', '').split('\t')
 
-##### run script
+        # clean up the sample sizes
+        raw_weights = []
+        for x in sample_row[1:]:
+                clean_x = x.strip()
+                if clean_x.replace('.', '', 1).isdigit(): 
+                        raw_weights.append(float(clean_x))
+                else:
+                        raw_weights.append(0.0)
+
+        ### load into pandas
+        f_stream.seek(0)
+        rows_to_skip = list(range(DATA_START_ROW_INDEX)) 
+
+        df = pd.read_csv(
+                f_stream, 
+                sep='\t', 
+                header=None, 
+                skiprows=rows_to_skip
+        )
+        df = df.rename(columns={0: 'Species'})
+        df = df.dropna(subset=['Species']) 
+
+        ### calculate metrics
+        final, total_weight, used_weeks_map, cols_used = calculate_metrics(df, raw_weights, month_row)
+        loc_name = get_location_name(loc_id)
+
+        ### save output
+        if save:
+                slug = fix_filename_string(loc_name)
+                date_str = f"_{str(start_year)[-2:]}-{str(end_year)[-2:]}"
+
+                if not os.path.exists(OUTPUT_DIR):
+                        os.makedirs(OUTPUT_DIR)
+
+                out_csv = os.path.join(OUTPUT_DIR, f"rank_data_{slug}{date_str}.csv")
+                out_txt = os.path.join(OUTPUT_DIR, f"summary_{slug}{date_str}.txt")
+
+                final.to_csv(out_csv, index=False)
+                create_summary(out_txt, f"Live Data from ({loc_id})", total_weight, final, used_weeks_map, loc_name)
+                print(f" [success] | saved: {out_csv}")
+
+        # return in a frontend stlye:
+        return {
+                "location": loc_name,
+                "total_sample_size": total_weight,
+                "data": final.to_dict('records') # converts df to a list of dicts
+        }
+
+##### standalone script
 
 if __name__ == "__main__":
-        print("starting ranker...")
+        print("starting rank calculator...")
 
         # make sure output dir exists
         if not os.path.exists(OUTPUT_DIR):
                 os.makedirs(OUTPUT_DIR)
-                print(f"created output directory: {OUTPUT_DIR}")
+                print(f"[info] | created output directory: {OUTPUT_DIR}")
 
         # find text files in the input directory
         if not os.path.exists(INPUT_DIR):
-                print(f"error: {INPUT_DIR} does not exist.")
+                print(f"[error] | {INPUT_DIR} does not exist.")
         else:
                 files = [f for f in os.listdir(INPUT_DIR) if f.startswith('ebird_') and f.endswith('.txt')]
 
                 if not files:
-                        print(f"no files found in {INPUT_DIR}")
+                        print(f"[error] | no files found in {INPUT_DIR}")
         
                 for f in files:
                         full_path = os.path.join(INPUT_DIR, f)
                         process_file(full_path, f)
-
-        print("done.")

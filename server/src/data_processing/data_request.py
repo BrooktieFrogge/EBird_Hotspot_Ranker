@@ -55,6 +55,7 @@ def fetch_data(cookies, loc, start, end):
         print(f"request error: {e}")
         return None
 
+# standalone script
 def main():
     ### login
     cookies = get_cookies()
