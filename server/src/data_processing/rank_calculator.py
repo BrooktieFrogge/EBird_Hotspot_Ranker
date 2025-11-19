@@ -75,38 +75,7 @@ def create_summary(filename, source_file, total_weight, df, used_weeks, location
 
 ##### main logic
 
-def process_file(filepath, filename):
-        print(f"processing {filename}...")
-
-        ### read headers and sample sizes
-        with open(filepath, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                month_row = lines[MONTH_ROW_INDEX].replace('\n', '').split('\t')
-                sample_row = lines[SAMPLE_SIZE_ROW_INDEX].replace('\n', '').split('\t')
-
-        # clean up the sample sizes
-        raw_weights = []
-        for x in sample_row[1:]:
-                clean_x = x.strip()
-                if clean_x.replace('.', '', 1).isdigit(): # checks for float or int
-                        raw_weights.append(float(clean_x))
-                else:
-                        raw_weights.append(0.0)
-
-        ### load into pandas
-
-        # skip all headers, add them back later
-        rows_to_skip = list(range(DATA_START_ROW_INDEX)) 
-
-        df = pd.read_csv(
-                filepath, 
-                sep='\t', 
-                header=None, 
-                skiprows=rows_to_skip
-        )
-        df = df.rename(columns={0: 'Species'})
-        df = df.dropna(subset=['Species'])        
-        
+def calculate_metrics(df, raw_weights, month_row):
         ### filter columns based on config
         cols_to_keep = []
         weights_to_use = []
@@ -163,10 +132,47 @@ def process_file(filepath, filename):
         final['Rank'] = final.index + 1
 
         top_score = final['wtd-rf'].iloc[0] if not final.empty else 1
-        final['rfpc'] = (final['wtd-rf'] / top_score) * 100     
+        final['rfpc'] = (final['wtd-rf'] / top_score) * 100
         
+        return final[['Rank', 'Species', 'wtd-rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
+
+def process_file(filepath, filename):
+        print(f"processing {filename}...")
+
+        ### read headers and sample sizes
+        with open(filepath, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                month_row = lines[MONTH_ROW_INDEX].replace('\n', '').split('\t')
+                sample_row = lines[SAMPLE_SIZE_ROW_INDEX].replace('\n', '').split('\t')
+
+        # clean up the sample sizes
+        raw_weights = []
+        for x in sample_row[1:]:
+                clean_x = x.strip()
+                if clean_x.replace('.', '', 1).isdigit(): # checks for float or int
+                        raw_weights.append(float(clean_x))
+                else:
+                        raw_weights.append(0.0)
+
+        ### load into pandas
+
+        # skip all headers, add them back later
+        rows_to_skip = list(range(DATA_START_ROW_INDEX)) 
+
+        df = pd.read_csv(
+                filepath, 
+                sep='\t', 
+                header=None, 
+                skiprows=rows_to_skip
+        )
+        df = df.rename(columns={0: 'Species'})
+        df = df.dropna(subset=['Species'])        
+
+        ### calculate metrics
+        final, total_weight, used_weeks_map, cols_used = calculate_metrics(df, raw_weights, month_row)
+
         ### save output
-        
+
         # pull info for filenames
         loc_id = re.search(r'L\d+', filename).group(0)
         loc_name = get_location_name(loc_id)
@@ -183,9 +189,8 @@ def process_file(filepath, filename):
         out_csv = os.path.join(OUTPUT_DIR, f"rank_data_{slug}{date_str}.csv")
         out_txt = os.path.join(OUTPUT_DIR, f"summary_{slug}{date_str}.txt")
 
-        final = final[['Rank', 'Species', 'wtd-rf', 'rfpc']]
+        
         final.to_csv(out_csv, index=False)
-
         create_summary(out_txt, filename, total_weight, final, used_weeks_map, loc_name)
         print(f" - saved: {out_csv}")
 
@@ -193,6 +198,8 @@ def process_data(raw_tsv, loc_id, start_year, end_year):
         print(f"processing data for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()
+        pass
+
 ##### run script
 
 if __name__ == "__main__":
