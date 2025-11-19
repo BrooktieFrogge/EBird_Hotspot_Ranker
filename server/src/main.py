@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 import os,httpx
 from datetime import datetime, timedelta, date
+import asyncio
 
 load_dotenv()
 app = FastAPI()
@@ -23,33 +24,51 @@ L1150539 -hotspotID
 '''
 @app.get("/hotspot")
 async def get_hotspot_obs(hotspotID:str, startDate:str = None,endDate:str = None):
-    headers = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 
-    if startDate and endDate:
+    if startDate and endDate and endDate >= startDate:
         return await get_dateRange_obs(hotspotID,startDate, endDate)
     else:
-        return await get_dateRange_obs(hotspotID,"1800-01-01", date.today())
+        default_end = date.today()
 
-@app.get("/hotspot/daterange")
-async def get_dateRange_obs(hotspotID,startDate,endDate):
+        default_start = (default_end - timedelta(days=))
+        return await get_dateRange_obs(hotspotID,"1800-01-01", date.today().strftime("%Y-%m-%d"))
+
+'''
+Fetch observations for a single day
+'''
+async def fetch_days(hotspotID:str,d:date):
     headers = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
-    results = []
+
+    year,month,day = d.year,d.month,d.day
+    url = f"https://api.ebird.org/v2/data/obs/{hotspotID}/historic/{year}/{month}/{day}"
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+
+        response.raise_for_status()
+        return response.json()
+       
+        
+        
+
+async def get_dateRange_obs(hotspotID,startDate,endDate):
 
     sd = datetime.strptime(startDate,"%Y-%m-%d").date()
     ed = datetime.strptime(endDate,"%Y-%m-%d").date()
 
-    async with httpx.AsyncClient() as client:
-        while sd <= ed:
-            year,month,day = sd.year,sd.month,sd.day
-            url = f"https://api.ebird.org/v2/data/obs/{hotspotID}/historic/{year}/{month}/{day}"
+    dates = []
+    while sd<=ed:
+        dates.append(sd)
+        sd += timedelta(days=1)
 
-            response = await client.get(url, headers=headers)
-            response.raise_for_status()
+    all_dates = [fetch_days(hotspotID,d) for d in dates]
+    
+    #Use asyncio.gather to run the tass concurrently and gather their results
+    results = await asyncio.gather(*all_dates)
 
-            formatted = response.json()
-            results.extend(formatted)
-            sd += timedelta(days=1)
+    #flatten list of lists
+    flattened_results = [item for sub in results if sub for item in sub]
 
-    return {'hotspot data' : results}
-
+    return {"hotspot data": flattened_results}
+ 
 # async def get_top_birds(numBirds:int):
