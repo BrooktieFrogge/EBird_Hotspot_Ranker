@@ -48,6 +48,7 @@ def fetch_data(cookies, loc, start, end):
         
         # check if works
         if res.status_code == 200 and "<!doctype html>" not in res.text.lower():
+            # all the data we want
             return res.text
         return None
     except Exception as e:
@@ -59,7 +60,7 @@ def main():
     cookies = get_cookies()
     if not cookies: return
 
-    ### get intputs
+    ### get inputs
     loc = input("enter location id (e.g. L901084): ").strip()
     if not loc: return
     
@@ -73,7 +74,7 @@ def main():
         e_yr = int(e_in) if e_in else 2025
         
     except ValueError:
-        print("numbers only please")
+        print("invalid years.")
         return
 
     ### fetch and download

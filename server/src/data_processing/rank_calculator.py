@@ -6,6 +6,7 @@ import csv
 import requests
 import unicodedata
 from dotenv import load_dotenv
+import io
 
 ##### config
 
@@ -188,6 +189,10 @@ def process_file(filepath, filename):
         create_summary(out_txt, filename, total_weight, final, used_weeks_map, loc_name)
         print(f" - saved: {out_csv}")
 
+def process_data(raw_tsv, loc_id, start_year, end_year):
+        print(f"processing data for {loc_id}...")
+        f_stream = io.StringIO(raw_tsv)
+        lines = f_stream.readlines()
 ##### run script
 
 if __name__ == "__main__":
