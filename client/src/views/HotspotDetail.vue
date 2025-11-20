@@ -1,36 +1,65 @@
 <template>
-  <div class="hotspot-detail">
-    <h1>Hotspot Detail</h1>
-    <p>This is the placeholder for the hotspot detail screen.</p>
-    <button class="button" @click="navigateToHotspotSearch">
-      <span>Go to hotspot search screen</span>
-    </button>
-    <!-- Future: graphs, images, lists of birds, etc -->
+  <div :class="['hotspot-detail']">
+    <div class="content">
+
+      <!-- Config Panel -->
+      <div class="config-panel">
+        <AnalyticsConfigPanel />
+      </div>
+
+      <!-- Hotspot Analytics Report -->
+      <div class="analytics-report">
+        <HotspotAnalyticsReport />
+      </div>
+
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
+import HotspotAnalyticsReport from '../components/HotspotAnalyticsReport.vue';
+import AnalyticsConfigPanel from '../components/AnalyticsConfigPanel.vue';
 
 export default defineComponent({
   name: 'HotspotDetail',
-  setup() {
-    const router = useRouter();
 
-    const navigateToHotspotSearch = () => {
-      // Example: navigate to hotspot with ID 1
-      router.push({ name: 'HotspotSearch', params: { id: 1 } });
-    };
-
-    return { navigateToHotspotSearch };
+  components: {
+    AnalyticsConfigPanel,
+    HotspotAnalyticsReport
   },
+
+  setup() {
+  }
+
 });
 </script>
 
 <style scoped>
 .hotspot-detail {
-  padding: 2rem;
+  padding: none;
   text-align: center;
 }
+
+.content {
+  display: flex;
+  flex: 1;
+}
+
+.config-panel {
+  flex: 1;
+  max-width: 30%;
+  background-color: #181818;
+  padding: none;
+  box-sizing: border-box;
+}
+
+.analytics-report {
+  flex: 2;
+  min-width: 40%;
+  background: #181818;
+  padding: none;
+  box-sizing: border-box;
+}
+
 </style>
