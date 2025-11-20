@@ -197,7 +197,7 @@ def process_file(filepath, filename):
 
 # fetch location data with a login, the main idea for now
 def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
-        print(f"[calc] | processing data for {loc_id}...")
+        print(f"[calc] | calculating rankings for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()
         

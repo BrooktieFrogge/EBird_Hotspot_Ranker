@@ -13,6 +13,7 @@ def main():
     username, password = None, None
 
     ## check session cookies
+    # if they're not valid, prompt user for creds
     if not data_request.is_session_valid():
         print("\n[input] | enter your eBird credentials to start a session:")
         username = input("[input] | username: ").strip()
@@ -28,7 +29,7 @@ def main():
         if not loc: continue
 
         try:
-            print("leave years blank for all time")
+            print("[info] | leave years blank for all time")
             start_yr_in = input("[input] | start year (YYYY): ").strip()
             end_yr_in = input("[input] | end year (YYYY): ").strip()
 
@@ -46,7 +47,6 @@ def main():
 
         ## process in memory
         if raw_data:
-            print(f"calculating rankings for {loc}...")
             try:
                 # pass data + inputs to calculator
                 result_dict = rank_calculator.process_data(raw_data, loc, start_yr, end_yr, save=SAVE_FILE)
