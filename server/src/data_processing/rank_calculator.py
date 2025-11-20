@@ -26,10 +26,11 @@ DATA_START_ROW_INDEX = 16
 
 # filter config: 'Jun': [1, 2, 4] or 'Jun': 'all'
 FILTER_CONFIG = {
+        'May': [4],
         'Jun': 'all',
         'Jul': 'all',
         'Aug': 'all',
-        'Sep': 'all'
+        'Sep': [1,2]
 }
 TOP_N_VIEW = 10
 
@@ -137,7 +138,7 @@ def calculate_metrics(df, raw_weights, month_row):
 
 # may not be needed anymore, still good for debug
 def process_file(filepath, filename):
-        print(f"processing {filename}...")
+        print(f"[calc] | processing {filename}...")
 
         ### read headers and sample sizes
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -196,7 +197,7 @@ def process_file(filepath, filename):
 
 # fetch location data with a login, the main idea for now
 def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
-        print(f"processing data for {loc_id}...")
+        print(f"[calc] | processing data for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()
         
