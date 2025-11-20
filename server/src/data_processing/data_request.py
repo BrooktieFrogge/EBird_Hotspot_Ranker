@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 # this is the 'database' right now
 SESSION_FILE = 'ebird_session.json'
 # set to false to watch what the browsers are doing
-HEADLESS = True
+HEADLESS = False
 
 # helper function to skip login
 def is_session_valid():
