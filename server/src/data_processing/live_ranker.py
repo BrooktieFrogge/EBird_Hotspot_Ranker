@@ -1,6 +1,7 @@
 import data_request 
 import rank_calculator
 import pandas as pd
+import getpass
 
 SAVE_FILE = False
 
@@ -9,11 +10,15 @@ def main():
     print("  eBird Ranker")
     print("=" * 15)
 
-    ## login
-    cookies = data_request.get_cookies()
-    if not cookies:
-        print("[error] | login failed.")
-        return
+    username, password = None, None
+
+    ## check session cookies
+    if not data_request.is_session_valid():
+        print("\n[input] | enter your eBird credentials to start a session:")
+        username = input("[input] | username: ").strip()
+        password = getpass.getpass("[input] | password: ").strip()
+    else:
+        print("\n[session found] skipping login...")
 
     while True:
 
@@ -36,8 +41,8 @@ def main():
             continue
 
         ## fetch data
-        print("fetching from ebird...")
-        raw_data = data_request.fetch_data(cookies, loc, start_yr, end_yr)
+        print("[info] | fetching from ebird...")
+        raw_data = data_request.fetch_data(loc, start_yr, end_yr, username, password)
 
         ## process in memory
         if raw_data:
