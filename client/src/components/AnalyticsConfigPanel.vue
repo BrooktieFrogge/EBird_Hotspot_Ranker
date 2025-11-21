@@ -17,8 +17,6 @@
       </div>
     </div>
 
-    <h3 class="panel-title">Analytics Configuration</h3>
-
     <!-- Year Selection -->
     <div class="config-section">
       <h4>Select Year</h4>
@@ -36,7 +34,6 @@
           style="width: 95px;"
           type="number"
           variant="outlined"
-          class="ma-0 pa-0"
           hide-details
           single-line
         ></v-text-field>
@@ -57,31 +54,32 @@
 
     <!-- Week Selection -->
     <div class="config-section">
-      <h4>Select Year</h4>
+      <h4>Select Weeks</h4>
       <v-range-slider
-        v-model="yearRange"
+        v-model="weekRange"
         strict
-        :max="2025"
-        :min="1900"
+        :max="48"
+        :min="0"
         :step="1"
+        :ticks="[4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44]"
+        :show-ticks="true"
       >
         <template v-slot:prepend>
         <v-text-field
-          v-model="yearRange[0]"
+          v-model="weekRange[0]"
           density="compact"
-          style="width: 95px;"
+          style="width: 75px;"
           type="number"
           variant="outlined"
-          class="ma-0 pa-0"
           hide-details
           single-line
         ></v-text-field>
         </template>
         <template v-slot:append>
           <v-text-field
-            v-model="yearRange[1]"
+            v-model="weekRange[1]"
             density="compact"
-            style="width: 95px"
+            style="width: 75px"
             type="number"
             variant="outlined"
             hide-details
@@ -92,13 +90,54 @@
     </div>
 
     <div class="config-section">
-      <h4>Bird Selection</h4>
-      <div class="ui-block"></div>
+      <v-switch
+        v-model="likelihoodCurve"
+        color="primary"
+        label="Show Likelihood Curve"
+        hide-details
+        style="margin-left: 10px"
+      ></v-switch>
     </div>
 
     <div class="config-section">
-      <h4>Display Options</h4>
-      <div class="ui-block"></div>
+      <v-switch
+        color="primary"
+        label="Show photos of top 3 birds"
+        hide-details
+        style="margin-left: 10px"
+        :model-value="true"
+      ></v-switch>
+    </div>
+
+    <div class="config-section">
+      <h4>Bird Selection</h4>
+
+      <!-- Bird Search Bar -->
+      <v-text-field
+        v-model="birdSearch"
+        variant="outlined"
+        label="Search birds..."
+        hide-details
+        clearable
+        density="compact"
+        style="height:"
+        @input="filterBirds"
+      />
+
+      <!-- Search Results Dropdown -->
+      <div
+        v-if="filteredBirds.length > 0 && birdSearch.length > 0"
+        class="search-results"
+      >
+        <div
+          v-for="bird in filteredBirds"
+          :key="bird"
+          class="search-result-item"
+          @click="selectBird(bird)"
+        >
+          {{ bird }}
+        </div>
+      </div>
     </div>
 
   </div>
@@ -130,6 +169,41 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const yearRange = ref([1900, 2025]);
+    const weekRange = ref([0, 48]);
+    const ex11 = ['red', 'indigo', 'orange', 'primary', 'secondary', 'success', 'info', 
+    'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
+    const likelihoodCurve = ref('');
+
+    const birdSearch = ref("");
+    const allBirds = ref([
+      "American Robin",
+      "Northern Cardinal",
+      "Black-capped Chickadee",
+      "House Sparrow",
+      "Red-tailed Hawk",
+      "Blue Jay",
+      "Mourning Dove",
+      "European Starling"
+      // ... later: replace with the API list
+    ]);
+    
+
+    const filteredBirds = ref<string[]>([]);
+
+    const filterBirds = () => {
+      const q = birdSearch.value.toLowerCase();
+      filteredBirds.value = allBirds.value.filter(bird =>
+        bird.toLowerCase().includes(q)
+      );
+    };
+
+    const selectBird = (bird: string) => {
+      birdSearch.value = bird;
+      filteredBirds.value = [];
+      console.log("Selected bird:", bird);
+      // optionally emit event or store selected state
+    };
+
     
     /**
      * Redirects the router to the welcome screen.
@@ -149,7 +223,15 @@ export default defineComponent({
     return {
       redirectToWelcomeScreen,
       redirectToHotspotSearch,
-      yearRange
+      yearRange,
+      weekRange,
+      ex11, 
+      likelihoodCurve,
+      birdSearch, 
+      allBirds,
+      filteredBirds,
+      filterBirds,
+      selectBird
     };
   },
 });
@@ -207,6 +289,7 @@ export default defineComponent({
 }
 
 .config-section {
+  margin-top: 24px;
   margin-bottom: 24px;
 }
 
@@ -222,6 +305,26 @@ export default defineComponent({
   height: 36px;
   background: #e3e3e3;
   border-radius: 4px;
+}
+
+.search-results {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.12);
+}
+
+.search-result-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-result-item:hover {
+  background: #f1f1f1;
 }
 
 </style>
