@@ -4,3 +4,7 @@ pandas
 numpy
 python-dotenv
 requests
+fuzzywuzzy
+unicodedata
+datetime
+asyncio
