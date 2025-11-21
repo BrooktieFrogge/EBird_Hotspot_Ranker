@@ -4,4 +4,4 @@
 // export { useHotspotStore } from './hotspotStore';
 // export { useUiStore } from './uiStore';
 
-// Placeholder so the file exists for now
+// placeholder so the file exists for now

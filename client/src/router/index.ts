@@ -1,10 +1,16 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import HomeScreen from '../views/HomeScreen.vue';
 const HotspotSearch = () => import('../views/HotspotSearch.vue');
 const HotspotDetail = () => import('../views/HotspotDetail.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
+    name: 'HomeScreen',
+    component: HomeScreen,
+  },
+  {
+    path: '/hotspot-search',
     name: 'HotspotSearch',
     component: HotspotSearch,
   },
@@ -13,11 +19,10 @@ const routes: Array<RouteRecordRaw> = [
     name: 'HotspotDetail',
     component: HotspotDetail,
   },
-  // fallback route
   {
     path: '/:catchAll(.*)',
     redirect: '/',
-  },
+  }
 ];
 
 const router = createRouter({
