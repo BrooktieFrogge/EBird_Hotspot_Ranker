@@ -5,3 +5,4 @@ __pycache__/
 .ipynb_checkpoints/
 venv/
 .pytest_cache/
+server/src/data_processing/.ebird_session.json

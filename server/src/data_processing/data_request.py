@@ -1,48 +1,51 @@
+'''
+automated data request to eBird using Playwright for session/cookie management.
+handles login and cookie storage + grabbing data from eBird barchart websites for specific hotspots.
+'''
+
+##### imports
 import os
 import time
 from playwright.sync_api import sync_playwright
+from dotenv import load_dotenv
 
-# this is the 'database' right now
-SESSION_FILE = 'ebird_session.json'
+load_dotenv('server/.env')
+EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
+EBIRD_USERNAME = os.getenv('EBIRD_USERNAME')
+EBIRD_PASSWORD = os.getenv('EBIRD_PASSWORD')
+SESSION_FILE = os.getenv('SESSION_FILE')
 # set to false to watch what the browsers are doing
 HEADLESS = False
 
-# helper function to skip login
-def is_session_valid():
+## helper function to check if we need to get cookies again
+def is_session_valid(browser):
     # do the cookies exist
     if not os.path.exists(SESSION_FILE):
         return False
     # if they do, try to ping a force login page and see if it redirects us
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=HEADLESS)
-        try:
-            context = browser.new_context(storage_state=SESSION_FILE)
-            response = context.request.get("https://ebird.org/prefs")
-            if "login" in response.url:
-                return False
-            return True
-        except:
+    try:
+        context = browser.new_context(storage_state=SESSION_FILE)
+        response = context.request.get("https://ebird.org/prefs")
+        if "login" in response.url:
             return False
-        finally:
-            browser.close()
-            
-def fetch_data(loc, start, end, username=None, password=None):
+        return True
+    except Exception:
+        return False
+    finally:
+        if 'context' in locals():
+            context.close()
+
+### main function: go to eBird, login if needed, and fetch data
+def fetch_data(loc, start, end):
     print(f"[input] | connecting to eBird for {loc} ({start}-{end})...")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=HEADLESS)
-        
-        ### check if a session exists
-        if os.path.exists(SESSION_FILE):
-            print("[cookies] | found saved session, skipping login...")
-            context = browser.new_context(storage_state=SESSION_FILE)
-        else:
-            print("[cookies] | no session found, starting fresh...")
-            context = browser.new_context()
+        context = browser.new_context()
 
-        ### login if we dont have a valid sessions (meaning creds got passed in)
-        if username and password:
-            print("[cookies] | logging into ebird to grab cookies]...")
+        ## restore session if cookies expired
+        if not is_session_valid(browser):
+            print("[cookies] | session expired. autologging into ebird to restore cookies...")
 
             page = context.new_page()
             page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
@@ -51,34 +54,39 @@ def fetch_data(loc, start, end, username=None, password=None):
                 page.wait_for_selector('input[name="username"]', timeout=5000)
                 
                 ## automated login
-                print("[playwright] | typing username...")
+                print("[playwright] | typing .env username...")
                 page.click('input[name="username"]') 
-                page.fill('input[name="username"]', username)
+                page.fill('input[name="username"]', EBIRD_USERNAME)
                 time.sleep(1) 
 
                 page.keyboard.press("Tab")
 
-                print("[playwright] | typing password...")
-                page.fill('input[name="password"]', password)
+                print("[playwright] | typing .env password...")
+                page.fill('input[name="password"]', EBIRD_PASSWORD)
                 time.sleep(1) 
 
                 page.keyboard.press("Enter")
                 
                 print("[playwright] | submitted. redirecting...")
-                time.sleep(5)
+                time.sleep(3) # wait for redirect
 
                 # save the cookies
                 context.storage_state(path=SESSION_FILE)
                 print("[cookies] | playwright login success! session saved.")
 
             except Exception as e:
-                print(f"[error] | login skipped or failed: {e}")
-
-            page.close()
+                print(f"[error] | .env login skipped or failed: {e}")
+            finally:
+                page.close()
+                context.close()
+        else:
+            print("[cookies] | existing session ok. using saved cookies.")
 
         ### fetch data
-        data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
         print("[info] | downloading data...")
+        
+        context = browser.new_context(storage_state=SESSION_FILE)
+        data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
         response = context.request.get(data_url)
         data_text = response.text()
 
