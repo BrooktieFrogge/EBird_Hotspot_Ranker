@@ -1,23 +1,22 @@
+'''
+calculator script. processes eBird barchart data files to compute weighted rank frequency and related metrics based on user filters. outputs results to CSV and summary text files, or returns data in a dict for API use.
+'''
 ##### imports
 import pandas as pd
 import os
 import re
-import csv
 import requests
 import unicodedata
 from dotenv import load_dotenv
 import io
 
 ##### config
-
 # load api key 
 load_dotenv('server/.env')
 EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
-
 # paths
 INPUT_DIR = 'server/src/data_processing/ebird_in'
 OUTPUT_DIR = 'server/src/data_processing/ebird_out'
-
 
 # fixed rows from ebird barchart files
 MONTH_ROW_INDEX = 13
@@ -35,7 +34,6 @@ FILTER_CONFIG = {
 TOP_N_VIEW = 10
 
 ##### helper functions
-
 def get_location_name(loc_id):
         ## call api to convert id -> name
         url = f"https://api.ebird.org/v2/ref/hotspot/info/{loc_id}"
@@ -75,7 +73,6 @@ def create_summary(filename, source_file, total_weight, df, used_weeks, location
                         f.write(f"{k}: {v}\n")
 
 ##### main logic
-
 def calculate_metrics(df, raw_weights, month_row):
         ### filter columns based on config
         cols_to_keep = []
@@ -253,7 +250,6 @@ def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
         }
 
 ##### standalone script
-
 if __name__ == "__main__":
         print("starting rank calculator...")
 

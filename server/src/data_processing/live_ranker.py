@@ -1,8 +1,12 @@
+'''
+main ranker script. uses data_request.py to fetch data and rank_calculator.py calculate ranks. currently creates result_dict for a single location.
+'''
+##### imports
 import data_request 
 import rank_calculator
 import pandas as pd
-import getpass
 
+### config
 SAVE_FILE = False
 
 def main():
@@ -10,20 +14,10 @@ def main():
     print("  eBird Ranker")
     print("=" * 15)
 
-    username, password = None, None
-
-    ## check session cookies
-    # if they're not valid, prompt user for creds
-    if not data_request.is_session_valid():
-        print("\n[input] | enter your eBird credentials to start a session:")
-        username = input("[input] | username: ").strip()
-        password = getpass.getpass("[input] | password: ").strip()
-    else:
-        print("\n[session found] skipping login...")
-
     while True:
 
-        ## inputs
+        ## user inputs
+        ## TODO: replace with function args for API use
         loc = input("[input] | enter location id (e.g. L901084 or 'q' to quit): ").strip()
         if loc.lower() == 'q': break
         if not loc: continue
@@ -43,9 +37,9 @@ def main():
 
         ## fetch data
         print("[info] | fetching from ebird...")
-        raw_data = data_request.fetch_data(loc, start_yr, end_yr, username, password)
+        raw_data = data_request.fetch_data(loc, start_yr, end_yr)
 
-        ## process in memory
+        # process in memory
         if raw_data:
             try:
                 # pass data + inputs to calculator
@@ -63,5 +57,6 @@ def main():
         else:
             print("[error] | no data found.")
 
+# run main
 if __name__ == "__main__":
     main()
