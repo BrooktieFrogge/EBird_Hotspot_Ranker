@@ -240,7 +240,7 @@ def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
 
                 final.to_csv(out_csv, index=False)
                 create_summary(out_txt, f"Live Data from ({loc_id})", total_weight, final, used_weeks_map, loc_name)
-                print(f" [success] | saved: {out_csv}")
+                print(f"[success] | saved: {out_csv}")
 
         # return in a frontend stlye:
         return {
