@@ -89,23 +89,27 @@
       </v-range-slider>
     </div>
 
+    <!-- Graph Toggle -->
     <div class="config-section">
       <v-switch
-        v-model="likelihoodCurve"
         color="primary"
         label="Show Likelihood Curve"
         hide-details
         style="margin-left: 10px"
+        @change="handleGraphToggle"
+        :model-value="showGraph"
       ></v-switch>
     </div>
 
+    <!-- Photos Toggle -->
     <div class="config-section">
       <v-switch
         color="primary"
         label="Show photos of top 3 birds"
+        @change="handlePhotosToggle"
         hide-details
         style="margin-left: 10px"
-        :model-value="true"
+        :model-value=showTopPhotos
       ></v-switch>
     </div>
 
@@ -144,14 +148,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   BIconHouseFill,
   BIconArrowLeft
 } from 'bootstrap-icons-vue';
 import { ref } from 'vue';
-
+import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 
 /**
  * A panel for configurating the analytics report. 
@@ -168,11 +172,13 @@ export default defineComponent({
 
   setup() {
     const router = useRouter();
+    const analyticsStore = useAnalyticsStore();
+
+
     const yearRange = ref([1900, 2025]);
     const weekRange = ref([0, 48]);
     const ex11 = ['red', 'indigo', 'orange', 'primary', 'secondary', 'success', 'info', 
     'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
-    const likelihoodCurve = ref('');
 
     const birdSearch = ref("");
     const allBirds = ref([
@@ -219,6 +225,26 @@ export default defineComponent({
       router.push({ name: 'HotspotSearch' });
     };
 
+    
+    const showGraph = analyticsStore.showLikelihoodCurve;
+
+     /**
+     * Toggles the addition of a likelihood graph on the layout.
+     * 
+     */
+    const handleGraphToggle = () => {
+        analyticsStore.toggleLikelihoodCurve();
+    };
+
+    const showTopPhotos = analyticsStore.showTopBirdPhotos;
+
+    /**
+     * Toggles the addition of top 3 photos on the layout.
+     * 
+     */
+    const handlePhotosToggle = () => {
+        analyticsStore.toggleTopPhotos();
+    };
 
     return {
       redirectToWelcomeScreen,
@@ -226,12 +252,15 @@ export default defineComponent({
       yearRange,
       weekRange,
       ex11, 
-      likelihoodCurve,
       birdSearch, 
       allBirds,
       filteredBirds,
       filterBirds,
-      selectBird
+      selectBird,
+      showGraph,
+      handleGraphToggle,
+      showTopPhotos,
+      handlePhotosToggle
     };
   },
 });
