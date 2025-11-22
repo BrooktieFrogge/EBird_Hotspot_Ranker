@@ -16,7 +16,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       end: null as number | null,
     },
 
-    showLikelihoodCurve: false,     // your “top birds steep dropoff graph”
+    showLikelihoodCurve: false,  
     showTopBirdPhotos: true,
 
     // --- Data ---

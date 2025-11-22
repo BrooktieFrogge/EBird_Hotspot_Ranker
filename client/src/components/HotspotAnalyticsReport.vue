@@ -26,8 +26,8 @@
     </div>
 
     <!-- RIGHT SECTION: Photos -->
-    <div class="photo-column">
-      <h2 class="section-title">Top 3 Photos</h2>
+    <div class="photo-column" v-show="analyticsStore.showTopBirdPhotos">
+      <h2 class="section-title">Top 3 Photos {{ analyticsStore.showTopBirdPhotos }}</h2>
 
       <div
         class="photo-card"
@@ -48,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAnalyticsStore } from '../stores/useAnalyticsStore';
+
 interface Bird {
   name: string;
   data1: number;
@@ -77,6 +79,10 @@ const topThree: BirdPhoto[] = [
   { name: "Mourning Dove", photo: "https://placehold.co/300x200" },
   { name: "House Finch", photo: "https://placehold.co/300x200" },
 ];
+
+const analyticsStore = useAnalyticsStore();
+
+
 </script>
 
 <style scoped>
