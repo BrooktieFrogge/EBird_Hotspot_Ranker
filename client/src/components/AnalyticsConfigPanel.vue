@@ -135,11 +135,11 @@
       >
         <div
           v-for="bird in filteredBirds"
-          :key="bird"
+          :key="bird.species"
           class="search-result-item"
           @click="selectBird(bird)"
         >
-          {{ bird }}
+          {{ bird.species }} &emsp; &#8212;&#8212; &emsp; {{ bird.data1 }} &emsp; &#8212;&#8212; &emsp;  {{ bird.data2 }}
         </div>
       </div>
     </div>
@@ -156,6 +156,7 @@ import {
 } from 'bootstrap-icons-vue';
 import { ref } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
+import type { Bird } from '../types';
 
 /**
  * A panel for configurating the analytics report. 
@@ -181,32 +182,35 @@ export default defineComponent({
     'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
 
     const birdSearch = ref("");
-    const allBirds = ref([
-      "American Robin",
-      "Northern Cardinal",
-      "Black-capped Chickadee",
-      "House Sparrow",
-      "Red-tailed Hawk",
-      "Blue Jay",
-      "Mourning Dove",
-      "European Starling"
-      // ... later: replace with the API list
-    ]);
+    const allBirds = ref<Bird[]>([
+        { species: "American Robin", data1: 12, data2: 8, photo: "https://placehold.co/300x200" },
+        { species: "Mourning Dove", data1: 10, data2: 7, photo: "https://placehold.co/300x200" },
+        { species: "House Finch", data1: 9, data2: 6, photo: "https://placehold.co/300x200" },
+        { species: "Blue Jay", data1: 8, data2: 5, photo: "https://placehold.co/300x200" },
+        { species: "Northern Cardinal", data1: 7, data2: 5, photo: "https://placehold.co/300x200" },
+        { species: "Dark-eyed Junco", data1: 6, data2: 4, photo: "https://placehold.co/300x200" },
+        { species: "Black-capped Chickadee", data1: 5, data2: 4, photo: "https://placehold.co/300x200" },
+        { species: "European Starling", data1: 5, data2: 3, photo: "https://placehold.co/300x200" },
+        { species: "Red-tailed Hawk", data1: 4, data2: 2, photo: "https://placehold.co/300x200" },
+        { species: "Canada Goose", data1: 4, data2: 2, photo: "https://placehold.co/300x200" },
+        //later.. replace with the API list of all birds
+      ]);
     
 
-    const filteredBirds = ref<string[]>([]);
+    const filteredBirds = ref<Bird[]>([]);
 
     const filterBirds = () => {
       const q = birdSearch.value.toLowerCase();
       filteredBirds.value = allBirds.value.filter(bird =>
-        bird.toLowerCase().includes(q)
+        bird.species.toLowerCase().includes(q)
       );
     };
 
-    const selectBird = (bird: string) => {
-      birdSearch.value = bird;
+    const selectBird = (bird: Bird) => {
+      birdSearch.value = bird.species;
       filteredBirds.value = [];
-      console.log("Selected bird:", bird);
+      console.log("Selected bird:", bird.species);
+      analyticsStore.selectBird(bird);
       // optionally emit event or store selected state
     };
 
@@ -344,6 +348,7 @@ export default defineComponent({
   max-height: 220px;
   overflow-y: auto;
   box-shadow: 0px 2px 8px rgba(0,0,0,0.12);
+  text-align: left;
 }
 
 .search-result-item {
