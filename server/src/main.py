@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, date
 import asyncio
 
 '''
-Backend API for retrieving eBird hotspot oservations over a date range.
+Backend API for retrieving eBird hotspot checklist info over a date range.
 '''
 #load environment variables and initialize app
 load_dotenv()

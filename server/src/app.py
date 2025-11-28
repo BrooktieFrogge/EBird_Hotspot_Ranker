@@ -63,4 +63,3 @@ def search_hotspots(query:str):
                 break 
 
     return {"hotspot names and locIds": results}
-  
