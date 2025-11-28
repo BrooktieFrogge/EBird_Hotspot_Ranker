@@ -1,23 +1,22 @@
+'''
+calculator script. processes eBird barchart data files to compute weighted rank frequency and related metrics based on user filters. outputs results to CSV and summary text files, or returns data in a dict for API use.
+'''
 ##### imports
 import pandas as pd
 import os
 import re
-import csv
 import requests
 import unicodedata
 from dotenv import load_dotenv
 import io
 
 ##### config
-
 # load api key 
 load_dotenv('server/.env')
 EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
-
 # paths
 INPUT_DIR = 'server/src/data_processing/ebird_in'
 OUTPUT_DIR = 'server/src/data_processing/ebird_out'
-
 
 # fixed rows from ebird barchart files
 MONTH_ROW_INDEX = 13
@@ -26,15 +25,15 @@ DATA_START_ROW_INDEX = 16
 
 # filter config: 'Jun': [1, 2, 4] or 'Jun': 'all'
 FILTER_CONFIG = {
+        'May': [4],
         'Jun': 'all',
         'Jul': 'all',
         'Aug': 'all',
-        'Sep': 'all'
+        'Sep': [1,2]
 }
 TOP_N_VIEW = 10
 
 ##### helper functions
-
 def get_location_name(loc_id):
         ## call api to convert id -> name
         url = f"https://api.ebird.org/v2/ref/hotspot/info/{loc_id}"
@@ -74,7 +73,6 @@ def create_summary(filename, source_file, total_weight, df, used_weeks, location
                         f.write(f"{k}: {v}\n")
 
 ##### main logic
-
 def calculate_metrics(df, raw_weights, month_row):
         ### filter columns based on config
         cols_to_keep = []
@@ -132,12 +130,13 @@ def calculate_metrics(df, raw_weights, month_row):
 
         top_score = final['wtd-rf'].iloc[0] if not final.empty else 1
         final['rfpc'] = (final['wtd-rf'] / top_score) * 100
+        final['rfpc'] = final['rfpc'].fillna(0) # handle div by zero
         
         return final[['Rank', 'Species', 'wtd-rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
 
 # may not be needed anymore, still good for debug
 def process_file(filepath, filename):
-        print(f"processing {filename}...")
+        print(f"[calc] | processing {filename}...")
 
         ### read headers and sample sizes
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -196,7 +195,7 @@ def process_file(filepath, filename):
 
 # fetch location data with a login, the main idea for now
 def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
-        print(f"processing data for {loc_id}...")
+        print(f"[calc] | calculating rankings for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()
         
@@ -242,7 +241,7 @@ def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
 
                 final.to_csv(out_csv, index=False)
                 create_summary(out_txt, f"Live Data from ({loc_id})", total_weight, final, used_weeks_map, loc_name)
-                print(f" [success] | saved: {out_csv}")
+                print(f"[success] | saved: {out_csv}")
 
         # return in a frontend stlye:
         return {
@@ -252,7 +251,6 @@ def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
         }
 
 ##### standalone script
-
 if __name__ == "__main__":
         print("starting rank calculator...")
 
