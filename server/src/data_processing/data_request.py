@@ -1,93 +1,101 @@
-import requests
-from selenium import webdriver
+'''
+automated data request to eBird using Playwright for session/cookie management.
+handles login and cookie storage + grabbing data from eBird barchart websites for specific hotspots.
+'''
 
-def get_cookies():
-    # open browser for login
-    print("opening browser...")
-    driver = webdriver.Chrome()
-    driver.set_window_size(550, 650)
+##### imports
+import os
+import time
+from playwright.sync_api import sync_playwright
+from dotenv import load_dotenv
 
+load_dotenv('server/.env')
+EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
+EBIRD_USERNAME = os.getenv('EBIRD_USERNAME')
+EBIRD_PASSWORD = os.getenv('EBIRD_PASSWORD')
+SESSION_FILE = os.getenv('SESSION_FILE')
+# set to false to watch what the browsers are doing
+HEADLESS = False
+
+##### helper functions
+# check if we need to get cookies again
+def is_session_valid(browser):
+    # do the cookies exist
+    if not os.path.exists(SESSION_FILE):
+        return False
+    # if they do, try to ping a force login page and see if it redirects us
     try:
-        # go to cornell login screen
-        driver.get('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
-        
-        # wait for login and grab cookies
-        input("press [ENTER] here after signing in... >>>")
-        cookies = {c['name']: c['value'] for c in driver.get_cookies()}
-        driver.quit()
-        
-        return cookies
-        
-    except Exception as e:
-        print(f"error getting cookies: {e}")
-        driver.quit()
-        return None
-
-def fetch_data(cookies, loc, start, end):
-    
-    if not cookies: return None
-    print(f"fetching {loc} ({start}-{end})...")
-    
-    # parsing
-    url = "https://ebird.org/barchartData"
-    params = {
-        "r": loc, 
-        "byr": start, 
-        "eyr": end, 
-        "bmo": 1, 
-        "emo": 12, 
-        "fmt": "tsv"
-    }
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": "https://ebird.org/"
-    }
-    
-    try:
-        res = requests.get(url, params=params, headers=headers, cookies=cookies)
-        
-        # check if works
-        if res.status_code == 200 and "<!doctype html>" not in res.text.lower():
-            # all the data we want
-            return res.text
-        return None
-    except Exception as e:
-        print(f"request error: {e}")
-        return None
-
-# standalone script
-def main():
-    ### login
-    cookies = get_cookies()
-    if not cookies: return
-
-    ### get inputs
-    loc = input("enter location id (e.g. L901084): ").strip()
-    if not loc: return
-    
-    try:
-        print("leave years blank for all time")
-        s_in = input("start year (YYYY): ").strip()
-        e_in = input("end year (YYYY): ").strip()
-        
-        # defaults
-        s_yr = int(s_in) if s_in else 1900
-        e_yr = int(e_in) if e_in else 2025
-        
-    except ValueError:
-        print("invalid years.")
+        context = browser.new_context(storage_state=SESSION_FILE)
+        response = context.request.get("https://ebird.org/prefs")
+        if "login" in response.url:
+            return False
+        return True
+    except Exception:
+        return False
+    finally:
+        if 'context' in locals():
+            context.close()
+            
+# get new cookies via playwright
+def ensure_session(browser):
+    if is_session_valid(browser):
+        print("[cookies] | existing session ok. using saved cookies.")
         return
 
-    ### fetch and download
-    data = fetch_data(cookies, loc, s_yr, e_yr)
-    
-    if data:
-        fname = f"ebird_{loc}_{s_yr}-{e_yr}.tsv"
-        with open(fname, "w", encoding="utf-8") as f:
-            f.write(data)
-        print(f"saved to: {fname}")
-    else:
-        print("failed to download data")
+    print("[cookies] | session expired. autologging into ebird to restore cookies...")
 
-if __name__ == "__main__":
-    main()
+    context = None
+    page = None
+    try:
+        context = browser.new_context()
+        page = context.new_page()
+        page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
+
+        page.wait_for_selector('input[name="username"]', timeout=5000)
+
+        ## automated login
+        print("[playwright] | typing .env username...")
+        page.click('input[name="username"]') 
+        page.fill('input[name="username"]', EBIRD_USERNAME)
+        time.sleep(1) 
+
+        page.keyboard.press("Tab")
+
+        print("[playwright] | typing .env password...")
+        page.fill('input[name="password"]', EBIRD_PASSWORD)
+        time.sleep(1) 
+
+        page.keyboard.press("Enter")
+
+        print("[playwright] | submitted. redirecting...")
+        time.sleep(3) # wait for redirect
+
+        # save the cookies
+        context.storage_state(path=SESSION_FILE)
+        print("[cookies] | playwright login success! session saved.")
+
+    except Exception as e:
+        print(f"[error] | .env login skipped or failed: {e}")
+    finally:
+        if page: page.close()
+        if context: context.close()
+
+### main data request function
+def fetch_data(browser, loc, start, end):
+    print(f"[input] | connecting to eBird for {loc} ({start}-{end})...")
+    print("[info] | downloading data...")
+
+    context = None
+    try:
+        context = browser.new_context(storage_state=SESSION_FILE)
+        data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
+        response = context.request.get(data_url)
+        data_text = response.text()
+
+        if "<!doctype html>" in data_text.lower():
+            print("[error] | something went wrong. either bad location ID or invalid cookies.")
+            return None
+
+        return data_text
+    finally:
+        if context: context.close()
