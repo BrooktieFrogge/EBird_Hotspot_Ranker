@@ -80,7 +80,6 @@
 </template>
 
 <script setup lang="ts">
-import { BIconXCircle } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 
 const analyticsStore = useAnalyticsStore();
