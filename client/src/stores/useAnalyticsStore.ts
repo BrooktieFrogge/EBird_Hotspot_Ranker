@@ -1,21 +1,14 @@
 import { defineStore } from 'pinia'
-import type { Bird, Hotspot } from '../types'
-import axios from 'axios';
 
 export const useAnalyticsStore = defineStore('analytics', {
   state: () => ({
     // --- Hotspot selection ---
     selectedHotspotName: null as string | null,
     selectedHotspotId: null as string | null,
-    selectedHotspot: null as Hotspot | null,
     
     // --- Filters / parameters ---
-    selectedHotspotFrequency: Number,
-    selectedRegion: String,
-
-    // --- Data ---
-    hotspotData:  null as Hotspot | null,
-    topBirds: [] as Bird[],
+    hotspotFrequency: Number,
+    region: String,
 
     // --- Analytics Panels / Toggles ---
     yearRange: {
@@ -23,9 +16,11 @@ export const useAnalyticsStore = defineStore('analytics', {
       end: null as number | null,
     },
 
-    showLikelihoodCurve: false,  
+    showLikelihoodCurve: false,     // your “top birds steep dropoff graph”
     showTopBirdPhotos: true,
-    selectedBirds: [] as Bird[],
+
+    // --- Data ---
+    topBirds: [] as Array<{ species: string; likelihood: number }>,
 
 
     // --- UI-only state ---
@@ -35,50 +30,28 @@ export const useAnalyticsStore = defineStore('analytics', {
 
   getters: {
     sortedTopBirds(state) {
-      return [...state.topBirds].sort((a, b) => b.data1 - a.data1)
-    },
-
-    //TEMPORARY ============== !!! -> replace later
-    getPlacementTopBirds() {
-       const birds: Bird[] = [
-        { species: "American Robin", data1: 12, data2: 8, photo: "https://placehold.co/300x200" },
-        { species: "Mourning Dove", data1: 10, data2: 7, photo: "https://placehold.co/300x200" },
-        { species: "House Finch", data1: 9, data2: 6, photo: "https://placehold.co/300x200" },
-        { species: "Blue Jay", data1: 8, data2: 5, photo: "https://placehold.co/300x200" },
-        { species: "Northern Cardinal", data1: 7, data2: 5, photo: "https://placehold.co/300x200" },
-        { species: "Dark-eyed Junco", data1: 6, data2: 4, photo: "https://placehold.co/300x200" },
-        { species: "Black-capped Chickadee", data1: 5, data2: 4, photo: "https://placehold.co/300x200" },
-        { species: "European Starling", data1: 5, data2: 3, photo: "https://placehold.co/300x200" },
-        { species: "Red-tailed Hawk", data1: 4, data2: 2, photo: "https://placehold.co/300x200" },
-        { species: "Canada Goose", data1: 4, data2: 2, photo: "https://placehold.co/300x200" },
-      ];
-      return birds;
+      return [...state.topBirds].sort((a, b) => b.likelihood - a.likelihood)
     }
-
   },
 
   actions: {
     setHotspot(id: string) {
-      this.selectedHotspotId = id;
-      this.fetchAnalytics();
+      this.selectedHotspotId = id
+      this.fetchAnalytics()
     },
 
     setDateRange(start: number, end: number) {
-      this.yearRange.start = start;
-      this.yearRange.end = end;
-      this.fetchAnalytics();
+      this.yearRange.start = start
+      this.yearRange.end = end
+      this.fetchAnalytics()
     },
 
     toggleLikelihoodCurve() {
-      this.showLikelihoodCurve = !this.showLikelihoodCurve;
+      this.showLikelihoodCurve = !this.showLikelihoodCurve
     },
 
     toggleTopPhotos() {
-      this.showTopBirdPhotos = !this.showTopBirdPhotos;
-    },
-
-    selectBird(bird: Bird) {
-      this.selectedBirds.push(bird);
+      this.showTopBirdPhotos = !this.showTopBirdPhotos
     },
 
     async fetchAnalytics() {
@@ -89,12 +62,14 @@ export const useAnalyticsStore = defineStore('analytics', {
 
       try {
         // simulate API call
+        await new Promise(r => setTimeout(r, 400))
 
-        //have to somehow send both the hotspotId and the date range.
-        const response = await axios.get(`/api/hotspots/${this.selectedHotspotId}`); //update link
-        
-        this.selectedHotspot = response.data;
 
+        this.topBirds = [
+          { species: 'Mallard', likelihood: 0.92 },
+          { species: 'Red-tailed Hawk', likelihood: 0.55 },
+          { species: 'Black Phoebe', likelihood: 0.44 },
+        ]
       } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
       } finally {
