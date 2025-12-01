@@ -1,5 +1,6 @@
 <template>
-  <v-container class="fill-height d-flex flex-column align-center justify-center">
+  <div class="homescreen-container">
+    <!-- TOP MENU -->
     <div class="menu-grid">
      <div class="menu-item" @click="goToHotspotSearch">
         Hotspot Search
@@ -9,7 +10,72 @@
         Documentation
       </div>
     </div>
-  </v-container>
+    <!-- MAIN CONTENT-->
+    <div class="main-section">
+      <h1 style="text-align: center; padding: 20px; font-family:serif"> Welcome! </h1>
+      <p style="text-align: center; padding: 20px; font-family:serif"> </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+        <p>Lorem ipsum dolor sit amet... </p>
+
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -46,10 +112,25 @@ function openDocs() {
 
 <style scoped>
 
+.homescreen-container {
+  display: flex;
+  gap: 24px;
+  padding: 40px;
+  height: 115vh;
+  overflow: scroll;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, 180px);
   gap: 32px;
+  padding: 25px;
+  background-color: var(--color-success);
+  justify-content: center;
+  width: 1200px;
 }
 
 .menu-item {
@@ -75,5 +156,12 @@ function openDocs() {
 .menu-item:hover {
   transform: translateY(-4px);
   background-color: var(--color-muted);
+}
+
+.main-section {
+  overflow: scroll;
+  min-height: 900px;
+  width: 1200px;
+  background-color: var(--color-lightgray);
 }
 </style>
