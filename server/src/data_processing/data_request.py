@@ -14,11 +14,11 @@ EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
 EBIRD_USERNAME = os.getenv('EBIRD_USERNAME')
 EBIRD_PASSWORD = os.getenv('EBIRD_PASSWORD')
 SESSION_FILE = os.getenv('SESSION_FILE')
-# set to false to watch what the browsers are doing
+# set to false to watch what the browsers are doing - will be True in prod
 HEADLESS = False
 
 ##### helper functions
-# check if we need to get cookies again
+# check if we need to get cookies again, used for ensure_session
 def is_session_valid(browser):
     # do the cookies exist
     if not os.path.exists(SESSION_FILE):
