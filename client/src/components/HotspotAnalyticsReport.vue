@@ -48,35 +48,12 @@
 </template>
 
 <script setup lang="ts">
-interface Bird {
-  name: string;
-  data1: number;
-  data2: number;
-}
+import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 
-interface BirdPhoto {
-  name: string;
-  photo: string;
-}
+const analyticsStore = useAnalyticsStore();
+const birds = analyticsStore.getPlacementTopBirds;
 
-const birds: Bird[] = [
-  { name: "American Robin", data1: 12, data2: 8 },
-  { name: "Mourning Dove", data1: 10, data2: 7 },
-  { name: "House Finch", data1: 9, data2: 6 },
-  { name: "Blue Jay", data1: 8, data2: 5 },
-  { name: "Northern Cardinal", data1: 7, data2: 5 },
-  { name: "Dark-eyed Junco", data1: 6, data2: 4 },
-  { name: "Black-capped Chickadee", data1: 5, data2: 4 },
-  { name: "European Starling", data1: 5, data2: 3 },
-  { name: "Red-tailed Hawk", data1: 4, data2: 2 },
-  { name: "Canada Goose", data1: 4, data2: 2 },
-];
 
-const topThree: BirdPhoto[] = [
-  { name: "American Robin", photo: "https://placehold.co/300x200" },
-  { name: "Mourning Dove", photo: "https://placehold.co/300x200" },
-  { name: "House Finch", photo: "https://placehold.co/300x200" },
-];
 </script>
 
 <style scoped>
