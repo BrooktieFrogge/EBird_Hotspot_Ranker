@@ -1,37 +1,65 @@
 <template>
   <div class="analytics-container">
-    <!-- LEFT SECTION: Table -->
-    <div class="bird-table">
-      <h2 class="section-title">Top 10 Birds</h2>
+    <div class="bird-lists-container">
+      <!-- LEFT SECTION: Table -->
+      <div class="bird-table">
+        <h2 class="section-title">Top 10 Birds</h2>
 
-      <div class="table-header">
-        <div>Species</div>
-        <div>Data 1</div>
-        <div>Data 2</div>
-      </div>
-
-      <div
-        class="table-row"
-        v-for="(bird, i) in birds"
-        :key="i"
-      >
-        <div class="species-cell">
-          <span class="index">{{ i + 1 }}.</span>
-          <span>{{ bird.name }}</span>
+        <div class="table-header">
+          <div>Species</div>
+          <div>Data 1</div>
+          <div>Data 2</div>
         </div>
 
-        <div class="cell">{{ bird.data1 }}</div>
-        <div class="cell">{{ bird.data2 }}</div>
+        <div
+          class="table-row"
+          v-for="(bird, i) in birds"
+          :key="i"
+        >
+          <div class="species-cell">
+            <span class="index">{{ i + 1 }}.</span>
+            <span>{{ bird.species }}</span>
+          </div>
+
+          <div class="cell">{{ bird.data1 }}</div>
+          <div class="cell">{{ bird.data2 }}</div>
+        </div>
       </div>
+
+      <!-- CUSTOM SELECTED BIRDS -->
+      <div class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
+        <h2 class="section-title">Custom Birds</h2>
+
+        <div class="table-header">
+          <div>Species</div>
+          <div>Data 1</div>
+          <div>Data 2</div>
+        </div>
+
+        <div
+          class="table-row"
+          v-for="(bird, i) in analyticsStore.selectedBirds"
+          :key="i"
+        >
+          <div class="species-cell">
+            <span class="index">{{ i + 1 }}.</span>
+            <span>{{ bird.species }}</span>
+          </div>
+
+          <div class="cell">{{ bird.data1 }}</div>
+          <div class="cell">{{ bird.data2 }}</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- RIGHT SECTION: Photos -->
-    <div class="photo-column">
-      <h2 class="section-title">Top 3 Photos</h2>
+    <div class="photo-column" v-show="analyticsStore.showTopBirdPhotos">
+    <h2 class="section-title">Top 3 </h2>
 
       <div
         class="photo-card"
-        v-for="(bird, i) in topThree"
+        v-for="(bird, i) in birds.slice(0, 3)"
         :key="i"
       >
         <img
@@ -40,43 +68,25 @@
           alt=""
         />
         <div class="photo-caption">
-          {{ i + 1 }}. {{ bird.name }}
+          {{ i + 1 }}. {{ bird.species }}
         </div>
       </div>
     </div>
+
+
+    <!-- RIGHT SECTION: Graph -->
+
   </div>
 </template>
 
 <script setup lang="ts">
-interface Bird {
-  name: string;
-  data1: number;
-  data2: number;
-}
+import { BIconXCircle } from 'bootstrap-icons-vue';
+import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 
-interface BirdPhoto {
-  name: string;
-  photo: string;
-}
+const analyticsStore = useAnalyticsStore();
+const birds = analyticsStore.getPlacementTopBirds;
 
-const birds: Bird[] = [
-  { name: "American Robin", data1: 12, data2: 8 },
-  { name: "Mourning Dove", data1: 10, data2: 7 },
-  { name: "House Finch", data1: 9, data2: 6 },
-  { name: "Blue Jay", data1: 8, data2: 5 },
-  { name: "Northern Cardinal", data1: 7, data2: 5 },
-  { name: "Dark-eyed Junco", data1: 6, data2: 4 },
-  { name: "Black-capped Chickadee", data1: 5, data2: 4 },
-  { name: "European Starling", data1: 5, data2: 3 },
-  { name: "Red-tailed Hawk", data1: 4, data2: 2 },
-  { name: "Canada Goose", data1: 4, data2: 2 },
-];
 
-const topThree: BirdPhoto[] = [
-  { name: "American Robin", photo: "https://placehold.co/300x200" },
-  { name: "Mourning Dove", photo: "https://placehold.co/300x200" },
-  { name: "House Finch", photo: "https://placehold.co/300x200" },
-];
 </script>
 
 <style scoped>
@@ -90,8 +100,19 @@ const topThree: BirdPhoto[] = [
   overflow: scroll;
 }
 
+.bird-lists-container {
+  display: block;
+  gap: 24px;
+  height: 100vh;
+  width: 100vh;
+  background: white;
+  color: #222;
+  overflow: scroll;
+}
+
 .bird-table {
   flex: 1;
+  padding: 40px;
 }
 
 .section-title {
@@ -107,6 +128,7 @@ const topThree: BirdPhoto[] = [
   padding: 8px 0;
   border-bottom: 1px solid #e4e4e4;
 }
+
 
 .table-header {
   font-weight: 600;

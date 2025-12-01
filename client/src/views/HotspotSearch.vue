@@ -18,7 +18,6 @@ export default defineComponent({
     const router = useRouter();
 
     const navigateToHotspotDetail = () => {
-      // Example: navigate to hotspot with ID 1
       router.push({ name: 'HotspotDetail', params: { id: 1 } });
     };
 
