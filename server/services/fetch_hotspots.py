@@ -28,7 +28,13 @@ Fetch observations for a single day.
 - response filtering 
 - concurrency limiting using sempahore
 
-Returns: list of filterd checklist dictionaries including 'locId','subId','speciesCode', and 'comName'
+Returns: list of filterd checklist dictionaries including :
+-hotspot location id
+-checklist submissions id
+-observation date
+-how many of the species were seen on date in hotspot
+-species code
+-species common name
 '''
 async def get_single_day(client,hotspotID:str,d:str, attempt=1):
 
@@ -76,6 +82,9 @@ async def get_single_day(client,hotspotID:str,d:str, attempt=1):
 
 '''
 Fetch checklists for a range of dates.
+L1150539
+2025-11-02
+2025-11-12
 
 Returns: dictionary of flattened list of checklist info for hotspot
 '''
@@ -111,7 +120,6 @@ async def get_metadata(hotspotID: str):
     res = httpx.get(url,headers=headers)
     
     if res.status_code != 200:
-        print(res.status_code)
         return None
     data = res.json()
 
@@ -121,6 +129,5 @@ async def get_metadata(hotspotID: str):
         "lat" : data["latitude"],
         "lng" : data["longitude"],
         "country" : data ["countryName"],
-        "subnational1" : data ["subnational1Name"],
-        "subnational2" : data ["subnational2Name"],
+        "subnational1" : data ["subnational1Name"]
     }

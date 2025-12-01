@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from services.hotspot_search import search_hotspots, get_location_hotspots
 from services.fetch_hotspots import (get_single_day,get_dateRange,get_recent_checklists,get_metadata)
-
 from models.hotspot_models import (MetadataRes,DateRangeRes,SingleDayRes)
+import httpx
 
 '''
 Backend router for retrieving eBird hotspot checklist data.
@@ -24,7 +24,7 @@ async def location_search(query: str, Id_lookup: bool | None = None):
 async def location_hotspots_search(location_name: str,location_code:str):
     data = get_location_hotspots(location_name,location_code)
     if not data:
-        raise HTTPException(status_code=404, detail="Hotspot not found.")
+        raise HTTPException(status_code=404, detail="No Hotspots Found.")
     return {"results" : data}
 
 @router.get("/{hotspotId}/data", response_model = MetadataRes)
@@ -50,7 +50,8 @@ async def hotspot_daterange_records(hotspotId:str,start:str,end:str):
 
 @router.get("/{hotspotId}/{date}/records", response_model = SingleDayRes)
 async def hotspot_single_day_records(hotspotId:str,date:str):
-    data = await get_single_day(hotspotId,date)
+    async with httpx.AsyncClient() as client:
+        data = await get_single_day(client,hotspotId,date)
     if not data:
         raise HTTPException(status_code=404, detail="Invalid Request.")
     return {"records": data}

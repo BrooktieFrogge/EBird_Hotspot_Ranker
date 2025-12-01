@@ -53,11 +53,12 @@ Returns:
 def get_location_hotspots(loc_name: str, loc_code:str):
     condition1 = LOCATIONS['LocName'] == loc_name
     condition2 = LOCATIONS['LocCode'] == loc_code
+
     #find row with exact name
     row = LOCATIONS.loc[condition1&condition2]
     
     if row.empty:
-        return None# location not found in df
+        return None # location not found in df
     
     row = row.iloc[0]
     
@@ -71,6 +72,9 @@ def get_location_hotspots(loc_name: str, loc_code:str):
     
     #make results pretty
     hotspots_list = (loc_hotspots.rename(columns={'LocName': 'Hotspot Name','HotspotId': 'Hotspot Id','HotspotSubCode': 'Hotspot SubNatonal1 Code'})).to_dict(orient='records')
+
+    if not hotspots_list[0]['Hotspot Id']: #if no hotspots found
+        return False
     
     return hotspots_list # can be an empty list if not hotspots found
 

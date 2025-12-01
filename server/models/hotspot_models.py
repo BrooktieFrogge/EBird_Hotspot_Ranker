@@ -8,7 +8,6 @@ class MetadataRes(BaseModel):
     lng: float
     country: str
     subnational1: str
-    subnational2: str
 
 class ChecklistRecordRes(BaseModel):
     locId : str

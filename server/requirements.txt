@@ -3,9 +3,12 @@ uvicorn
 pandas
 python-dotenv
 requests
-fuzzywuzzy
+rapidfuzz
 unicodedata
 datetime
 asyncio
 selenium
 datetime
+re
+pydantic
+typing
