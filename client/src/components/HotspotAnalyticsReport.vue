@@ -1,37 +1,65 @@
 <template>
   <div class="analytics-container">
-    <!-- LEFT SECTION: Table -->
-    <div class="bird-table">
-      <h2 class="section-title">Top 10 Birds</h2>
+    <div class="bird-lists-container">
+      <!-- LEFT SECTION: Table -->
+      <div class="bird-table">
+        <h2 class="section-title">Top 10 Birds</h2>
 
-      <div class="table-header">
-        <div>Species</div>
-        <div>Data 1</div>
-        <div>Data 2</div>
-      </div>
-
-      <div
-        class="table-row"
-        v-for="(bird, i) in birds"
-        :key="i"
-      >
-        <div class="species-cell">
-          <span class="index">{{ i + 1 }}.</span>
-          <span>{{ bird.name }}</span>
+        <div class="table-header">
+          <div>Species</div>
+          <div>Data 1</div>
+          <div>Data 2</div>
         </div>
 
-        <div class="cell">{{ bird.data1 }}</div>
-        <div class="cell">{{ bird.data2 }}</div>
+        <div
+          class="table-row"
+          v-for="(bird, i) in birds"
+          :key="i"
+        >
+          <div class="species-cell">
+            <span class="index">{{ i + 1 }}.</span>
+            <span>{{ bird.species }}</span>
+          </div>
+
+          <div class="cell">{{ bird.data1 }}</div>
+          <div class="cell">{{ bird.data2 }}</div>
+        </div>
       </div>
+
+      <!-- CUSTOM SELECTED BIRDS -->
+      <div class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
+        <h2 class="section-title">Custom Birds</h2>
+
+        <div class="table-header">
+          <div>Species</div>
+          <div>Data 1</div>
+          <div>Data 2</div>
+        </div>
+
+        <div
+          class="table-row"
+          v-for="(bird, i) in analyticsStore.selectedBirds"
+          :key="i"
+        >
+          <div class="species-cell">
+            <span class="index">{{ i + 1 }}.</span>
+            <span>{{ bird.species }}</span>
+          </div>
+
+          <div class="cell">{{ bird.data1 }}</div>
+          <div class="cell">{{ bird.data2 }}</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- RIGHT SECTION: Photos -->
-    <div class="photo-column">
-      <h2 class="section-title">Top 3 Photos</h2>
+    <div class="photo-column" v-show="analyticsStore.showTopBirdPhotos">
+    <h2 class="section-title">Top 3 </h2>
 
       <div
         class="photo-card"
-        v-for="(bird, i) in topThree"
+        v-for="(bird, i) in birds.slice(0, 3)"
         :key="i"
       >
         <img
@@ -40,10 +68,14 @@
           alt=""
         />
         <div class="photo-caption">
-          {{ i + 1 }}. {{ bird.name }}
+          {{ i + 1 }}. {{ bird.species }}
         </div>
       </div>
     </div>
+
+
+    <!-- RIGHT SECTION: Graph -->
+
   </div>
 </template>
 
@@ -67,8 +99,19 @@ const birds = analyticsStore.getPlacementTopBirds;
   overflow: scroll;
 }
 
+.bird-lists-container {
+  display: block;
+  gap: 24px;
+  height: 100vh;
+  width: 100vh;
+  background: white;
+  color: #222;
+  overflow: scroll;
+}
+
 .bird-table {
   flex: 1;
+  padding: 40px;
 }
 
 .section-title {
@@ -84,6 +127,7 @@ const birds = analyticsStore.getPlacementTopBirds;
   padding: 8px 0;
   border-bottom: 1px solid #e4e4e4;
 }
+
 
 .table-header {
   font-weight: 600;
@@ -128,3 +172,4 @@ const birds = analyticsStore.getPlacementTopBirds;
   text-align: center;
 }
 </style>
+
