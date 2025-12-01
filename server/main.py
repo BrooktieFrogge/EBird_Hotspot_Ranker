@@ -20,6 +20,8 @@ app.add_middleware(
 
 # app.include_router(rankings.router)
 app.include_router(hotspots.router)
+app.include_router(rankings.router)
+
 
 @app.get("/")
 def main():

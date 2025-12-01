@@ -15,8 +15,8 @@ import io
 load_dotenv('server/.env')
 EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
 # paths
-INPUT_DIR = 'server/src/data_processing/ebird_in'
-OUTPUT_DIR = 'server/src/data_processing/ebird_out'
+INPUT_DIR = 'server/data/ebird_in'
+OUTPUT_DIR = 'server/data/ebird_out'
 
 # fixed rows from ebird barchart files
 MONTH_ROW_INDEX = 13
@@ -249,25 +249,3 @@ def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
                 "total_sample_size": total_weight,
                 "data": final.to_dict('records') # converts df to a list of dicts
         }
-
-##### standalone script
-if __name__ == "__main__":
-        print("starting rank calculator...")
-
-        # make sure output dir exists
-        if not os.path.exists(OUTPUT_DIR):
-                os.makedirs(OUTPUT_DIR)
-                print(f"[info] | created output directory: {OUTPUT_DIR}")
-
-        # find text files in the input directory
-        if not os.path.exists(INPUT_DIR):
-                print(f"[error] | {INPUT_DIR} does not exist.")
-        else:
-                files = [f for f in os.listdir(INPUT_DIR) if f.startswith('ebird_') and f.endswith('.txt')]
-
-                if not files:
-                        print(f"[error] | no files found in {INPUT_DIR}")
-        
-                for f in files:
-                        full_path = os.path.join(INPUT_DIR, f)
-                        process_file(full_path, f)

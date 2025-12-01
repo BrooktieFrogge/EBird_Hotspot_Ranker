@@ -1,77 +1,126 @@
-from fuzzywuzzy import process
+from rapidfuzz import process, fuzz
 import pandas as pd
 import unicodedata
-import json
-'''
-API for dynamically searching eBird hotspot locations using fuzzy matching.
+import re
 
-This feature works by loading three CSV datasets containing region specific information, normalizing the names to remove accents and special characters to produce autocomplete/correction matching using Levenshtein Distance, and exposing a single API endpoint for searching by name.
 '''
+API for dynamically searching eBird hotspot locations using rapidfuzz matching.
 
+This feature works by loading three CSV datasets and a custom JSON file containing region and hotspot specific information, normalizing the names to remove accents and special characters to produce autocomplete/correction matching using Levenshtein Distance, and exposing two  API endpoints for searching by name or hotspot location id.
+'''
 
 #DATA LOADING=======================================================
 countryInfo = pd.read_csv('server/data/countries-Table 1.csv')
 sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv')
 sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv')
 
+#loading hotspot specific info
+hotspotInfo = pd.read_json('server/data/hotspot_names_and_IDs.json')
+       
 #combine name columns into one series
-locationNames = pd.concat([countryInfo['country_name'],sub1Info['subnational1_name'],sub2Info['subnational2_name']],ignore_index=True)
+locationNames = pd.concat([hotspotInfo['locName'],countryInfo['country_name'],sub1Info['subnational1_name'],sub2Info['subnational2_name']],ignore_index=True)
 
-#combine the ID columns in the same order
-locationIDs = pd.concat([countryInfo['country_code'],sub1Info['subnational1_code'],sub2Info['subnational2_code']],ignore_index=True)
+#combine the region codes columns in the same order
+locationCodes = pd.concat([hotspotInfo['countryCode'],countryInfo['country_code'],sub1Info['subnational1_code'],sub2Info['subnational2_code']],ignore_index=True)
 
-#create a dataframe of locations names and ids for easy lookup
-LOCATIONS = pd.DataFrame({'LocName':locationNames,'LocID':locationIDs})
+#add the loc id columns for hotspots
+hotspotIds = pd.concat([hotspotInfo['locId'],pd.Series([None]* (len(locationNames) - len(hotspotInfo)))],ignore_index=True)
+
+#add the subnat1 codes columns for hotspots
+hotspotSubCodes = pd.concat([hotspotInfo['subnational1Code'],pd.Series([None]* (len(locationNames) - len(hotspotInfo)))],ignore_index=True)
+
+#create a LOCATIONS of locations names and ids for easy lookup
+LOCATIONS = pd.DataFrame({'LocName':locationNames,'LocCode':locationCodes,'HotspotId':hotspotIds, "HotspotSubCode":hotspotSubCodes})
 
 '''
-Normalize text by removing accents and converting to basic ASCII characters
+Normalize text by removing accents, converting to basic ASCII characters, lowercasing, and triming whitespace
 
-Returns: Normalized string without accents/special characters
+Returns: Normalized string for rapidfuzz matching
 '''
 def normalize(text:str):
-     text  = unicodedata.normalize('NFKD',text)
-     text  = ''.join([c for c in text if not unicodedata.combining(c)])
-     return text.lower().strip()
+     lower_c  = text.lower()
+     no_accents  = unicodedata.normalize('NFKD', lower_c).encode('ascii','ignore').decode()
+     no_punct = re.sub(r'[^\w\s]',' ',no_accents)
+     return no_punct
 
-"""
-Searches the location dataset using fuzzy matching. Endpoint normalizes the user's query, normalizes all location names, and performs fuzzy match to find the top 20 best matches.
-
-Returns: List of dictionaries wiht location Name + ID pairs for the matched rows - takes in either a locId or a locName and return correct info
-
-"""
-def search_hotspots(query:str, id = False):
-    results = []
-    if not id:
-        # normalize query 
-        query = query.lower().strip()
-        
-        # make  normalized version of dataset for matching
-        normalized_locs = [normalize(name) for name in LOCATIONS['LocName']]
-
-        # extract the top 20 fuzzy wuzzy matches
-        fuzzy_matches = process.extract(query, normalized_locs,limit=20)
-
-        #ignore match scores, note: matches are in order of best match score
-        matches = [val[0].lower() for val in fuzzy_matches]
-
-        # match normalized names back to original names and ids
-        for norm in matches:
-            for orig_name,loc_id in zip(LOCATIONS["LocName"],LOCATIONS["LocID"]):
-                if normalize(orig_name) == norm:
-                    results.append({"name":orig_name, "id":loc_id})
-                    break 
-
-        return results
+'''
+loc_name: exact location name (country/subnational)
+Returns:
+-List of dicts with hotspot info that are in that region
+-None if no location found
+-Message if location given is a hotspot.
+'''
+def get_location_hotspots(loc_name: str, loc_code:str):
+    condition1 = LOCATIONS['LocName'] == loc_name
+    condition2 = LOCATIONS['LocCode'] == loc_code
+    #find row with exact name
+    row = LOCATIONS.loc[condition1&condition2]
     
-    else:
-        with open('server/data/hotspot_names_and_IDs.json','r') as f:
-            hotspots = json.load(f)
+    if row.empty:
+        return None# location not found in df
+    
+    row = row.iloc[0]
+    
+    # case A: row is a hotspot
+    if row['HotspotId'] != None:
+        return "[Location given was a Hotspot. Enter Exact Country or Subnational Name for Results]"
+    #case B: row is not a hotspot - find all hotspots with the same location  code
+    loc_hotspots = LOCATIONS.loc[
+            (LOCATIONS['LocCode'] == loc_code)|(LOCATIONS['HotspotSubCode'] == loc_code) & (LOCATIONS['HotspotId'].notna()),['LocName','HotspotId','HotspotSubCode']
+        ]
+    
+    #make results pretty
+    hotspots_list = (loc_hotspots.rename(columns={'LocName': 'Hotspot Name','HotspotId': 'Hotspot Id','HotspotSubCode': 'Hotspot SubNatonal1 Code'})).to_dict(orient='records')
+    
+    return hotspots_list # can be an empty list if not hotspots found
 
-        for h in hotspots:
-            if h["locId"] == query:
-                return h
-    return []
+"""
+query : user serach input (text or exact hotspot id)
 
-'''
-make methods that given the exact region name returns locid, and given list of hotspots in that region - change names to reflect hotspot vs locid vs region search 
-'''
+id_lookup : if True, treat query as hotspot id (locId)
+
+Returns: list, string, or None
+- if query is an id lookup : return name of hotspot of None if not found
+- if query is name search: return a list of dicts including fuzzy matched REGIONS and hotspots (including hotspot ids) 
+"""
+def search_hotspots(query:str, id_lookup: bool  = False, limit:int = 10):
+    results = []
+
+    # id look up - return exact hotspot name
+    if id_lookup:
+        row = LOCATIONS.loc[LOCATIONS['HotspotId'] == query]
+        if row.empty:
+            return None
+        return row.iloc[0]['LocName']
+    
+    # normalize query 
+    norm_query = normalize(query)
+
+    # make  normalized version of dataset for matching
+    LOCATIONS['NormName'] = LOCATIONS['LocName'].apply(normalize)
+    # extract the top rapidfuzz matches (# specified by optional limit parameter)
+    fuzzy_matches = process.extract(norm_query,LOCATIONS['NormName'].to_dict().values(), scorer=fuzz.ratio, limit=limit) # use dict to get index values
+
+    if not fuzzy_matches:
+        return None
+
+    # process each match
+    ## match normalized names back to original names and ids
+    for match, score, idx in fuzzy_matches:
+        row = LOCATIONS.iloc[idx] # get original row
+       
+        hotspot_id = row['HotspotId']
+
+        # case A: this row is a hotspot, append the name and id
+        if pd.notna(hotspot_id):
+            loc_name = row['LocName']
+            results.append({"hotspot name": loc_name, "hotspot id": hotspot_id})
+            continue
+
+        loc_name = row['LocName']
+        loc_code = row['LocCode']
+        #case B: not a hotspot, append name and loc code
+        results.append({"location name" : loc_name, "location code" : loc_code})
+
+    return results 
+

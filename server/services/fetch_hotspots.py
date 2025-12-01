@@ -8,15 +8,8 @@ headers = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 SEMAPHORE = asyncio.Semaphore(5)
 
 '''
-Returns eBird hotspot checklist info for a given daterange
-
-If no date range is provided => default to the entire dataset (1900-present)
-
-Example Args: 
-
-L1150539 -hotspotID (required)
-2017-06-01 - start date
-2017-08-30 - end date
+Returns recent (prev 30 days) eBird hotspot checklist info
+ex. input: L1150539 -hotspotID
 
 Returns: dictionary of checklist data for the specified hotspot
 '''
@@ -108,6 +101,10 @@ async def get_dateRange(hotspotID:str,startDate:str,endDate:str):
 
     return flattened_results
 
+'''
+Fetch additional data about a specific hotspot
+'''
+
 async def get_metadata(hotspotID: str):
     url = f"https://api.ebird.org/v2/ref/hotspot/info/{hotspotID}"
 
@@ -127,8 +124,3 @@ async def get_metadata(hotspotID: str):
         "subnational1" : data ["subnational1Name"],
         "subnational2" : data ["subnational2Name"],
     }
-
-
-
-
-    
