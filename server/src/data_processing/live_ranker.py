@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 SAVE_FILE = True
 
 ##### helper functions
-# load locations from a text file
+# load locations from a text file line by line
 def load_locations(filepath=None):
     if filepath is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -36,6 +36,7 @@ def create_locations():
         if loc_input in ('DONE', 'Q'):
             break
         
+        # error check for L#### format
         if loc_input.startswith('L') and loc_input[1:].isdigit():
             location_list.append(loc_input)
         elif loc_input:
