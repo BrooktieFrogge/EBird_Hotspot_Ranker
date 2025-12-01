@@ -25,4 +25,4 @@ class SingleDayRes(BaseModel):
     records : List[ChecklistRecordRes]
 
 class HotspotSearchRes(BaseModel):
-    hotspots : List[str]
+    results : List[str]

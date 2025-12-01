@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 import os
-from services.ranking_engine.live_ranker import BROWSER
-from services.ranking_engine.fetch_barcharts import fetch_data
+from services.ranking_engine.data_processing import  get_rankings
 
 '''
 Backend router for retrieving eBird hotspot ranking data.
@@ -13,11 +12,11 @@ router = APIRouter(
 
 SESSION_FILE = os.getenv('SESSION_FILE')
 
-### main data request function
-        ##need error handling for dates
+### TODO: add option to input # weeks 
+    
 @router.get('/ranking/{loc}/{start}/{end}')
-async def fetch_ranking_data(loc: str, start: str | None = None, end:str | None = None):
-    data = fetch_data(loc,start,end)
+def fetch_ranking_data(loc: str, start_yr: str | None = None, end_yr:str | None = None):
+    data = get_rankings(loc,start_yr,end_yr)
     if not data:
-        raise HTTPException(status_code=404, detail="[error] | something went wrong. either bad location ID or invalid cookies.")
-    return {"ranking" : data}
+        raise HTTPException(status_code=404, detail="[error] | Something went wrong. Either bad location ID or invalid cookies.")
+    return {"Results" : data}

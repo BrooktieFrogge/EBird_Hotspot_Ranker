@@ -8,7 +8,6 @@ import os
 import time
 from playwright.sync_api import sync_playwright
 from dotenv import load_dotenv
-from services.ranking_engine.live_ranker import BROWSER
 
 load_dotenv('server/.env')
 EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
@@ -20,7 +19,7 @@ HEADLESS = False
 
 ##### helper functions
 # check if we need to get cookies again
-def is_session_valid():
+def is_session_valid(BROWSER):
     # do the cookies exist
     if not os.path.exists(SESSION_FILE):
         return False
@@ -38,8 +37,8 @@ def is_session_valid():
             context.close()
             
 # get new cookies via playwright
-def ensure_session():
-    if is_session_valid():
+def ensure_session(BROWSER):
+    if is_session_valid(BROWSER):
         print("[cookies] | existing session ok. using saved cookies.")
         return
 
@@ -81,7 +80,7 @@ def ensure_session():
         if page: page.close()
         if context: context.close()
 
-def fetch_data(loc: str, start: str, end:str):
+def fetch_data(BROWSER, loc, start, end):
     print(f"[input] | connecting to eBird for {loc} ({start}-{end})...")
     print("[info] | downloading data...")
 
