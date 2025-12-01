@@ -9,7 +9,7 @@ import os
 from playwright.sync_api import sync_playwright
 
 ### config
-SAVE_FILE = True
+SAVE_FILE = False
 
 ##### helper functions
 # load locations from a text file line by line
