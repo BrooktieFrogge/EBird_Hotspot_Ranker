@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL: Hotspot Cards -->
+    <!-- RIGHT PANEL: Hotspot Cards (scrollable) -->
     <div class="results">
       <div class="cards-container">
         <HotspotCard
@@ -56,11 +56,9 @@
           :name="hotspot.name"
           :region="hotspot.region"
           :location="hotspot.location"
-          :peak-season="hotspot.peakSeason"
           :color-class="hotspot.colorClass"
           :species-count="hotspot.speciesCount"
           :checklist-count="hotspot.checklistCount"
-          :top-birds="hotspot.topBirds"
           :is-saved="hotspot.isSaved"
           @click="goToHotspotDetail"
         />
@@ -82,11 +80,9 @@ interface Hotspot {
   name: string;
   region: string;
   location: string;
-  peakSeason: string;
-  colorClass: string;
+  colorClass: string;       // eBird-style intensity / color classification
   speciesCount: number;
   checklistCount: number;
-  topBirds: string[];
   isSaved: boolean;
 }
 
@@ -119,23 +115,19 @@ export default defineComponent({
           name: 'City Park Lake',
           region: 'Colorado Front Range',
           location: 'Denver, CO',
-          peakSeason: 'April–May',
           colorClass: '#4caf50',
-          speciesCount: 180,
-          checklistCount: 1200,
-          topBirds: ['American Robin', 'Mallard', 'House Finch'],
+          speciesCount: 185,
+          checklistCount: 1320,
           isSaved: true,
         },
         {
           id: 2,
-          name: 'Wetlands Reserve',
+          name: 'Metropolitan Wastewater Ponds',
           region: 'Colorado Front Range',
           location: 'Brighton, CO',
-          peakSeason: 'May–June',
           colorClass: '#ff9800',
           speciesCount: 210,
-          checklistCount: 900,
-          topBirds: ['Red-winged Blackbird', 'American Avocet', 'Killdeer'],
+          checklistCount: 980,
           isSaved: false,
         },
         {
@@ -143,11 +135,129 @@ export default defineComponent({
           name: 'Mountain Trailhead',
           region: 'Rocky Mountains',
           location: 'Estes Park, CO',
-          peakSeason: 'June–July',
           colorClass: '#2196f3',
-          speciesCount: 160,
-          checklistCount: 400,
-          topBirds: ["Steller's Jay", 'Mountain Chickadee', "Clark's Nutcracker"],
+          speciesCount: 162,
+          checklistCount: 430,
+          isSaved: false,
+        },
+        {
+          id: 4,
+          name: 'Highline Canal Preserve',
+          region: 'Colorado Front Range',
+          location: 'Littleton, CO',
+          colorClass: '#8bc34a',
+          speciesCount: 145,
+          checklistCount: 720,
+          isSaved: false,
+        },
+        {
+          id: 5,
+          name: 'Cherry Creek Reservoir',
+          region: 'Colorado Front Range',
+          location: 'Aurora, CO',
+          colorClass: '#f44336',
+          speciesCount: 230,
+          checklistCount: 1500,
+          isSaved: false,
+        },
+        {
+          id: 6,
+          name: 'Prairie Grasslands WMA',
+          region: 'Eastern Plains',
+          location: 'Limon, CO',
+          colorClass: '#ffeb3b',
+          speciesCount: 120,
+          checklistCount: 260,
+          isSaved: false,
+        },
+        {
+          id: 7,
+          name: 'Foothills Ridge Overlook',
+          region: 'Foothills',
+          location: 'Golden, CO',
+          colorClass: '#03a9f4',
+          speciesCount: 134,
+          checklistCount: 510,
+          isSaved: false,
+        },
+        {
+          id: 8,
+          name: 'Wetland Education Boardwalk',
+          region: 'Colorado Front Range',
+          location: 'Fort Collins, CO',
+          colorClass: '#9c27b0',
+          speciesCount: 168,
+          checklistCount: 640,
+          isSaved: false,
+        },
+        {
+          id: 9,
+          name: 'Lakeside Migrant Stopover',
+          region: 'Western Slope',
+          location: 'Grand Junction, CO',
+          colorClass: '#ff7043',
+          speciesCount: 142,
+          checklistCount: 380,
+          isSaved: false,
+        },
+        {
+          id: 10,
+          name: 'Alpine Tundra Pullout',
+          region: 'Rocky Mountains',
+          location: 'Trail Ridge Road, CO',
+          colorClass: '#607d8b',
+          speciesCount: 95,
+          checklistCount: 190,
+          isSaved: false,
+        },
+        {
+          id: 11,
+          name: 'Urban Creek Greenway',
+          region: 'Colorado Front Range',
+          location: 'Boulder, CO',
+          colorClass: '#4caf50',
+          speciesCount: 157,
+          checklistCount: 820,
+          isSaved: false,
+        },
+        {
+          id: 12,
+          name: 'Reservoir Overlook Parking Lot',
+          region: 'Western Slope',
+          location: 'Durango, CO',
+          colorClass: '#ffb300',
+          speciesCount: 132,
+          checklistCount: 340,
+          isSaved: false,
+        },
+        {
+          id: 13,
+          name: 'Riverbottom Cottonwood Grove',
+          region: 'Western Slope',
+          location: 'Montrose, CO',
+          colorClass: '#8bc34a',
+          speciesCount: 158,
+          checklistCount: 410,
+          isSaved: false,
+        },
+        {
+          id: 14,
+          name: 'County Landfill Scrub',
+          region: 'Eastern Plains',
+          location: 'Burlington, CO',
+          colorClass: '#ff5722',
+          speciesCount: 110,
+          checklistCount: 220,
+          isSaved: false,
+        },
+        {
+          id: 15,
+          name: 'Riverside Campground Loop',
+          region: 'Rocky Mountains',
+          location: 'Salida, CO',
+          colorClass: '#03a9f4',
+          speciesCount: 140,
+          checklistCount: 360,
           isSaved: false,
         },
       ];
@@ -175,7 +285,8 @@ export default defineComponent({
     };
 
     const redirectToWelcomeScreen = () => {
-      router.push({ name: 'HomeScreen' });
+      // adjust this route name to match your actual home route
+      router.push({ name: 'WelcomeScreen' });
     };
 
     onMounted(() => {
@@ -203,6 +314,7 @@ export default defineComponent({
   background: #fafafa;
   color: #222;
   font-family: Arial, sans-serif;
+  overflow: hidden; /* so only panels scroll, not whole page */
 }
 
 /* LEFT PANEL */
@@ -212,6 +324,7 @@ export default defineComponent({
   border-right: 1px solid #ddd;
   box-sizing: border-box;
   background: #fafafa;
+  overflow-y: auto; /* left panel can scroll if needed */
 }
 
 /* Buttons container  */
@@ -227,7 +340,6 @@ export default defineComponent({
   padding-inline: 40px;
   padding-bottom: 20px;
 }
-
 
 .back-button-wrapper {
   display: flex;
@@ -287,11 +399,13 @@ export default defineComponent({
   padding: 20px;
   box-sizing: border-box;
   background: white;
+  overflow-y: auto; /* scrollable card area */
 }
 
 .cards-container {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  align-content: flex-start;
 }
 </style>
