@@ -69,7 +69,7 @@ export default defineComponent({
     colorClass: {
       type: String,
       required: false,
-      default: '#4caf50', // default color
+      default: '#4caf50', 
     },
     speciesCount: {
       type: Number,
