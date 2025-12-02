@@ -1,9 +1,19 @@
 <template>
   <div class="hotspot-search">
 
-    <!-- Left panel: filters -->
+    <!-- LEFT PANEL -->
     <div class="filters">
-      <h1>Hotspot Browser</h1>
+
+      <!-- Buttons container  -->
+      <div class="buttons-container">
+        <div id="home-button" @click="redirectToWelcomeScreen">
+          <div class="back-button-wrapper">
+            <BIconHouseFill />
+          </div>
+        </div>
+      </div>
+
+      <h1 class="panel-title">Hotspot Browser</h1>
 
       <!-- Text search -->
       <div class="filter-group">
@@ -31,14 +41,12 @@
         </select>
       </div>
 
-      <!-- More filters here later -->
-
       <div class="filter-summary">
         Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
       </div>
     </div>
 
-    <!-- Right panel: hotspot cards -->
+    <!-- RIGHT PANEL: Hotspot Cards -->
     <div class="results">
       <div class="cards-container">
         <HotspotCard
@@ -62,11 +70,12 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
-
+import { BIconHouseFill } from 'bootstrap-icons-vue';
 
 interface Hotspot {
   id: number | string;
@@ -74,7 +83,7 @@ interface Hotspot {
   region: string;
   location: string;
   peakSeason: string;
-  colorClass: string; // could map to eBird colors
+  colorClass: string;
   speciesCount: number;
   checklistCount: number;
   topBirds: string[];
@@ -86,12 +95,12 @@ export default defineComponent({
 
   components: {
     HotspotCard,
+    BIconHouseFill,
   },
 
   setup() {
     const router = useRouter();
 
-    // state
     const hotspots = ref<Hotspot[]>([]);
     const searchQuery = ref('');
     const selectedRegion = ref('');
@@ -102,10 +111,8 @@ export default defineComponent({
       return Array.from(set).sort();
     });
 
-    // Load all hotspots once (replace this with a real API call)
+    // Load hotspot data (replace with API later)
     const loadHotspots = async () => {
-    
-
       hotspots.value = [
         {
           id: 1,
@@ -140,13 +147,12 @@ export default defineComponent({
           colorClass: '#2196f3',
           speciesCount: 160,
           checklistCount: 400,
-          topBirds: ['Steller\'s Jay', 'Mountain Chickadee', 'Clark\'s Nutcracker'],
+          topBirds: ["Steller's Jay", 'Mountain Chickadee', "Clark's Nutcracker"],
           isSaved: false,
         },
       ];
     };
 
-    // Filtering logic (runs in memory, 1 API call total)
     const filteredHotspots = computed(() => {
       const q = searchQuery.value.trim().toLowerCase();
       const region = selectedRegion.value;
@@ -168,6 +174,10 @@ export default defineComponent({
       router.push({ name: 'HotspotDetail', params: { id } });
     };
 
+    const redirectToWelcomeScreen = () => {
+      router.push({ name: 'HomeScreen' });
+    };
+
     onMounted(() => {
       loadHotspots();
     });
@@ -179,44 +189,69 @@ export default defineComponent({
       availableRegions,
       filteredHotspots,
       goToHotspotDetail,
+      redirectToWelcomeScreen,
     };
   },
 });
 </script>
 
+
 <style scoped>
 .hotspot-search {
   display: flex;
-  height: 100%;
-  min-height: 100vh;
-  background-color: #121212;
-  color: #f5f5f5;
-}
-
-/* Left panel – filters */
-.hotspot-search {
-  display: flex;
-  height: 100%;
-  min-height: 100vh;
-  background-color: #D09B2C; /* white background */
-  color: #000000; /* black text */
+  height: 100vh;
+  background: #fafafa;
+  color: #222;
   font-family: Arial, sans-serif;
 }
 
-/* Left panel – filters */
+/* LEFT PANEL */
 .filters {
   width: 280px;
-  padding: 20px;
-  border-right: 1px solid #d0d0d0; /* light gray line */
+  padding: 16px;
+  border-right: 1px solid #ddd;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background: #fafafa;
 }
 
-.filters h1 {
-  margin-top: 0;
-  font-size: 1.4rem;
-  margin-bottom: 16px;
-  color: #D09B2C; /* yello text */
+/* Buttons container  */
+.buttons-container {
+  display: flex;
+  justify-content: center; /* center home button */
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  border-top: 1px solid #ffffffc9;
+  border-bottom: 1px solid #ffffffc9;
+  padding-top: 20px;
+  padding-inline: 40px;
+  padding-bottom: 20px;
+}
+
+
+.back-button-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid #000000;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.back-button-wrapper:hover {
+  background-color: #d2d2d2;
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .filter-group {
@@ -228,7 +263,7 @@ export default defineComponent({
 .filter-group label {
   font-size: 0.9rem;
   margin-bottom: 4px;
-  color: #D09B2C; /* yellow */
+  color: #333;
 }
 
 .filter-group input,
@@ -238,27 +273,25 @@ export default defineComponent({
   border: 1px solid #bfbfbf;
   background-color: #ffffff;
   color: #000000;
-  font-size: 0.9rem;
 }
 
 .filter-summary {
   margin-top: 8px;
-  font-size: 0.8rem;
-  color: #D09B2C;
+  font-size: 0.85rem;
+  color: #555;
 }
 
-/* Right panel – results */
+/* RIGHT PANEL */
 .results {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background: white;
 }
 
 .cards-container {
   display: flex;
   flex-wrap: wrap;
-  background-color: #ffffff;
-
+  gap: 16px;
 }
 </style>
