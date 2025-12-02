@@ -198,7 +198,7 @@ export default defineComponent({
   display: flex;
   height: 100%;
   min-height: 100vh;
-  background-color: #ffffff; /* white background */
+  background-color: #D09B2C; /* white background */
   color: #000000; /* black text */
   font-family: Arial, sans-serif;
 }
@@ -216,7 +216,7 @@ export default defineComponent({
   margin-top: 0;
   font-size: 1.4rem;
   margin-bottom: 16px;
-  color: #000000; /* black text */
+  color: #D09B2C; /* yello text */
 }
 
 .filter-group {
@@ -228,7 +228,7 @@ export default defineComponent({
 .filter-group label {
   font-size: 0.9rem;
   margin-bottom: 4px;
-  color: #333333; /* dark gray */
+  color: #D09B2C; /* yellow */
 }
 
 .filter-group input,
@@ -244,7 +244,7 @@ export default defineComponent({
 .filter-summary {
   margin-top: 8px;
   font-size: 0.8rem;
-  color: #555555;
+  color: #D09B2C;
 }
 
 /* Right panel – results */
@@ -258,5 +258,7 @@ export default defineComponent({
 .cards-container {
   display: flex;
   flex-wrap: wrap;
+  background-color: #ffffff;
+
 }
 </style>
