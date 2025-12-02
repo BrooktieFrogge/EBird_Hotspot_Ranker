@@ -114,7 +114,7 @@ export default defineComponent({
   border: 1px solid #296239;
   border-radius: 12px;
   padding: 10px;
-  max-width: 260px;
+  max-width: 290px;
   font-family: Arial, sans-serif;
   box-shadow: 0 0 8px 1px #0e0e0e;
   cursor: pointer;
@@ -141,7 +141,7 @@ h3 {
 }
 
 .label {
-  min-width: 90px;
+  min-width: 300px;
   color: #aaa;
 }
 

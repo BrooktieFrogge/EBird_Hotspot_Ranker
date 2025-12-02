@@ -6,7 +6,7 @@
 
       <!-- Buttons container  -->
       <div class="buttons-container">
-        <div id="home-button" @click="redirectToWelcomeScreen">
+        <div id="home-button" @click="redirectToHomeScreen">
           <div class="back-button-wrapper">
             <BIconHouseFill />
           </div>
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL: Hotspot Cards (scrollable) -->
+    <!-- MIDDLE PANEL: Hotspot Cards (scrollable) -->
     <div class="results">
       <div class="cards-container">
         <HotspotCard
@@ -60,8 +60,63 @@
           :species-count="hotspot.speciesCount"
           :checklist-count="hotspot.checklistCount"
           :is-saved="hotspot.isSaved"
-          @click="goToHotspotDetail"
+          @click="selectHotspot(hotspot)"
         />
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Selected Hotspot Summary -->
+    <div class="summary-panel">
+      <div class="summary-header">
+        <h2 v-if="selectedHotspot">Selected Hotspot</h2>
+        <h2 v-else>No Hotspot Selected</h2>
+      </div>
+
+      <div class="summary-body" v-if="selectedHotspot">
+        <div class="summary-name">
+          {{ selectedHotspot.name }}
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Region:</span>
+          <span class="summary-value">{{ selectedHotspot.region }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Location:</span>
+          <span class="summary-value">{{ selectedHotspot.location }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Species count:</span>
+          <span class="summary-value">{{ selectedHotspot.speciesCount }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Checklists:</span>
+          <span class="summary-value">{{ selectedHotspot.checklistCount }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Saved:</span>
+          <span class="summary-value">
+            {{ selectedHotspot.isSaved ? 'Yes' : 'No' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="summary-body" v-else>
+        <p>Select a hotspot card to see details here.</p>
+      </div>
+
+      <div class="summary-footer">
+        <button
+          class="detail-button"
+          @click="goToSelectedHotspotDetail"
+          :disabled="!selectedHotspot"
+        >
+          Go to hotspot detail
+        </button>
       </div>
     </div>
 
@@ -100,6 +155,7 @@ export default defineComponent({
     const hotspots = ref<Hotspot[]>([]);
     const searchQuery = ref('');
     const selectedRegion = ref('');
+    const selectedHotspot = ref<Hotspot | null>(null);
 
     const availableRegions = computed(() => {
       const set = new Set<string>();
@@ -148,7 +204,7 @@ export default defineComponent({
           colorClass: '#8bc34a',
           speciesCount: 145,
           checklistCount: 720,
-          isSaved: false,
+          isSaved: true,
         },
         {
           id: 5,
@@ -178,7 +234,7 @@ export default defineComponent({
           colorClass: '#03a9f4',
           speciesCount: 134,
           checklistCount: 510,
-          isSaved: false,
+          isSaved: true,
         },
         {
           id: 8,
@@ -218,7 +274,7 @@ export default defineComponent({
           colorClass: '#4caf50',
           speciesCount: 157,
           checklistCount: 820,
-          isSaved: false,
+          isSaved: true,
         },
         {
           id: 12,
@@ -258,7 +314,7 @@ export default defineComponent({
           colorClass: '#03a9f4',
           speciesCount: 140,
           checklistCount: 360,
-          isSaved: false,
+          isSaved: true,
         },
       ];
     };
@@ -280,13 +336,17 @@ export default defineComponent({
       });
     });
 
-    const goToHotspotDetail = (id: number | string) => {
-      router.push({ name: 'HotspotDetail', params: { id } });
+    const selectHotspot = (hotspot: Hotspot) => {
+      selectedHotspot.value = hotspot;
     };
 
-    const redirectToWelcomeScreen = () => {
-      // adjust this route name to match your actual home route
-      router.push({ name: 'WelcomeScreen' });
+    const goToSelectedHotspotDetail = () => {
+      if (!selectedHotspot.value) return;
+      router.push({ name: 'HotspotDetail', params: { id: selectedHotspot.value.id } });
+    };
+
+    const redirectToHomeScreen = () => {
+      router.push({ name: 'HomeScreen' });
     };
 
     onMounted(() => {
@@ -299,8 +359,10 @@ export default defineComponent({
       selectedRegion,
       availableRegions,
       filteredHotspots,
-      goToHotspotDetail,
-      redirectToWelcomeScreen,
+      selectedHotspot,
+      selectHotspot,
+      goToSelectedHotspotDetail,
+      redirectToHomeScreen,
     };
   },
 });
@@ -393,9 +455,9 @@ export default defineComponent({
   color: #555;
 }
 
-/* RIGHT PANEL */
+/* MIDDLE PANEL: cards */
 .results {
-  flex: 1;
+  flex: 1.5;
   padding: 20px;
   box-sizing: border-box;
   background: white;
@@ -407,5 +469,82 @@ export default defineComponent({
   flex-wrap: wrap;
   gap: 16px;
   align-content: flex-start;
+}
+
+/* RIGHT PANEL: summary */
+.summary-panel {
+  width: 320px;
+  border-left: 1px solid #ddd;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+}
+
+.summary-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.summary-body {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0 0 0px 0;
+}
+
+.summary-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.summary-row {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.summary-label {
+  width: 110px;
+  font-weight: 500;
+  color: #666;
+}
+
+.summary-value {
+  flex: 1;
+}
+
+.summary-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+}
+
+.detail-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.detail-button:disabled {
+  border-color: #ccc;
+  color: #999;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+.detail-button:not(:disabled):hover {
+  background: #000;
+  color: #fff;
 }
 </style>
