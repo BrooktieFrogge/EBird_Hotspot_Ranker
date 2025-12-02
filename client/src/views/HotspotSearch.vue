@@ -26,17 +26,17 @@
         />
       </div>
 
-      <!-- Region filter -->
+      <!-- Country filter -->
       <div class="filter-group">
-        <label for="region">Region</label>
-        <select id="region" v-model="selectedRegion">
-          <option value="">All regions</option>
+        <label for="country">Country</label>
+        <select id="country" v-model="analyticsStore.selectedCountry">
+          <option value="">All countries</option>
           <option
-            v-for="region in availableRegions"
-            :key="region"
-            :value="region"
+            v-for="country in availableCountries"
+            :key="country"
+            :value="country"
           >
-            {{ region }}
+            {{ country }}
           </option>
         </select>
       </div>
@@ -54,7 +54,7 @@
           :key="hotspot.id"
           :id="hotspot.id"
           :name="hotspot.name"
-          :region="hotspot.region"
+          :country="hotspot.country"
           :location="hotspot.location"
           :color-class="hotspot.colorClass"
           :species-count="hotspot.speciesCount"
@@ -68,39 +68,39 @@
     <!-- RIGHT PANEL: Selected Hotspot Summary -->
     <div class="summary-panel">
       <div class="summary-header">
-        <h2 v-if="selectedHotspot">Selected Hotspot</h2>
+        <h2 v-if="analyticsStore.selectedHotspot">Selected Hotspot</h2>
         <h2 v-else>No Hotspot Selected</h2>
       </div>
 
-      <div class="summary-body" v-if="selectedHotspot">
+      <div class="summary-body" v-if="analyticsStore.selectedHotspot">
         <div class="summary-name">
-          {{ selectedHotspot.name }}
+          {{ analyticsStore.selectedHotspot.name }}
         </div>
 
         <div class="summary-row">
-          <span class="summary-label">Region:</span>
-          <span class="summary-value">{{ selectedHotspot.region }}</span>
+          <span class="summary-label">Country:</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.country }}</span>
         </div>
 
         <div class="summary-row">
           <span class="summary-label">Location:</span>
-          <span class="summary-value">{{ selectedHotspot.location }}</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.location }}</span>
         </div>
 
         <div class="summary-row">
           <span class="summary-label">Species count:</span>
-          <span class="summary-value">{{ selectedHotspot.speciesCount }}</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.speciesCount }}</span>
         </div>
 
         <div class="summary-row">
           <span class="summary-label">Checklists:</span>
-          <span class="summary-value">{{ selectedHotspot.checklistCount }}</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.checklistCount }}</span>
         </div>
 
         <div class="summary-row">
           <span class="summary-label">Saved:</span>
           <span class="summary-value">
-            {{ selectedHotspot.isSaved ? 'Yes' : 'No' }}
+            {{ analyticsStore.selectedHotspot.isSaved ? 'Yes' : 'No' }}
           </span>
         </div>
       </div>
@@ -113,7 +113,7 @@
         <button
           class="detail-button"
           @click="goToSelectedHotspotDetail"
-          :disabled="!selectedHotspot"
+          :disabled="!analyticsStore.selectedHotspot"
         >
           Go to hotspot detail
         </button>
@@ -129,7 +129,9 @@ import { defineComponent, onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
 import { BIconHouseFill } from 'bootstrap-icons-vue';
+import { useAnalyticsStore } from "../stores/useAnalyticsStore.ts"
 
+/**
 interface Hotspot {
   id: number | string;
   name: string;
@@ -139,7 +141,7 @@ interface Hotspot {
   speciesCount: number;
   checklistCount: number;
   isSaved: boolean;
-}
+} **/
 
 export default defineComponent({
   name: 'HotspotSearch',
@@ -152,19 +154,32 @@ export default defineComponent({
   setup() {
     const router = useRouter();
 
-    const hotspots = ref<Hotspot[]>([]);
     const searchQuery = ref('');
-    const selectedRegion = ref('');
-    const selectedHotspot = ref<Hotspot | null>(null);
+    const hotspots = useAnalyticsStore.allHotspots;
+
+    // HARDCODED
+    //const hotspots = ref<Hotspot[]>([]);
+    //const selectedRegion = ref('');
+    //const selectedHotspot = ref<Hotspot | null>(null);
+
+    // REAL DATA USING STORE
+    analyticsStore = useAnalyticsStore();
+      //when you want to access these, use: 
+      //hotspots = analyticsStore.allHotspots 
+      //selectedRegion = analyticsStore.selectedCountry
+      //selectedHotspot = analyticsStore.selectedHotspot (this is of type DetailedHotspot)
+
+    
 
     const availableRegions = computed(() => {
       const set = new Set<string>();
-      hotspots.value.forEach(h => set.add(h.region));
+      hotspots.value.forEach(h => set.add(h.country));
+      //analyticsStore.allHotspots.value.forEach(h => set.add(h.region));
       return Array.from(set).sort();
     });
 
     // Load hotspot data (replace with API later)
-    const loadHotspots = async () => {
+    /*const loadHotspots = async () => {
       hotspots.value = [
         {
           id: 1,
@@ -317,32 +332,39 @@ export default defineComponent({
           isSaved: true,
         },
       ];
-    };
+    }; **/
 
     const filteredHotspots = computed(() => {
       const q = searchQuery.value.trim().toLowerCase();
-      const region = selectedRegion.value;
+      //const region = selectedRegion.value;
+      const country = analyticsStore.selectedCountry.value
 
       return hotspots.value.filter(h => {
         const matchesSearch =
           !q ||
           h.name.toLowerCase().includes(q) ||
-          h.location.toLowerCase().includes(q);
+          h.subregion1.toLowerCase().includes(q);
 
-        const matchesRegion =
-          !region || h.region === region;
+        const matchesCountry =
+          !country || h.country === country;
 
-        return matchesSearch && matchesRegion;
+        return matchesSearch && matchesCountry;
       });
     });
 
-    const selectHotspot = (hotspot: Hotspot) => {
-      selectedHotspot.value = hotspot;
+    const selectHotspot = (hotspot: HotspotOverview) => {
+      analyticsStore.setHotspot(hotspot.id)
     };
 
+    /*
+    const selectHotspot = (hotspot: Hotspot) => {
+      selectedHotspot.value = hotspot;
+    }; 
+    **/ 
+
     const goToSelectedHotspotDetail = () => {
-      if (!selectedHotspot.value) return;
-      router.push({ name: 'HotspotDetail', params: { id: selectedHotspot.value.id } });
+      if (!analyticsStore.selectedHotspot.value) return;
+      router.push({ name: 'HotspotDetail', params: { id: analyticsStore.selectedHotspot.value.id } });
     };
 
     const redirectToHomeScreen = () => {
@@ -350,16 +372,18 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      loadHotspots();
+      //loadHotspots();
+      analyticsStore.fetchAllHotspots();
     });
 
     return {
       hotspots,
+      analyticsStore,
       searchQuery,
-      selectedRegion,
+      //selectedRegion,
       availableRegions,
       filteredHotspots,
-      selectedHotspot,
+      //selectedHotspot,
       selectHotspot,
       goToSelectedHotspotDetail,
       redirectToHomeScreen,
