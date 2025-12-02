@@ -21,7 +21,7 @@ async def location_search(query: str, Id_lookup: bool | None = None):
     return {"results" : data}
 
 
-@router.get("/get/{location_code}")
+@router.get("/browse/{location_code}")
 async def location_hotspots_search(location_code:str):
     data = await get_location_hotspots(location_code)
     if not data:
@@ -29,7 +29,7 @@ async def location_hotspots_search(location_code:str):
     return {"results" : data}
 
 
-@router.get("/{hotspotId}/detailed-data", response_model =Union[DetailedHotspot,HotspotOverview])
+@router.get("/report/{hotspotID}/", response_model =Union[DetailedHotspot,HotspotOverview])
 def get_detailed_hotspot_data(hotspotId:str, start_yr: int |None = None, end_yr: int |None = None, detailed:bool| None = False):
     data =  detailed_hotspot_data(hotspotId, start_yr,end_yr,detailed)
     if not data:
