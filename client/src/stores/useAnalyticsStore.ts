@@ -89,7 +89,6 @@ export const useAnalyticsStore = defineStore('analytics', {
 
       try {
         // simulate API call
-
         //have to somehow send both the hotspotId and the date range.
         const response = await axios.get(`/api/hotspots/${this.selectedHotspotId}`); //update link
         

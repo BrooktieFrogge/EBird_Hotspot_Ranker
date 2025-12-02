@@ -1,6 +1,6 @@
 Top 10 Species
 --------------------
- Rank                Species   wtd-rf       rfpc
+ Rank                Species   wtd_rf       rfpc
     1 Green-and-gold Tanager 0.442423 100.000000
     2      Blue-gray Tanager 0.423192  95.653310
     3          Black Vulture 0.403846  91.280537
