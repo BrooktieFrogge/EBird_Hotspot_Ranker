@@ -114,25 +114,25 @@ def calculate_metrics(df, raw_weights, month_row):
 
         total_weight = sum(weights_to_use)
 
-        ### calculate wtd-rf
+        ### calculate wtd_rf
         
         # ensure numeric
         df[cols_to_keep] = df[cols_to_keep].apply(pd.to_numeric, errors='coerce').fillna(0)
 
         # the math
         weighted_sum = (df[cols_to_keep] * weights_to_use).sum(axis=1)
-        df['wtd-rf'] = weighted_sum / total_weight if total_weight > 0 else 0   
+        df['wtd_rf'] = weighted_sum / total_weight if total_weight > 0 else 0   
         
         ### calculate rank, rfpc
         
-        final = df[['Species', 'wtd-rf']].sort_values(by='wtd-rf', ascending=False).reset_index(drop=True)
+        final = df[['Species', 'wtd_rf']].sort_values(by='wtd_rf', ascending=False).reset_index(drop=True)
         final['Rank'] = final.index + 1
 
-        top_score = final['wtd-rf'].iloc[0] if not final.empty else 1
-        final['rfpc'] = (final['wtd-rf'] / top_score) * 100
+        top_score = final['wtd_rf'].iloc[0] if not final.empty else 1
+        final['rfpc'] = (final['wtd_rf'] / top_score) * 100
         final['rfpc'] = final['rfpc'].fillna(0) # handle div by zero
         
-        return final[['Rank', 'Species', 'wtd-rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
+        return final[['Rank', 'Species', 'wtd_rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
 
 # may not be needed anymore, still good for debug
 def process_file(filepath, filename):
@@ -194,7 +194,8 @@ def process_file(filepath, filename):
         print(f"[success] | saved: {out_csv}")
 
 # fetch location data with a login, the main idea for now
-def process_data(raw_tsv, loc_id, start_year, end_year, save=True):
+def process_data(raw_tsv, loc_id, start_year, end_year,save = True):
+
         print(f"[calc] | calculating rankings for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()

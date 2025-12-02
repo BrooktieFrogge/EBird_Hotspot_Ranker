@@ -1,6 +1,6 @@
 Top 10 Species
 --------------------
- Rank                  Species   wtd-rf       rfpc
+ Rank                  Species   wtd_rf       rfpc
     1              House Finch 0.650225 100.000000
     2            American Crow 0.450225  69.241416
     3         Northern Flicker 0.400225  61.551771
@@ -10,7 +10,7 @@ Top 10 Species
     7         Lesser Goldfinch 0.250150  38.471297
     8           American Robin 0.200600  30.850860
     9                  Bushtit 0.200525  30.839325
-   10   Black-capped Chickadee 0.200300  30.804721
+   10              Rock Pigeon 0.200300  30.804721
 
 Summary
 --------------------

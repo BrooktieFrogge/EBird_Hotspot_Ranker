@@ -2,7 +2,6 @@
 automated data request to eBird using Playwright for session/cookie management.
 handles login and cookie storage + grabbing data from eBird barchart websites for specific hotspots.
 '''
-
 ##### imports
 import os
 import time

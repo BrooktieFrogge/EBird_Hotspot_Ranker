@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from routes import hotspots,rankings,species
+from routes import hotspots,rankings
 
 #load environment variables and initialize app
 load_dotenv()
