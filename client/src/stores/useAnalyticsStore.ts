@@ -11,8 +11,9 @@ export const useAnalyticsStore = defineStore('analytics', {
     selectedHotspot: null as DetailedHotspot | null,
 
     // --- Filters / parameters ---
-    selectedHotspotFrequency: Number,
-    selectedRegion: String,
+    selectedSpeciesCount: null as number | null,
+    selectedCountry: null as string | null,
+
 
     // --- Analytics Panels / Toggles ---
     yearRange: {
@@ -32,9 +33,10 @@ export const useAnalyticsStore = defineStore('analytics', {
   }),
 
   getters: {
-    sortedTopBirds(state) {
-      return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => b.rank - a.rank)
-    },
+    //Maybe we'll need this?? ===============================
+    //sortedTopBirds(state) {
+    //  return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => b.rank - a.rank)
+    //},
 
     //TEMPORARY ============== !!! -> replace later
     getPlacementTopBirds(state) {
@@ -63,6 +65,12 @@ export const useAnalyticsStore = defineStore('analytics', {
       return birds.sort((a, b) => b.rank - a.rank).slice(0, state.numTopBirds);
     },
 
+    //Replacement? 
+    getTopBirds(state) {
+        return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => b.rank - a.rank).slice(0, state.numTopBirds);
+    },
+
+
     getAllPlacementBirds() {
       const birds: Bird[] = [
         { species: "American Robin", rank: 1, wtdrf: 12, rfpc: 8, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/303441381/2400" },
@@ -87,6 +95,10 @@ export const useAnalyticsStore = defineStore('analytics', {
         { species: "Song Sparrow", rank: 20, wtdrf: 1, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/308771371/2400" },
       ];
       return birds.sort((a, b) => a.rank - b.rank);
+    },
+
+    getAllBirds(state) {
+      return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => a.rank - b.rank);
     }
 
   },
@@ -94,13 +106,13 @@ export const useAnalyticsStore = defineStore('analytics', {
   actions: {
     setHotspot(id: string) {
       this.selectedHotspotId = id;
-      this.fetchAnalytics();
+      this.fetchHotspotDetail();
     },
 
     setDateRange(start: number, end: number) {
       this.yearRange.start = start;
       this.yearRange.end = end;
-      this.fetchAnalytics();
+      this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
     },
 
     toggleLikelihoodCurve() {
@@ -115,17 +127,33 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.selectedBirds.push(bird);
     },
 
-    async fetchAnalytics() {
+    async fetchAllHotspots() {
+      this.isLoading = true
+      this.error = null
+
+      try {
+        // simulate API call
+        const response = await axios.get(`'http://localhost:8000/`); //update link
+
+        this.allHotspots = response.data;
+
+      } catch (e: any) {
+        this.error = e.message ?? 'Unknown error'
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async fetchHotspotDetail() {
       if (!this.selectedHotspotId) return
 
       this.isLoading = true
       this.error = null
 
       try {
-        // simulate API call
 
         //have to somehow send both the hotspotId and the date range.
-        const response = await axios.get(`/api/hotspots/${this.selectedHotspotId}`); //update link
+        const response = await axios.get(`'http://localhost:8000/api/${this.selectedHotspotId}`); //update link
 
         this.selectedHotspot = response.data;
 
@@ -134,6 +162,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       } finally {
         this.isLoading = false
       }
-    }
+    },
+
   }
 })
