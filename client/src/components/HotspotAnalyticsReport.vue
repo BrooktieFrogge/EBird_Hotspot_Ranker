@@ -2,7 +2,7 @@
   <div class="analytics-container">
     <div class="bird-lists-container">
       <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? "Ankasa NP" }} Analytics Report </h3>
-      <hr/></hr>
+      <hr />
 
       <!-- LEFT SECTION: Table -->
       <div class="bird-table">
@@ -31,9 +31,10 @@
 
 
       <!-- RIGHT SECTION: Graph -->
-      <!-- <div id="chart">
-        <ApexChart type="line" height="350" :options="chartOptions" :series="series"></ApexChart>
-      </div>-->
+      <div id="chart">
+        <apexchart type="line" height="350" :options="chartOptions" :series="series"></apexchart>
+      </div>
+
       <div style="width: 500px; padding-left: 20px;" v-show="analyticsStore.showLikelihoodCurve">
         <img
             class="photo"
@@ -90,7 +91,6 @@
       </div>
     </div>
 
-
   </div>
 </template>
 
@@ -99,73 +99,65 @@ import { computed, defineComponent } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import VueApexCharts from 'apexcharts';
 
-const analyticsStore = useAnalyticsStore();
-
 export default defineComponent({
   name: 'HotspotAnalyticsReport',
 
   components: {
-    ApexChart: VueApexCharts,
-  },
-  
-  data() {
-    return {
-      series: [{
-        name: "Ranking",
-        data: analyticsStore.getPlacementTopBirds.map(bird => bird.wtdrf)
-      }],
-      chartOptions: {
-        chart: {
-          height: 350,
-          type: 'line',
-          zoom: {
-            enabled: false
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          curve: 'straight'
-        },
-        title: {
-          text: 'Bird Frequency Ranking',
-          align: 'left'
-        },
-        grid: {
-          row: {
-            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-            opacity: 0.5
-          },
-        },
-        xaxis: {
-          categories: analyticsStore.getPlacementTopBirds.map(bird => bird.rank),
-        }
-      },
-    };
+    apexChart: VueApexCharts,
   },
 
   setup() {
-
     const analyticsStore = useAnalyticsStore();
     const birds = computed(() => analyticsStore.getPlacementTopBirds);
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
-  
+    const series = computed(() => [{
+      name: "Ranking",
+      //data: birds.value.map((bird: any) => bird.wtdrf)
+      data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+    }]);
+
+    const chartOptions = computed(() => ({
+      chart: {
+        height: 350,
+        type: 'line',
+        zoom: {
+          enabled: false
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'straight'
+      },
+      title: {
+        text: 'Bird Frequency Ranking',
+        align: 'left'
+      },
+      grid: {
+        row: {
+          colors: ['#f3f3f3', 'transparent'],
+          opacity: 0.5
+        },
+      },
+      xaxis: {
+        //categories: birds.value.map((bird: any) => bird.rank),
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+      }
+    }));
+
     return {
       analyticsStore,
       birds,
-      placeholdPic
-      
+      placeholdPic,
+      series,
+      chartOptions
     };
-  
   },
 
 });
-
-
-
 </script>
 
 <style scoped>
@@ -241,7 +233,7 @@ export default defineComponent({
 
 .photo {
   width: 100%;
-  height: 200;
+  height: 200px;
   object-fit: cover;
 }
 
@@ -251,4 +243,3 @@ export default defineComponent({
   text-align: center;
 }
 </style>
-

@@ -9,9 +9,8 @@ export interface Bird {
 export interface DetailedHotspot {
   id: number;
   name: string;
-  country: string;
-  subregion1: string;
-  subregion2: string;
+  region: string;
+  location: string;
   birds: Bird[]; // list of bird species with data
   isSaved?: boolean;
 }
