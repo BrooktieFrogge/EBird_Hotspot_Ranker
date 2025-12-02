@@ -135,7 +135,7 @@ interface Hotspot {
   name: string;
   region: string;
   location: string;
-  colorClass: string;       // eBird-style intensity / color classification
+  colorClass: string;       
   speciesCount: number;
   checklistCount: number;
   isSaved: boolean;
@@ -376,7 +376,7 @@ export default defineComponent({
   background: #fafafa;
   color: #222;
   font-family: Arial, sans-serif;
-  overflow: hidden; /* so only panels scroll, not whole page */
+  overflow: hidden; 
 }
 
 /* LEFT PANEL */
@@ -386,13 +386,13 @@ export default defineComponent({
   border-right: 1px solid #ddd;
   box-sizing: border-box;
   background: #fafafa;
-  overflow-y: auto; /* left panel can scroll if needed */
+  overflow-y: auto; 
 }
 
 /* Buttons container  */
 .buttons-container {
   display: flex;
-  justify-content: center; /* center home button */
+  justify-content: center; 
   align-items: center;
   width: 100%;
   height: 60px;
@@ -461,7 +461,7 @@ export default defineComponent({
   padding: 20px;
   box-sizing: border-box;
   background: white;
-  overflow-y: auto; /* scrollable card area */
+  overflow-y: auto;
 }
 
 .cards-container {
