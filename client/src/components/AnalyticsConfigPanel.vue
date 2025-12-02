@@ -4,14 +4,14 @@
     <div class="buttons-container">
       <!-- Back Button -->
       <div id="back-button" @click="redirectToHotspotSearch">
-        <div class="back-button-wrapper">
+        <div class="button-wrapper">
           <BIconArrowLeft />
         </div>
       </div>
 
       <!-- Home Button -->
       <div id="home-button" @click="redirectToWelcomeScreen">
-        <div class="back-button-wrapper">
+        <div class="button-wrapper">
           <BIconHouseFill />
         </div>
       </div>
@@ -89,6 +89,22 @@
       </v-range-slider>
     </div>
 
+    <!-- Top Number of Birds Chooser -->
+    <div class="config-section" style="margin-left: 10px">
+      <div style="display: flex; align-items: center; gap: 8px; width: 250px;">
+        <span>Show top</span>
+        <v-number-input
+          control-variant="stacked"
+          inset
+          v-model="analyticsStore.numTopBirds"
+          :min="1"
+          :max="allBirds.length"
+          style="padding: 5px"
+        ></v-number-input>
+        <span>birds</span>
+      </div>
+    </div>
+
     <!-- Graph Toggle -->
     <div class="config-section">
       <v-switch
@@ -139,7 +155,17 @@
           class="search-result-item"
           @click="selectBird(bird)"
         >
-          {{ bird.species }} &emsp; &#8212;&#8212; &emsp; {{ bird.data1 }} &emsp; &#8212;&#8212; &emsp;  {{ bird.data2 }}
+          {{ bird.species }} &emsp; &#8212;&#8212; &emsp; {{ bird.rfpc }} &emsp; &#8212;&#8212; &emsp;  {{ bird.wtdrf }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Button -->
+    <div class="buttons-container" style="justify-content: left; margin-top: 150px;">
+      <div id="upload-button">
+        <div class="button-wrapper" style="width: 150px; height: 50px; color: black">
+          Export
+          <BIconCloudDownload />
         </div>
       </div>
     </div>
@@ -152,7 +178,8 @@ import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   BIconHouseFill,
-  BIconArrowLeft
+  BIconArrowLeft,
+  BIconCloudDownload
 } from 'bootstrap-icons-vue';
 import { ref } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
@@ -182,26 +209,14 @@ export default defineComponent({
     'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
 
     const birdSearch = ref("");
-    const allBirds = ref<Bird[]>([
-        { species: "American Robin", data1: 12, data2: 8, photo: "https://placehold.co/300x200" },
-        { species: "Mourning Dove", data1: 10, data2: 7, photo: "https://placehold.co/300x200" },
-        { species: "House Finch", data1: 9, data2: 6, photo: "https://placehold.co/300x200" },
-        { species: "Blue Jay", data1: 8, data2: 5, photo: "https://placehold.co/300x200" },
-        { species: "Northern Cardinal", data1: 7, data2: 5, photo: "https://placehold.co/300x200" },
-        { species: "Dark-eyed Junco", data1: 6, data2: 4, photo: "https://placehold.co/300x200" },
-        { species: "Black-capped Chickadee", data1: 5, data2: 4, photo: "https://placehold.co/300x200" },
-        { species: "European Starling", data1: 5, data2: 3, photo: "https://placehold.co/300x200" },
-        { species: "Red-tailed Hawk", data1: 4, data2: 2, photo: "https://placehold.co/300x200" },
-        { species: "Canada Goose", data1: 4, data2: 2, photo: "https://placehold.co/300x200" },
-        //later.. replace with the API list of all birds
-      ]);
+    const allBirds = analyticsStore.getAllPlacementBirds;
     
 
     const filteredBirds = ref<Bird[]>([]);
 
     const filterBirds = () => {
       const q = birdSearch.value.toLowerCase();
-      filteredBirds.value = allBirds.value.filter(bird =>
+      filteredBirds.value = allBirds.filter(bird =>
         bird.species.toLowerCase().includes(q)
       );
     };
@@ -264,7 +279,8 @@ export default defineComponent({
       showGraph,
       handleGraphToggle,
       showTopPhotos,
-      handlePhotosToggle
+      handlePhotosToggle,
+      analyticsStore
     };
   },
 });
@@ -286,15 +302,13 @@ export default defineComponent({
   align-items: center;
   width: 100%;
   height: 60px;
-  border-top: 1px solid #ffffffc9;
-  border-bottom: 1px solid #ffffffc9;
   padding-top: 20px;
   padding-inline: 40px;
   padding-bottom: 20px;
   color: #ffffffc9;
 }
 
-.back-button-wrapper {
+.button-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
