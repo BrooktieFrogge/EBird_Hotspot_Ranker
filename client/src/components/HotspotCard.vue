@@ -16,15 +16,10 @@
       <span class="value">{{ location }}</span>
     </div>
 
-    <!-- Peak season -->
-    <div class="row">
-      <span class="label">Peak time:</span>
-      <span class="value">{{ peakSeason }}</span>
-    </div>
 
     <!-- eBird color / stats -->
     <div class="row">
-      <span class="label">Classification:</span>
+      <span class="label">Species Observed :</span>
       <span class="value">
         <span class="color-dot" :style="{ backgroundColor: colorClass }"></span>
         {{ speciesCount }} species
@@ -34,14 +29,6 @@
     <div class="row">
       <span class="label">Checklists:</span>
       <span class="value">{{ checklistCount }}</span>
-    </div>
-
-    <!-- Top birds -->
-    <div class="row top-birds">
-      <span class="label">Top birds:</span>
-      <span class="value">
-        {{ topBirds.join(', ') }}
-      </span>
     </div>
 
     <!-- Saved indicator -->
