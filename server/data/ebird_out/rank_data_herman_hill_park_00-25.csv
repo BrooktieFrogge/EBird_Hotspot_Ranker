@@ -1,0 +1,129 @@
+Rank,Species,wtd_rf,rfpc
+1,American Robin,0.7777777777777778,100.0
+2,Canada Goose,0.7777777777777778,100.0
+3,European Starling,0.5555555555555556,71.42857142857143
+4,Red-winged Blackbird,0.5555555555555556,71.42857142857143
+5,Mourning Dove,0.5555555555555556,71.42857142857143
+6,American Goldfinch,0.4446111111111111,57.16428571428571
+7,Killdeer,0.4444444444444444,57.14285714285714
+8,Eastern Warbling Vireo,0.4444444444444444,57.14285714285714
+9,Downy Woodpecker,0.4444444444444444,57.14285714285714
+10,White-winged Dove,0.33383333333333337,42.92142857142858
+11,House Sparrow,0.3335,42.87857142857143
+12,House Finch,0.3335,42.87857142857143
+13,Snowy Egret,0.3335,42.87857142857143
+14,Common Grackle,0.3333333333333333,42.857142857142854
+15,Western Kingbird,0.3333333333333333,42.857142857142854
+16,Barn Swallow,0.22238888888888889,28.59285714285714
+17,Great Egret,0.22238888888888889,28.59285714285714
+18,Great-tailed Grackle,0.2222222222222222,28.57142857142857
+19,Eastern Kingbird,0.2222222222222222,28.57142857142857
+20,Great Blue Heron,0.2222222222222222,28.57142857142857
+21,Cliff Swallow,0.2222222222222222,28.57142857142857
+22,Northern Flicker,0.2222222222222222,28.57142857142857
+23,Black-capped Chickadee,0.2222222222222222,28.57142857142857
+24,Red-bellied Woodpecker,0.2222222222222222,28.57142857142857
+25,Baltimore Oriole,0.11144444444444446,14.32857142857143
+26,Bald Eagle,0.11144444444444443,14.328571428571427
+27,Yellow-crowned Night Heron,0.11144444444444443,14.328571428571427
+28,American Crow,0.11127777777777778,14.307142857142857
+29,Brown-headed Cowbird,0.11127777777777778,14.307142857142857
+30,Blue Jay,0.11127777777777778,14.307142857142857
+31,Tufted Titmouse,0.11127777777777778,14.307142857142857
+32,Blue-gray Gnatcatcher,0.11127777777777778,14.307142857142857
+33,Northern Cardinal,0.11127777777777778,14.307142857142857
+34,Carolina Chickadee,0.1111111111111111,14.285714285714285
+35,Red-tailed Hawk,0.1111111111111111,14.285714285714285
+36,Red-eyed Vireo,0.1111111111111111,14.285714285714285
+37,Mallard,0.1111111111111111,14.285714285714285
+38,Willow Flycatcher,0.1111111111111111,14.285714285714285
+39,Purple Martin,0.1111111111111111,14.285714285714285
+40,Rock Pigeon,0.1111111111111111,14.285714285714285
+41,Eurasian Collared-Dove,0.1111111111111111,14.285714285714285
+42,Great Crested Flycatcher,0.1111111111111111,14.285714285714285
+43,Chimney Swift,0.1111111111111111,14.285714285714285
+44,Yellow-billed Cuckoo,0.1111111111111111,14.285714285714285
+45,Mississippi Kite,0.1111111111111111,14.285714285714285
+46,Spotted Sandpiper,0.1111111111111111,14.285714285714285
+47,Fish Crow,0.0003333333333333333,0.04285714285714286
+48,Orchard Oriole,0.00016666666666666666,0.02142857142857143
+49,Carolina Wren,0.00016666666666666666,0.02142857142857143
+50,Northern Mockingbird,0.00016666666666666666,0.02142857142857143
+51,Brown Thrasher,0.00016666666666666666,0.02142857142857143
+52,Alder Flycatcher,0.00016666666666666666,0.02142857142857143
+53,Olive-sided Flycatcher,0.00016666666666666666,0.02142857142857143
+54,Cedar Waxwing,0.00016666666666666666,0.02142857142857143
+55,Chipping Sparrow,0.0,0.0
+56,Rose-breasted Grosbeak,0.0,0.0
+57,Black-throated Green Warbler,0.0,0.0
+58,Nashville Warbler,0.0,0.0
+59,Clay-colored Sparrow,0.0,0.0
+60,Pine Siskin,0.0,0.0
+61,Field Sparrow,0.0,0.0
+62,Orange-crowned Warbler,0.0,0.0
+63,American Tree Sparrow,0.0,0.0
+64,Lazuli Bunting,0.0,0.0
+65,Fox Sparrow,0.0,0.0
+66,Dark-eyed Junco,0.0,0.0
+67,Summer Tanager,0.0,0.0
+68,Harris's Sparrow,0.0,0.0
+69,Black-and-white Warbler,0.0,0.0
+70,White-crowned Sparrow,0.0,0.0
+71,Yellow-headed Blackbird,0.0,0.0
+72,Blackpoll Warbler,0.0,0.0
+73,Eastern Towhee,0.0,0.0
+74,Spotted Towhee,0.0,0.0
+75,Lincoln's Sparrow,0.0,0.0
+76,Song Sparrow,0.0,0.0
+77,Common Yellowthroat,0.0,0.0
+78,Palm Warbler,0.0,0.0
+79,Yellow-rumped Warbler,0.0,0.0
+80,White-throated Sparrow,0.0,0.0
+81,Northern Yellow Warbler,0.0,0.0
+82,Rusty Blackbird,0.0,0.0
+83,Bay-breasted Warbler,0.0,0.0
+84,Cape May Warbler,0.0,0.0
+85,Northern Waterthrush,0.0,0.0
+86,American Redstart,0.0,0.0
+87,Snow Goose,0.0,0.0
+88,Wood Thrush,0.0,0.0
+89,gull sp.,0.0,0.0
+90,Ring-billed Gull,0.0,0.0
+91,Semipalmated Sandpiper,0.0,0.0
+92,Pectoral Sandpiper,0.0,0.0
+93,Least Sandpiper,0.0,0.0
+94,White-rumped Sandpiper,0.0,0.0
+95,Baird's Sandpiper,0.0,0.0
+96,Stilt Sandpiper,0.0,0.0
+97,Greater Yellowlegs,0.0,0.0
+98,Lesser Yellowlegs,0.0,0.0
+99,Hooded Merganser,0.0,0.0
+100,Common Goldeneye,0.0,0.0
+101,Green-winged Teal,0.0,0.0
+102,Gadwall,0.0,0.0
+103,Northern Shoveler,0.0,0.0
+104,Blue-winged Teal,0.0,0.0
+105,Wood Duck,0.0,0.0
+106,Cackling Goose,0.0,0.0
+107,American Herring Gull,0.0,0.0
+108,Black-crowned Night Heron,0.0,0.0
+109,Hermit Thrush,0.0,0.0
+110,Turkey Vulture,0.0,0.0
+111,Swainson's Thrush,0.0,0.0
+112,Winter Wren,0.0,0.0
+113,Northern House Wren,0.0,0.0
+114,Brown Creeper,0.0,0.0
+115,Golden-crowned Kinglet,0.0,0.0
+116,Ruby-crowned Kinglet,0.0,0.0
+117,Horned Lark,0.0,0.0
+118,Ross's Goose,0.0,0.0
+119,Philadelphia Vireo,0.0,0.0
+120,Eastern Phoebe,0.0,0.0
+121,Least Flycatcher,0.0,0.0
+122,Eastern Wood-Pewee,0.0,0.0
+123,Merlin,0.0,0.0
+124,Hairy Woodpecker,0.0,0.0
+125,Belted Kingfisher,0.0,0.0
+126,Cooper's Hawk,0.0,0.0
+127,Osprey,0.0,0.0
+128,Dickcissel,0.0,0.0
