@@ -161,7 +161,7 @@
     </div>
 
     <!-- Upload Button -->
-    <div class="buttons-container" style="justify-content: left; margin-top: 200px;">
+    <div class="buttons-container" style="justify-content: left; margin-top: 150px;">
       <div id="upload-button">
         <div class="button-wrapper" style="width: 150px; height: 50px; color: black">
           Export
