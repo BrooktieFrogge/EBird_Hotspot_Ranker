@@ -124,7 +124,7 @@ export default defineComponent({
 
 <style scoped>
 .hotspot-card {
-  border: 1px solid #252525;
+  border: 1px solid #296239;
   border-radius: 12px;
   padding: 10px;
   max-width: 260px;
