@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import os
 from services.ranking_engine.data_processing import  get_rankings
-
+from models.ranking_models import FilterConfig
 '''
 Backend router for retrieving eBird hotspot ranking data.
 '''

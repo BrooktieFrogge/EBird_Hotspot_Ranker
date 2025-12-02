@@ -43,41 +43,6 @@ def normalize(text:str):
      no_punct = re.sub(r'[^\w\s]',' ',no_accents)
      return no_punct
 
-'''
-loc_name: exact location name (country/subnational)
-Returns:
--List of dicts with hotspot info that are in that region
--None if no location found
--Message if location given is a hotspot.
-'''
-def get_location_hotspots(loc_name: str, loc_code:str):
-    condition1 = LOCATIONS['LocName'] == loc_name
-    condition2 = LOCATIONS['LocCode'] == loc_code
-
-    #find row with exact name
-    row = LOCATIONS.loc[condition1&condition2]
-    
-    if row.empty:
-        return None # location not found in df
-    
-    row = row.iloc[0]
-    
-    # case A: row is a hotspot
-    if row['HotspotId'] != None:
-        return "[Location given was a Hotspot. Enter Exact Country or Subnational Name for Results]"
-    #case B: row is not a hotspot - find all hotspots with the same location  code
-    loc_hotspots = LOCATIONS.loc[
-            (LOCATIONS['LocCode'] == loc_code)|(LOCATIONS['HotspotSubCode'] == loc_code) & (LOCATIONS['HotspotId'].notna()),['LocName','HotspotId','HotspotSubCode']
-        ]
-    
-    #make results pretty
-    hotspots_list = (loc_hotspots.rename(columns={'LocName': 'Hotspot Name','HotspotId': 'Hotspot Id','HotspotSubCode': 'Hotspot SubNatonal1 Code'})).to_dict(orient='records')
-
-    if not hotspots_list[0]['Hotspot Id']: #if no hotspots found
-        return False
-    
-    return hotspots_list # can be an empty list if not hotspots found
-
 """
 query : user serach input (text or exact hotspot id)
 

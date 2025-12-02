@@ -44,8 +44,9 @@ def create_locations():
 
     return location_list
 
+#TODO add type checking & error handling for weeks
 ##### main function
-def get_rankings(locId:int, start_yr:int | None = None, end_yr:str | None = None):
+def get_rankings(locId:int, start_yr:int| None = None, end_yr:str| None = None):
 
         # if loc_input == 'BATCH':
         #     batch_choice = input("[input] | load from file (f) or create new (n)? ").strip().upper()
@@ -80,9 +81,11 @@ def get_rankings(locId:int, start_yr:int | None = None, end_yr:str | None = None
                     try:
                         # pass data + inputs to calculator
                         result_dict = process_data(raw_data, loc, start_yr, end_yr, save=SAVE_FILE)
-                        
+
                         if SAVE_FILE:
-                            return {"Request Status":"[success] | saved results to '{rank_calculator.OUTPUT_DIR}'"}
+                            print ({"Request Status":"[success] | saved results to '{rank_calculator.OUTPUT_DIR}'"})
+                            return result_dict
+                    
                         else:
                             # convert the dict back to df just to show head in logs
                             df = pd.DataFrame(result_dict['data'])

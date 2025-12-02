@@ -1,27 +1,23 @@
 from pydantic import BaseModel
 from typing import List
 
-class MetadataRes(BaseModel):
-    locId: str
-    name: str
-    lat: float
-    lng: float
-    country: str
-    subnational1: str
+class HotspotOverview(BaseModel):
+    id: str;
+    name: str;
+    region: str;
+    location: str;
+    speciesCount: int; # Found @ "species list for a region" under "product"
+    
+class Bird(BaseModel):
+    Rank: int
+    Species: str
+    wtd_rf: float
+    rfpc: float
+    # photo: str #TODO make seperate endpoint for this? only needed for top 3 birds 
 
-class ChecklistRecordRes(BaseModel):
-    locId : str
-    subId : str
-    obsDt : str
-    howMany: int = None
-    speciesCode : str
-    comName : str
-
-class DateRangeRes(BaseModel):
-    records: List[ChecklistRecordRes]
-
-class SingleDayRes(BaseModel):
-    records : List[ChecklistRecordRes]
-
-class HotspotSearchRes(BaseModel):
-    results : List[str]
+class DetailedHotspot(BaseModel):
+    id: str;
+    name: str;
+    region: str;
+    location: str;
+    birds:List[Bird];#list of bird species with data

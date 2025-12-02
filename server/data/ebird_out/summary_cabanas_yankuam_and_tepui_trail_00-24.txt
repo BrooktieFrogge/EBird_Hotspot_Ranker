@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank                Species   wtd_rf       rfpc
+    1 Green-and-gold Tanager 0.479229 100.000000
+    2      Blue-gray Tanager 0.458396  95.652745
+    3  Silver-beaked Tanager 0.416729  86.958225
+    4      Tropical Kingbird 0.416729  86.958225
+    5 Blue-and-white Swallow 0.395833  82.597922
+    6          Black Vulture 0.375000  78.250667
+    7             Bananaquit 0.375000  78.250661
+    8     Black-faced Dacnis 0.333396  69.569190
+    9    Southern House Wren 0.333396  69.569187
+   10    Blue-necked Tanager 0.333396  69.569187
+
+Summary
+--------------------
+Location: Cabañas Yankuam and Tepui Trail
+Source: Live Data from (L901084)
+Total Sample Size: 48.0
+
+Weeks Used:
+May_w4: 1.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 1.0
+Jun_w4: 1.0
+Jul_w1: 1.0
+Jul_w2: 1.0
+Jul_w3: 11.0
+Jul_w4: 5.0
+Aug_w1: 0.0
+Aug_w2: 2.0
+Aug_w3: 2.0
+Aug_w4: 8.0
+Sep_w1: 3.0
+Sep_w2: 12.0
