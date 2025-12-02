@@ -5,30 +5,30 @@
     <!-- Title -->
     <h3>{{ name }}</h3>
 
-    <!-- Region / Location -->
+    <!-- Country / Subregion1  -->
     <div class="row">
-      <span class="label">Region:</span>
-      <span class="value">{{ region }}</span>
+      <span class="label">Country:</span>
+      <span class="value">{{ country }}</span>
     </div>
     <div class="row">
-      <span class="label">Location:</span>
-      <span class="value">{{ location }}</span>
+      <span class="label">subregion 1:</span>
+      <span class="value">{{ subregion1 }}</span>
     </div>
 
 
     <!-- eBird color / stats -->
-    <div class="row">
+    <!-- <div class="row">
       <span class="label">Species Observed :</span>
       <span class="value">
         <span class="color-dot" :style="{ backgroundColor: colorClass }"></span>
         {{ speciesCount }} species
       </span>
-    </div>
+    </div> -->
 
-    <div class="row">
+    <!--<div class="row">
       <span class="label">Checklists:</span>
       <span class="value">{{ checklistCount }}</span>
-    </div>
+    </div> -->
 
     <!-- Saved indicator -->
     <div class="saved-indicator" v-if="isSaved">
@@ -52,38 +52,18 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    region: {
+    country: {
       type: String,
       required: true,
     },
-    location: {
+    subregion1: {
       type: String,
       required: true,
-    },
-    peakSeason: {
-      type: String,
-      required: false,
-      default: '–',
     },
     colorClass: {
       type: String,
       required: false,
       default: '#4caf50', 
-    },
-    speciesCount: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    checklistCount: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    topBirds: {
-      type: Array as PropType<string[]>,
-      required: false,
-      default: () => [],
     },
     isSaved: {
       type: Boolean,
