@@ -1,7 +1,6 @@
 <template>
   <div
-    :class="['hotspot-card', { selected: isSelected }]"
-    @click="handleClick"
+    :class="['hotspot-card', { 'selected': isSelected }]" @click="handleClick"
   >
     <!-- Title -->
     <h3>{{ name }}</h3>
@@ -103,7 +102,7 @@ export default defineComponent({
   methods: {
     handleClick() {
       // bubble up the click so the parent can route to HotspotDetail
-      this.$emit('click', this.id);
+      this.$emit('click', this.isSelected);
     },
   },
 });
@@ -116,15 +115,17 @@ export default defineComponent({
   padding: 10px;
   max-width: 290px;
   font-family: Arial, sans-serif;
-  box-shadow: 0 0 8px 1px #0e0e0e;
+  box-shadow: 0 0 8px 1px #949494;
   cursor: pointer;
   margin: 8px;
   position: relative;
 }
 
 .hotspot-card.selected {
-  border-color: #71e7ff;
-  box-shadow: 0 0 10px 1px rgba(113, 231, 255, 0.7);
+  border: 1px solid #71e7ff; 
+  padding: 10px;
+  box-shadow: 0 0 10px 1px rgba(113, 231, 255, 0.7); /* Glow effect */
+  transition: box-shadow 0.3s ease; /* Smooth transition */
 }
 
 h3 {
