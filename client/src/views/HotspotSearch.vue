@@ -1,7 +1,9 @@
 <template>
   <div class="hotspot-search">
+
     <!-- LEFT PANEL -->
     <div class="filters">
+
       <!-- Buttons container  -->
       <div class="buttons-container">
         <div id="home-button" @click="redirectToHomeScreen">
@@ -52,33 +54,92 @@
           :key="hotspot.id"
           :id="hotspot.id"
           :name="hotspot.name"
-          :region="hotspot.region"
-          :location="hotspot.location"
-          :peak-season="hotspot.peakSeason"
-          :color-class="hotspot.colorClass"
+          :country="hotspot.country"
+          :subregion1="hotspot.subregion1"
           :species-count="hotspot.speciesCount"
-          :checklist-count="hotspot.checklistCount"
-          :top-birds="hotspot.topBirds"
-          :is-saved="hotspot.isSaved"
-          @click="goToHotspotDetail"
+          @click="selectHotspot(hotspot)"
         />
       </div>
     </div>
+
+    <!-- RIGHT PANEL: Selected Hotspot Summary -->
+    <div class="summary-panel">
+      <div class="summary-header">
+        <h2 v-if="analyticsStore.selectedHotspot">Selected Hotspot</h2>
+        <h2 v-else>No Hotspot Selected</h2>
+      </div>
+
+      <div class="summary-body" v-if="analyticsStore.selectedHotspot">
+        <div class="summary-name">
+          {{ analyticsStore.selectedHotspot.name }}
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Country:</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.region }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Location:</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.location }}</span>
+        </div>
+
+        <!--
+        <div class="summary-row">
+          <span class="summary-label">Species count:</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.speciesCount }}</span>
+        </div> 
+        -->
+
+        <!--
+        <div class="summary-row">
+          <span class="summary-label">Checklists:</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.checklistCount }}</span>
+        </div>
+        -->
+
+        <div class="summary-row">
+          <span class="summary-label">Saved:</span>
+          <span class="summary-value">
+            {{ analyticsStore.selectedHotspot.isSaved ? 'Yes' : 'No' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="summary-body" v-else>
+        <p>Select a hotspot card to see details here.</p>
+      </div>
+
+      <div class="summary-footer">
+        <button
+          class="detail-button"
+          @click="goToSelectedHotspotDetail"
+          :disabled="!analyticsStore.selectedHotspot"
+        >
+          Go to hotspot detail
+        </button>
+      </div>
+    </div>
+
   </div>
 </template>
+
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
+import { BIconHouseFill } from 'bootstrap-icons-vue';
+import { useAnalyticsStore } from "../stores/useAnalyticsStore.ts"
+import type { HotspotOverview } from '../types/index.ts';
 
-
+/**
 interface Hotspot {
   id: number | string;
   name: string;
   region: string;
   location: string;
-  colorClass: string;
+  colorClass: string;       
   speciesCount: number;
   checklistCount: number;
   isSaved: boolean;
@@ -95,10 +156,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
 
-    // state
-    const hotspots = ref<Hotspot[]>([]);
     const searchQuery = ref('');
-    const selectedRegion = ref('');
 
     // HARDCODED
     //const hotspots = ref<Hotspot[]>([]);
@@ -112,28 +170,26 @@ export default defineComponent({
     console.log("about to fetch hotspots...");
     analyticsStore.fetchAllHotspots();
     console.log("fetched hotspots...");
-
+    
     const hotspots = analyticsStore.allHotspots;
-      //when you want to access these, use:
-      //hotspots = analyticsStore.allHotspots
+      //when you want to access these, use: 
+      //hotspots = analyticsStore.allHotspots 
       //selectedRegion = analyticsStore.selectedCountry
       //selectedHotspot = analyticsStore.selectedHotspot (this is of type DetailedHotspot)
 
-
+    
 
     const availableCountries = computed(() => {
       const set = new Set<string>();
-      console.log(hostpots[0]);
-      console.log(hostpots);
+      console.log(hotspots[0]);
+      console.log(hotspots);
       hotspots.forEach(h => set.add(h.country));
       //analyticsStore.allHotspots.value.forEach(h => set.add(h.region));
       return Array.from(set).sort();
     });
 
-    // Load all hotspots once (replace this with a real API call)
-    const loadHotspots = async () => {
-
-
+    // Load hotspot data (replace with API later)
+    /*const loadHotspots = async () => {
       hotspots.value = [
         {
           id: 1,
@@ -286,9 +342,8 @@ export default defineComponent({
           isSaved: true,
         },
       ];
-    };
+    }; **/
 
-    // Filtering logic (runs in memory, 1 API call total)
     const filteredHotspots = computed(() => {
       const q = searchQuery.value.trim().toLowerCase();
       //const region = selectedRegion.value;
@@ -307,8 +362,23 @@ export default defineComponent({
       });
     });
 
-    const goToHotspotDetail = (id: number | string) => {
-      router.push({ name: 'HotspotDetail', params: { id } });
+    const selectHotspot = (hotspot: HotspotOverview) => {
+      analyticsStore.setHotspot(hotspot.id)
+    };
+
+    /*
+    const selectHotspot = (hotspot: Hotspot) => {
+      selectedHotspot.value = hotspot;
+    }; 
+    **/ 
+
+    const goToSelectedHotspotDetail = () => {
+      if (!analyticsStore.selectedHotspot) return;
+      router.push({ name: 'HotspotDetail', params: { id: analyticsStore.selectedHotspot.id } });
+    };
+
+    const redirectToHomeScreen = () => {
+      router.push({ name: 'HomeScreen' });
     };
 
     onMounted(() => {
@@ -325,11 +395,15 @@ export default defineComponent({
       //selectedRegion,
       availableCountries,
       filteredHotspots,
-      goToHotspotDetail,
+      //selectedHotspot,
+      selectHotspot,
+      goToSelectedHotspotDetail,
+      redirectToHomeScreen,
     };
   },
 });
 </script>
+
 
 <style scoped>
 .hotspot-search {
@@ -338,7 +412,7 @@ export default defineComponent({
   background: #fafafa;
   color: #222;
   font-family: Arial, sans-serif;
-  overflow: hidden;
+  overflow: hidden; 
 }
 
 /* LEFT PANEL */
@@ -348,13 +422,13 @@ export default defineComponent({
   border-right: 1px solid #ddd;
   box-sizing: border-box;
   background: #fafafa;
-  overflow-y: auto;
+  overflow-y: auto; 
 }
 
 /* Buttons container  */
 .buttons-container {
   display: flex;
-  justify-content: center;
+  justify-content: center; 
   align-items: center;
   width: 100%;
   height: 60px;
