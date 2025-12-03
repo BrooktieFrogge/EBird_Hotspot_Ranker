@@ -207,7 +207,7 @@ export default defineComponent({
     'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
 
     const birdSearch = ref("");
-    const allBirds = computed(() => analyticsStore.getTopBirds);
+    const allBirds = computed(() => analyticsStore.getAllBirds);
     
 
     const filteredBirds = ref<Bird[]>([]);
