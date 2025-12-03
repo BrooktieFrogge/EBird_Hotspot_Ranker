@@ -157,6 +157,9 @@ export default defineComponent({
     const router = useRouter();
 
     const searchQuery = ref('');
+    console.log("about to fetch hotspots...");
+    analyticsStore.fetchAllHotspots();
+    console.log("fetched hotspots...");
 
     // HARDCODED
     //const hotspots = ref<Hotspot[]>([]);
@@ -164,6 +167,7 @@ export default defineComponent({
     //const selectedHotspot = ref<Hotspot | null>(null);
 
     // REAL DATA USING STORE
+    console.log("running setup");
     const analyticsStore = useAnalyticsStore();
     const hotspots = analyticsStore.allHotspots;
       //when you want to access these, use: 
@@ -175,6 +179,8 @@ export default defineComponent({
 
     const availableCountries = computed(() => {
       const set = new Set<string>();
+      console.log(hostpots[0]);
+      console.log(hostpots);
       hotspots.forEach(h => set.add(h.country));
       //analyticsStore.allHotspots.value.forEach(h => set.add(h.region));
       return Array.from(set).sort();
@@ -375,7 +381,9 @@ export default defineComponent({
 
     onMounted(() => {
       //loadHotspots();
+      console.log("about to fetch hotspots")
       analyticsStore.fetchAllHotspots();
+      console.log("fetched hotspots");
     });
 
     return {
