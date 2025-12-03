@@ -26,10 +26,11 @@ def detailed_hotspot_data(hotspotID: str, start_yr: int |None = None, end_yr: in
 
     with open('server/data/hotspot-overviews.json','r')as file:
         hotspot_data = json.load(file)
-    
+
     ranked = None
 
     for hotspot in hotspot_data:
+
         if hotspot['id'] == hotspotID:
             ranked = {
             "id": hotspot['id'],
@@ -38,9 +39,8 @@ def detailed_hotspot_data(hotspotID: str, start_yr: int |None = None, end_yr: in
             "subregion1" :hotspot['subregion1'],
             "subregion2": hotspot['subregion1'],
             "birds":ret
-            }
-            
-        break
+            }            
+            break
 
     return ranked
 

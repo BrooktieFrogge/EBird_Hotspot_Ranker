@@ -18,16 +18,16 @@ sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv')
 hotspotInfo = pd.read_json('server/data/hotspot-overviews.json')
        
 #combine name columns into one series
-locationNames = pd.concat([hotspotInfo['locName'],countryInfo['country_name'],sub1Info['subnational1_name'],sub2Info['subnational2_name']],ignore_index=True)
+locationNames = pd.concat([hotspotInfo['name'],countryInfo['country_name'],sub1Info['subnational1_name'],sub2Info['subnational2_name']],ignore_index=True)
 
 #combine the region codes columns in the same order
-locationCodes = pd.concat([hotspotInfo['countryCode'],countryInfo['country_code'],sub1Info['subnational1_code'],sub2Info['subnational2_code']],ignore_index=True)
+locationCodes = pd.concat([hotspotInfo['country'],countryInfo['country_code'],sub1Info['subnational1_code'],sub2Info['subnational2_code']],ignore_index=True)
 
 #add the loc id columns for hotspots
-hotspotIds = pd.concat([hotspotInfo['locId'],pd.Series([None]* (len(locationNames) - len(hotspotInfo)))],ignore_index=True)
+hotspotIds = pd.concat([hotspotInfo['id'],pd.Series([None]* (len(locationNames) - len(hotspotInfo)))],ignore_index=True)
 
 #add the subnat1 codes columns for hotspots
-hotspotSubCodes = pd.concat([hotspotInfo['subnational1Code'],pd.Series([None]* (len(locationNames) - len(hotspotInfo)))],ignore_index=True)
+hotspotSubCodes = pd.concat([hotspotInfo['subregion1'],pd.Series([None]* (len(locationNames) - len(hotspotInfo)))],ignore_index=True)
 
 #create a LOCATIONS of locations names and ids for easy lookup
 LOCATIONS = pd.DataFrame({'LocName':locationNames,'LocCode':locationCodes,'HotspotId':hotspotIds, "HotspotSubCode":hotspotSubCodes})

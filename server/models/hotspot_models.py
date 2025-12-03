@@ -5,7 +5,7 @@ from typing import List, Optional
 class HotspotModel(BaseModel):
     id: str
     name: str
-    subregion1: Optional[str] = None
+    country: str
     subregion1: Optional[str] = None
     subregion2: Optional[str] = None
     speciesCount: int # Found @ "species list for a region" under "product"
@@ -23,6 +23,7 @@ class Bird(BaseModel):
 class DetailedHotspot(BaseModel):
     id: str
     name: str
-    region: str
-    location: str 
+    country: str
+    subregion1: Optional[str] = None
+    subregion2: Optional[str] = None
     birds:List[Bird]#list of bird species with data

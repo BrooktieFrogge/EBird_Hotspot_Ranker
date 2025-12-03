@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path, Query
 from services.hotspot_search import search_hotspots
 from services.fetch_hotspots import (detailed_hotspot_data)
 from models.hotspot_models import (HotspotOverview,DetailedHotspot)
 from datetime import datetime
 import json
-
+from  typing import Annotated
 '''
 Backend router for retrieving eBird hotspot data.
 '''
@@ -12,6 +12,9 @@ router = APIRouter(
     prefix="/hotspots",
     tags=["Hotspots"]
     )
+
+with open('server/data/hotspot-overviews.json','r') as file:
+        data = json.load(file)
 
 '''
 Dynamically search by location name (country, subnational, hotspot name) or exact hotspot id when querying with Id_lookup=True
@@ -38,12 +41,21 @@ Custom Query: return the number of hotspots specified by the limit starting from
     offset- adjusts how many overviews to skip from the start of the data set
 '''
 @router.get("/browse-hotspots{limit}", response_model=HotspotOverview)
-async def browse_hotspots(limit:int = 100,offset:int = 0):
-    with open('server/data/hotspot-overviews.json','r') as file:
-        data = json.load(file)
+async def browse_hotspots(
+    limit:Annotated[
+        int, 
+        Path(title="Amount of overviews to return",ge=0,le=100)],
+    offset: Annotated[
+        int|None,
+          Query(title="Amount of overviews to skip from start of dataset",ge=0,le=len(data))]= 0
+    ):
+
     if not data:
         raise HTTPException(status_code=404, detail="No Hotspots Found.")
-    return {"overviews": data[offset:(offset+limit+1)] }
+    try:
+        return {"overview": data[offset:(offset+limit+1)] }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid Input: {e}")
 
 '''
 Provides detailed hotspot overview. 
