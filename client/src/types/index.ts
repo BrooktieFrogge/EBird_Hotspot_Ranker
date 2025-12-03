@@ -7,7 +7,7 @@ export interface Bird {
 }
 
 export interface DetailedHotspot {
-  id: number;
+  id: string;
   name: string;
   region: string;
   location: string;
@@ -16,7 +16,7 @@ export interface DetailedHotspot {
 }
 
 export interface HotspotOverview {
-  id: number;
+  id: string;
   name: string;
   country: string;
   subregion1: string;
