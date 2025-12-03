@@ -44,10 +44,10 @@ Custom Query: return the number of hotspots specified by the limit starting from
 async def browse_hotspots(
     limit:Annotated[
         int, 
-        Path(title="Amount of overviews to return",ge=0,le=100)],
+        Path(description="Amount of overviews to return",ge=0,le=100)],
     offset: Annotated[
         int|None,
-          Query(title="Amount of overviews to skip from start of dataset",ge=0,le=len(data))]= 0
+          Query(description="Amount of overviews to skip from start of dataset",ge=0,le=len(data))]= 0
     ):
 
     if not data:
