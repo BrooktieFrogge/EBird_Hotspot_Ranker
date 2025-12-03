@@ -1,8 +1,8 @@
 __pycache__/
 *.pyc
 .DS_Store
-server/.env
+.env
 .ipynb_checkpoints/
 venv/
 .pytest_cache/
-server/data/.ebird_session.json
+data/.ebird_session.json

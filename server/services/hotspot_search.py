@@ -15,7 +15,7 @@ sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv')
 sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv')
 
 #loading hotspot specific info
-hotspotInfo = pd.read_json('server/data/hotspot_names_and_IDs.json')
+hotspotInfo = pd.read_json('server/data/hotspot-overviews.json')
        
 #combine name columns into one series
 locationNames = pd.concat([hotspotInfo['locName'],countryInfo['country_name'],sub1Info['subnational1_name'],sub2Info['subnational2_name']],ignore_index=True)
