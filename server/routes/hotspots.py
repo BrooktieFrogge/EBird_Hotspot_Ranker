@@ -51,9 +51,9 @@ Provides detailed hotspot overview.
 Returns:
 -hotspot id,name,region,location, and list of ranked birds for the given hotspot
 '''
-@router.get("/report/{hotspotID}", response_model=DetailedHotspot)
+@router.get("/report/{hotspotId}", response_model=DetailedHotspot)
 def get_detailed_hotspot_data(hotspotId:str, start_yr: int |None = None, end_yr: int |None = None):
-
+    print(f"Received request for hotspotID: {hotspotId}")
     if end_yr or start_yr:
         if not end_yr or not start_yr:
             raise HTTPException(status_code=400, detail="Invalid Year Input")

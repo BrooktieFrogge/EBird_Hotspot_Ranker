@@ -1,23 +1,22 @@
 export interface Bird {
-  species: string,
-  rank: number,
+  Rank: number,
+  Species: string,
+  wtd_rf: number,
   rfpc: number,
-  wtdrf: number,
   photo?: string
 }
 
 export interface DetailedHotspot {
-  id: number;
+  id: string;
   name: string;
-  country: string;
-  subregion1: string;
-  subregion2: string;
+  region: string;
+  location: string;
   birds: Bird[]; // list of bird species with data
   isSaved?: boolean;
 }
 
 export interface HotspotOverview {
-  id: number;
+  id: string;
   name: string;
   country: string;
   subregion1: string;
