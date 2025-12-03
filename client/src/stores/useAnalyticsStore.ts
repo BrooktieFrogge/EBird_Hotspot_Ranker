@@ -133,9 +133,12 @@ export const useAnalyticsStore = defineStore('analytics', {
 
       try {
         // simulate API call
-        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots`); //update link
+        console.log("making a call");
+        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots/${100}`); //update link
 
         this.allHotspots = response.data;
+        console.log("set all hotspots");
+        console.log("first hotspot:", this.allHotspots[1])
 
       } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
