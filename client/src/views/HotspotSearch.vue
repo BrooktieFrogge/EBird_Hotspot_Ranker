@@ -55,11 +55,8 @@
           :id="hotspot.id"
           :name="hotspot.name"
           :country="hotspot.country"
-          :location="hotspot.location"
-          :color-class="hotspot.colorClass"
+          :subregion1="hotspot.subregion1"
           :species-count="hotspot.speciesCount"
-          :checklist-count="hotspot.checklistCount"
-          :is-saved="hotspot.isSaved"
           @click="selectHotspot(hotspot)"
         />
       </div>
@@ -79,7 +76,7 @@
 
         <div class="summary-row">
           <span class="summary-label">Country:</span>
-          <span class="summary-value">{{ analyticsStore.selectedHotspot.country }}</span>
+          <span class="summary-value">{{ analyticsStore.selectedHotspot.region }}</span>
         </div>
 
         <div class="summary-row">
@@ -87,15 +84,19 @@
           <span class="summary-value">{{ analyticsStore.selectedHotspot.location }}</span>
         </div>
 
+        <!--
         <div class="summary-row">
           <span class="summary-label">Species count:</span>
           <span class="summary-value">{{ analyticsStore.selectedHotspot.speciesCount }}</span>
-        </div>
+        </div> 
+        -->
 
+        <!--
         <div class="summary-row">
           <span class="summary-label">Checklists:</span>
           <span class="summary-value">{{ analyticsStore.selectedHotspot.checklistCount }}</span>
         </div>
+        -->
 
         <div class="summary-row">
           <span class="summary-label">Saved:</span>
@@ -130,6 +131,7 @@ import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
 import { BIconHouseFill } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from "../stores/useAnalyticsStore.ts"
+import type { HotspotOverview } from '../types/index.ts';
 
 /**
 interface Hotspot {
@@ -155,7 +157,6 @@ export default defineComponent({
     const router = useRouter();
 
     const searchQuery = ref('');
-    const hotspots = useAnalyticsStore.allHotspots;
 
     // HARDCODED
     //const hotspots = ref<Hotspot[]>([]);
@@ -163,7 +164,8 @@ export default defineComponent({
     //const selectedHotspot = ref<Hotspot | null>(null);
 
     // REAL DATA USING STORE
-    analyticsStore = useAnalyticsStore();
+    const analyticsStore = useAnalyticsStore();
+    const hotspots = analyticsStore.allHotspots;
       //when you want to access these, use: 
       //hotspots = analyticsStore.allHotspots 
       //selectedRegion = analyticsStore.selectedCountry
@@ -171,9 +173,9 @@ export default defineComponent({
 
     
 
-    const availableRegions = computed(() => {
+    const availableCountries = computed(() => {
       const set = new Set<string>();
-      hotspots.value.forEach(h => set.add(h.country));
+      hotspots.forEach(h => set.add(h.country));
       //analyticsStore.allHotspots.value.forEach(h => set.add(h.region));
       return Array.from(set).sort();
     });
@@ -337,9 +339,9 @@ export default defineComponent({
     const filteredHotspots = computed(() => {
       const q = searchQuery.value.trim().toLowerCase();
       //const region = selectedRegion.value;
-      const country = analyticsStore.selectedCountry.value
+      const country = analyticsStore.selectedCountry;
 
-      return hotspots.value.filter(h => {
+      return hotspots.filter(h => {
         const matchesSearch =
           !q ||
           h.name.toLowerCase().includes(q) ||
@@ -363,8 +365,8 @@ export default defineComponent({
     **/ 
 
     const goToSelectedHotspotDetail = () => {
-      if (!analyticsStore.selectedHotspot.value) return;
-      router.push({ name: 'HotspotDetail', params: { id: analyticsStore.selectedHotspot.value.id } });
+      if (!analyticsStore.selectedHotspot) return;
+      router.push({ name: 'HotspotDetail', params: { id: analyticsStore.selectedHotspot.id } });
     };
 
     const redirectToHomeScreen = () => {
@@ -381,7 +383,7 @@ export default defineComponent({
       analyticsStore,
       searchQuery,
       //selectedRegion,
-      availableRegions,
+      availableCountries,
       filteredHotspots,
       //selectedHotspot,
       selectHotspot,
