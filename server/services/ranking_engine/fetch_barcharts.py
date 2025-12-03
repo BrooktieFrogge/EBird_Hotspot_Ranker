@@ -14,7 +14,7 @@ EBIRD_USERNAME = os.getenv('EBIRD_USERNAME')
 EBIRD_PASSWORD = os.getenv('EBIRD_PASSWORD')
 SESSION_FILE = os.getenv('SESSION_FILE')
 # set to false to watch what the BROWSERs are doing
-HEADLESS = False
+HEADLESS = True
 
 ##### helper functions
 # check if we need to get cookies again

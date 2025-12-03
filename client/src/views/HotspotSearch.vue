@@ -112,14 +112,14 @@ export default defineComponent({
     console.log("about to fetch hotspots...");
     analyticsStore.fetchAllHotspots();
     console.log("fetched hotspots...");
-    
+
     const hotspots = analyticsStore.allHotspots;
-      //when you want to access these, use: 
-      //hotspots = analyticsStore.allHotspots 
+      //when you want to access these, use:
+      //hotspots = analyticsStore.allHotspots
       //selectedRegion = analyticsStore.selectedCountry
       //selectedHotspot = analyticsStore.selectedHotspot (this is of type DetailedHotspot)
 
-    
+
 
     const availableCountries = computed(() => {
       const set = new Set<string>();
