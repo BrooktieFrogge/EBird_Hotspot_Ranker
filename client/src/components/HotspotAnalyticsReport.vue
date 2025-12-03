@@ -21,10 +21,10 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.species }}</span>
+            <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtdrf }}</div>
+          <div class="cell">{{ bird.wtd_rf }}</div>
           <div class="cell">{{ bird.rfpc }}</div>
         </div>
       </div>
@@ -62,10 +62,10 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.species }}</span>
+            <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtdrf }}</div>
+          <div class="cell">{{ bird.wtd_rf }}</div>
           <div class="cell">{{ bird.rfpc }}</div>
         </div>
       </div>
@@ -85,7 +85,7 @@
           alt=""
         />
         <div class="photo-caption">
-          {{ i + 1 }}. {{ bird.species }}
+          {{ i + 1 }}. {{ bird.Species }}
         </div>
       </div>
     </div>
@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, onMounted } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import VueApexCharts from 'apexcharts';
 
@@ -112,7 +112,7 @@ export default defineComponent({
     return {
       series: [{
         name: "Ranking",
-        data: analyticsStore.getPlacementTopBirds.map(bird => bird.wtdrf)
+        data: analyticsStore.getPlacementTopBirds.map(bird => bird.wtd_rf)
       }],
       chartOptions: {
         chart: {
@@ -139,7 +139,7 @@ export default defineComponent({
           },
         },
         xaxis: {
-          categories: analyticsStore.getPlacementTopBirds.map(bird => bird.rank),
+          categories: analyticsStore.getPlacementTopBirds.map(bird => bird.Rank),
         }
       },
     };
@@ -147,12 +147,18 @@ export default defineComponent({
 
   setup() {
 
+    onMounted(() => {
+      console.log('Component has been mounted to the DOM!');
+      analyticsStore.fetchHotspotDetail()
+
+    });
+
     const analyticsStore = useAnalyticsStore();
-    const birds = computed(() => analyticsStore.getPlacementTopBirds);
+    const birds = computed(() => analyticsStore.getTopBirds);
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
-  
+
     return {
       analyticsStore,
       birds,
