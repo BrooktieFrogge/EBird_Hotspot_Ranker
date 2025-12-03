@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
     
-class HotspotModel(BaseModel):
+class HotspotOverview(BaseModel):
     id: str
     name: str
     country: str
@@ -10,8 +10,6 @@ class HotspotModel(BaseModel):
     subregion2: Optional[str] = None
     speciesCount: int # Found @ "species list for a region" under "product"
 
-class HotspotOverview(BaseModel):
-    overview: List[HotspotModel]
 
 class Bird(BaseModel):
     Rank: int

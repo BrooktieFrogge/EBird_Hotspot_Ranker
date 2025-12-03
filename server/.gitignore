@@ -1,10 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
-<<<<<<< HEAD
-=======
-server/.env
->>>>>>> 4f1351d8611a859dece107459e528d7a620ab00c
 .env
 .ipynb_checkpoints/
 venv/

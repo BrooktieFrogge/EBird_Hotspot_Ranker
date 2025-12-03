@@ -4,7 +4,7 @@ from services.fetch_hotspots import (detailed_hotspot_data)
 from models.hotspot_models import (HotspotOverview,DetailedHotspot)
 from datetime import datetime
 import json
-from  typing import Annotated
+from  typing import Annotated, List
 '''
 Backend router for retrieving eBird hotspot data.
 '''
@@ -40,7 +40,7 @@ Custom Query: return the number of hotspots specified by the limit starting from
     limit- adjusts the amount of hotspots returned
     offset- adjusts how many overviews to skip from the start of the data set
 '''
-@router.get("/browse-hotspots{limit}", response_model=HotspotOverview)
+@router.get("/browse-hotspots{limit}", response_model=List[HotspotOverview])
 async def browse_hotspots(
     limit:Annotated[
         int, 
@@ -53,7 +53,7 @@ async def browse_hotspots(
     if not data:
         raise HTTPException(status_code=404, detail="No Hotspots Found.")
     try:
-        return {"overview": data[offset:(offset+limit+1)] }
+        return  data[offset:(offset+limit+1)]
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid Input: {e}")
 
