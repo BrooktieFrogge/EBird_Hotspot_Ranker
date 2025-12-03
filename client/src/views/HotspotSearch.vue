@@ -100,8 +100,31 @@ export default defineComponent({
     const searchQuery = ref('');
     const selectedRegion = ref('');
 
-    const availableRegions = computed(() => {
+    // HARDCODED
+    //const hotspots = ref<Hotspot[]>([]);
+    //const selectedRegion = ref('');
+    //const selectedHotspot = ref<Hotspot | null>(null);
+
+    // REAL DATA USING STORE
+    console.log("running setup");
+    const analyticsStore = useAnalyticsStore();
+
+    console.log("about to fetch hotspots...");
+    analyticsStore.fetchAllHotspots();
+    console.log("fetched hotspots...");
+    
+    const hotspots = analyticsStore.allHotspots;
+      //when you want to access these, use: 
+      //hotspots = analyticsStore.allHotspots 
+      //selectedRegion = analyticsStore.selectedCountry
+      //selectedHotspot = analyticsStore.selectedHotspot (this is of type DetailedHotspot)
+
+    
+
+    const availableCountries = computed(() => {
       const set = new Set<string>();
+      console.log(hostpots[0]);
+      console.log(hostpots);
       hotspots.forEach(h => set.add(h.country));
       //analyticsStore.allHotspots.value.forEach(h => set.add(h.region));
       return Array.from(set).sort();
@@ -290,7 +313,9 @@ export default defineComponent({
 
     onMounted(() => {
       //loadHotspots();
+      console.log("about to fetch hotspots")
       analyticsStore.fetchAllHotspots();
+      console.log("fetched hotspots");
     });
 
     return {
