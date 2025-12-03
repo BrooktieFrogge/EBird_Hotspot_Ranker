@@ -12,3 +12,4 @@ datetime
 re
 pydantic
 typing
+playwright

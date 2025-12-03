@@ -2,54 +2,51 @@ from services.ranking_engine.data_processing import  get_rankings
 import pandas as pd
 import os,httpx
 from datetime import datetime, timedelta, date
-import asyncio
+import asyncio, json
 
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 #limit concurrent API calls to prevent exceeding rate limits
 SEMAPHORE = asyncio.Semaphore(5)
 
+'''
+Provides detailed hotspot overview. 
+
+Returns:
+-hotspot id,name,region,location, and list of ranked birds for the given hotspot using ranking engine
+'''
+
 def detailed_hotspot_data(hotspotID: str, start_yr: int |None = None, end_yr: int |None = None):
     
     ret = get_rankings(hotspotID,start_yr,end_yr)
+
     if ret:
         ret = ret['data']
     else:
         return None
 
-    url = f"https://api.ebird.org/v2/ref/hotspot/info/{hotspotID}"
-
-    res = httpx.get(url,headers=HEADERS)
+    with open('server/data/hotspot-overviews.json','r')as file:
+        hotspot_data = json.load(file)
     
-    if res.status_code != 200:
-        return None
-    data = res.json()
+    ranked = None
 
-    ranked = {
-        "id": hotspotID,
-        "name" : data["name"],
-        "region" : data["countryName"],
-        "location" : data["subnational1Name"],
-        "birds": ret
-    }
+    for hotspot in hotspot_data:
+        if hotspot['id'] == hotspotID:
+            ranked = {
+            "id": hotspot['id'],
+            "name" : hotspot['name'],
+            "country" : hotspot['country'],
+            "subregion1" :hotspot['subregion1'],
+            "subregion2": hotspot['subregion1'],
+            "birds":ret
+            }
+            
+        break
+
     return ranked
 
 '''
- Fetches hotspots within a specified country or region.
-
- Returns: 
+Returns: subregion 1 name given subregion 1 code.
 '''
-# def get_location_hotspots(loc_code: str):
-#     url = f"https://api.ebird.org/v2/ref/hotspot/{loc_code}?fmt=json"
-
-#     res = httpx.get(url,headers=HEADERS)
-    
-#     if res.status_code != 200:
-#         return None
-    
-#     data = res.json()
-
-#     return data
-
 def get_subregion1(sub_code):
     sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv')
 
@@ -58,6 +55,9 @@ def get_subregion1(sub_code):
         return "None"
     return row.iloc[0]['subnational1_name']
 
+'''
+Returns: subregion 2 name given subregion 2 code.
+'''
 def get_subregion2(sub_code):
     sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv')
 
@@ -67,7 +67,11 @@ def get_subregion2(sub_code):
         return "None"
     return row.iloc[0]['subnational2_name']
     
+'''
+Fetches all hotspot overview info for a country.
 
+Returns:  list of dicts with filtered hotspots data
+'''
 async def fetch_country_hotspots(client,country_code):
     url =f"https://api.ebird.org/v2/ref/hotspot/{country_code}?fmt=json"
 
@@ -94,6 +98,11 @@ async def fetch_country_hotspots(client,country_code):
 
     return filtered
 
+'''
+Uses ebird api calls to fetch most recent hotspot info for all locations by country
+
+Returns: list of dictionaries containing info about each hotspot. Dumps information into a json file.
+'''
 async def get_location_hotspots():
     #loading hotspot specific info
     df = pd.read_csv('server/data/countries-Table 1.csv')
@@ -103,12 +112,15 @@ async def get_location_hotspots():
 
     async with httpx.AsyncClient() as client:
         for country in country_codes:
-            print("Fetching:", country)
+            if pd.isna(country):
+                continue
+            print("Fetching:", country,end="\n")
             hotspots = await fetch_country_hotspots(client,country)
             all_results.extend(hotspots)
 
-    print(f"Done collecting {len(all_results)} hotspots")
+    with open('hotspot-overviews.json','w') as f:
+        json.dump(all_results,f,indent=4)
+
+    print(f"Saved {len(all_results)} hotspots.")
+
     return all_results
-
-
-

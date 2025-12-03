@@ -129,7 +129,7 @@ def calculate_metrics(df, raw_weights, month_row):
         final['Rank'] = final.index + 1
 
         top_score = final['wtd_rf'].iloc[0] if not final.empty else 1
-        final['rfpc'] = (final['wtd_rf'] / top_score) * 100
+        final['rfpc'] = ( final['wtd_rf'] / top_score ) * 100
         final['rfpc'] = final['rfpc'].fillna(0) # handle div by zero
         
         return final[['Rank', 'Species', 'wtd_rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
