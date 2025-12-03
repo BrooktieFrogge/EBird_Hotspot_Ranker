@@ -5,7 +5,7 @@ import axios from 'axios';
 export const useAnalyticsStore = defineStore('analytics', {
   state: () => ({
     // --- Hotspot data ---
-    allHotspots: [] as HotspotOverview[],
+    allHotspots: [] as Array<HotspotOverview>,
     selectedHotspotName: null as string | null,
     selectedHotspotId: null as string | null,
     selectedHotspot: null as DetailedHotspot | null,
@@ -133,11 +133,16 @@ export const useAnalyticsStore = defineStore('analytics', {
 
       try {
         // simulate API call
-        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots`); //update link
+        console.log("making a call");
+        const num = 100
+        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots/${num}`); //update link
 
+        console.log("length", response.data);
         this.allHotspots = response.data;
 
       } catch (e: any) {
+        console.log("there was an error");
+        console.log(e);
         this.error = e.message ?? 'Unknown error'
       } finally {
         this.isLoading = false
