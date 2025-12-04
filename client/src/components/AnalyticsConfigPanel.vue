@@ -20,6 +20,7 @@
     <!-- Year Selection -->
     <div class="config-section">
       <h4>Select Year</h4>
+
       <v-range-slider
         v-model="yearRange"
         strict
@@ -55,6 +56,7 @@
     <!-- Week Selection -->
     <div class="config-section">
       <h4>Select Weeks</h4>
+      
       <v-range-slider
         v-model="weekRange"
         strict
@@ -130,13 +132,12 @@
     </div>
 
     <div class="config-section">
-      <h4>Bird Selection</h4>
 
       <!-- Bird Search Bar -->
       <v-text-field
         v-model="birdSearch"
         variant="outlined"
-        label="Search birds..."
+        label="Add custom birds..."
         hide-details
         clearable
         density="compact"
@@ -335,7 +336,7 @@ export default defineComponent({
 }
 
 .config-section {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .config-section h4 {
