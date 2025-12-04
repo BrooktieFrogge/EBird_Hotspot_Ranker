@@ -30,9 +30,10 @@
       </div>
 
 
-      <!-- RIGHT SECTION: Graph -->
-      <div id="linechart" style="width:80%; height:400px; margin:30px">
+      <!-- LIKELIHOOD GRAPH-->
+      <div id="linechart" style="width:90%; height:50%; padding:30px" v-show="analyticsStore.showLikelihoodCurve">
         <LineChart 
+          style="height: 100%;"
           :chartData="chartData" 
         />
       </div>
@@ -118,8 +119,20 @@ export default defineComponent({
       labels: birds.value.map((bird: any) => bird.Species),
       datasets: [
         {
+          label: 'Weighted Rank Factor',
           data: birds.value.map((bird: any) => bird.wtd_rf),
-          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+          backgroundColor: '#45799980',
+          borderColor: '#457999',
+          pointRadius: 6,
+          pointHoverRadius: 10,
+        },
+        {
+          label: 'Ranked Frequency Percentage',
+          data: birds.value.map((bird: any) => bird.rfpc/100),
+          backgroundColor: '#29623980',
+          borderColor: '#296239',
+          pointRadius: 6,
+          pointHoverRadius: 10,
         },
       ],
     };
