@@ -126,7 +126,7 @@
 
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, computed } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
 import { BIconHouseFill } from 'bootstrap-icons-vue';
