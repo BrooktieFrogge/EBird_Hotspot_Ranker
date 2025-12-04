@@ -22,6 +22,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/:catchAll(.*)',
     redirect: '/',
+  },
+  {
+    path: '/testapex',
+    name: 'TestApex',
+    component: () => import('../views/TestApex.vue'),
   }
 ];
 

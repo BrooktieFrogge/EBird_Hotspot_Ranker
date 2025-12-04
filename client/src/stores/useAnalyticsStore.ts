@@ -86,7 +86,19 @@ export const useAnalyticsStore = defineStore('analytics', {
      * @param bird 
      */
     selectBird(bird: Bird) {
-      this.selectedBirds.push(bird);
+      if (!this.selectedBirds.some(b => b === bird)) {
+        this.selectedBirds.push(bird);
+      }
+    },
+
+    /**
+     * Deselects a bird from the analytics report
+     * @param bird 
+     */
+    deselectBird(bird: Bird) {
+      console.log("deselected bird");
+      this.selectedBirds = this.selectedBirds.filter(b => b !== bird);
+      console.log(this.selectedBirds);
     },
 
     /**
