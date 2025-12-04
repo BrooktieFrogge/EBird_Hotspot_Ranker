@@ -111,7 +111,7 @@ h3 {
 
 .hotspot-card.selected {
   border-color: #b0e28c;
-  box-shadow: 0 0 12px 2px #cfe9bd;
+  box-shadow: 0 0 5px 2px #cfe9bd;
   background: #203727;
 }
 
