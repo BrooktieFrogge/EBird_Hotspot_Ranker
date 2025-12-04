@@ -1,0 +1,47 @@
+Rank,Species,wtd_rf,rfpc
+1,Bridled Tern,1.0,100.0
+2,Masked Booby,0.875,87.5
+3,Sooty Tern,0.875,87.5
+4,Black Noddy,0.875,87.5
+5,Lesser Frigatebird,0.875,87.5
+6,Red-footed Booby,0.875,87.5
+7,Brown Booby,0.875,87.5
+8,Brown Noddy,0.75,75.0
+9,Great Crested Tern,0.75,75.0
+10,Great Frigatebird,0.625,62.5
+11,Little Egret,0.5,50.0
+12,frigatebird sp.,0.5,50.0
+13,Pacific Reef-Heron,0.5,50.0
+14,Red-tailed Tropicbird,0.375,37.5
+15,Eurasian Whimbrel,0.25,25.0
+16,Pacific Golden-Plover,0.25,25.0
+17,Buff-banded Rail,0.25,25.0
+18,Greater Sand-Plover,0.25,25.0
+19,Red-necked Stint,0.25,25.0
+20,Nankeen Night Heron,0.25,25.0
+21,Common Sandpiper,0.25,25.0
+22,Ruddy Turnstone,0.25,25.0
+23,Tahiti Petrel,0.125,12.5
+24,Sanderling,0.125,12.5
+25,White-tailed Tropicbird,0.125,12.5
+26,tern sp.,0.125,12.5
+27,Lesser Noddy,0.125,12.5
+28,Roseate Tern,0.0,0.0
+29,Barn Swallow,0.0,0.0
+30,White-nest Swiftlet,0.0,0.0
+31,Little Tern,0.0,0.0
+32,Oriental Pratincole,0.0,0.0
+33,Australian Pratincole,0.0,0.0
+34,Curlew Sandpiper,0.0,0.0
+35,Sharp-tailed Sandpiper,0.0,0.0
+36,Red Knot,0.0,0.0
+37,Great Knot,0.0,0.0
+38,Common Greenshank,0.0,0.0
+39,Gray-tailed Tattler,0.0,0.0
+40,Terek Sandpiper,0.0,0.0
+41,Bar-tailed Godwit,0.0,0.0
+42,Siberian/Tibetan Sand-Plover,0.0,0.0
+43,Siberian Sand-Plover,0.0,0.0
+44,Black-bellied Plover,0.0,0.0
+45,Pied Stilt,0.0,0.0
+46,Eastern Yellow Wagtail,0.0,0.0
