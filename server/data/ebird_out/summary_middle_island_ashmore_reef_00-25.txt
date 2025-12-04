@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank            Species   wtd_rf       rfpc
+    1       Bridled Tern 1.000000 100.000000
+    2       Masked Booby 0.875000  87.500000
+    3         Sooty Tern 0.875000  87.500000
+    4        Black Noddy 0.875000  87.500000
+    5 Lesser Frigatebird 0.875000  87.500000
+    6   Red-footed Booby 0.875000  87.500000
+    7        Brown Booby 0.875000  87.500000
+    8        Brown Noddy 0.750000  75.000000
+    9 Great Crested Tern 0.750000  75.000000
+   10  Great Frigatebird 0.625000  62.500000
+
+Summary
+--------------------
+Location: Middle Island (Ashmore Reef)
+Source: Live Data from (L5073006)
+Total Sample Size: 8.0
+
+Weeks Used:
+May_w4: 0.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 0.0
+Jun_w4: 0.0
+Jul_w1: 0.0
+Jul_w2: 0.0
+Jul_w3: 0.0
+Jul_w4: 0.0
+Aug_w1: 2.0
+Aug_w2: 2.0
+Aug_w3: 4.0
+Aug_w4: 0.0
+Sep_w1: 0.0
+Sep_w2: 0.0

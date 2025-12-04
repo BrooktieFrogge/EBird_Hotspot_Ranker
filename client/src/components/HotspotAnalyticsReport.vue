@@ -21,10 +21,10 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.species }}</span>
+            <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtdrf }}</div>
+          <div class="cell">{{ bird.wtd_rf }}</div>
           <div class="cell">{{ bird.rfpc }}</div>
         </div>
       </div>
@@ -63,10 +63,10 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.species }}</span>
+            <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtdrf }}</div>
+          <div class="cell">{{ bird.wtd_rf }}</div>
           <div class="cell">{{ bird.rfpc }}</div>
         </div>
       </div>
@@ -86,7 +86,7 @@
           alt=""
         />
         <div class="photo-caption">
-          {{ i + 1 }}. {{ bird.species }}
+          {{ i + 1 }}. {{ bird.Species }}
         </div>
       </div>
     </div>
@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, onMounted } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import VueApexCharts from 'apexcharts';
 
