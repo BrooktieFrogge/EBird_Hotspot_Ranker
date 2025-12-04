@@ -151,7 +151,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     async fetchHotspotDetail() {
       console.log("fetchHotspotDetail called");
-      this.selectedHotspotId = "L901084"; //TEMPORARY
+      //this.selectedHotspotId = "L901084"; //TEMPORARY
       if (!this.selectedHotspotId) return
 
       this.isLoading = true
