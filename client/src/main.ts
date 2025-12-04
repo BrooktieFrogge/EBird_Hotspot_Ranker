@@ -10,9 +10,6 @@ import 'vue-toastification/dist/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-import VueApexCharts from "vue3-apexcharts";
-import "apexcharts/dist/apexcharts.css";
-
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -29,5 +26,4 @@ app.use(createPinia());
 app.use(router);
 app.use(Toast);
 app.use(vuetify);
-app.use(VueApexCharts);
 app.mount('#app');

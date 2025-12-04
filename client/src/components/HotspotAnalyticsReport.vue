@@ -31,14 +31,10 @@
 
 
       <!-- RIGHT SECTION: Graph -->
-      <div id="apexchart" style="width:100%; height:350px; border: 1px solid black;">
-        <apexchart 
-          ref="chart"
-          type="line"
-          :options = "chartOptions"
-          :series = "series"
-          >
-        </apexchart>
+      <div id="linechart" style="width:80%; height:400px; margin:30px">
+        <LineChart 
+          :chartData="chartData" 
+        />
       </div>
 
 
@@ -96,19 +92,20 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, ref, watch } from 'vue';
+import { computed, defineComponent, } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import VueApexCharts from 'vue3-apexcharts';
 import { BIconXCircle } from 'bootstrap-icons-vue';
-import type { ApexOptions } from 'apexcharts';
-import { addSyntheticTrailingComment } from 'typescript';
+import { LineChart } from 'vue-chart-3';
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 export default defineComponent({
   name: 'HotspotAnalyticsReport',
 
   components: {
-    apexchart: VueApexCharts,
-    BIconXCircle
+    BIconXCircle,
+    LineChart
   },
 
   setup() {
@@ -117,57 +114,21 @@ export default defineComponent({
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
-    //not sure if necessary for the chart to update when toggling visibility
-    const chart = ref<InstanceType<typeof VueApexCharts> | null>(null);
-
-    //same as above
-    watch(() => analyticsStore.showLikelihoodCurve, async (visible) => {
-      if (visible) {
-        await nextTick();
-        chart.value?.updateOptions({});
-      }
-    });
-
-    const series = computed(() => [{
-      name: "Ranking",
-      data: birds.value.map((bird: any) => bird.wtd_rf)
-      //data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
-    }]);
-
-    const chartOptions = computed<ApexOptions>(() => ({
-      chart: {
-        id: "apexchart",
-        height: 350,
-        type: 'line',
-        zoom: {
-          enabled: true
+    const chartData = {
+      labels: birds.value.map((bird: any) => bird.Species),
+      datasets: [
+        {
+          data: birds.value.map((bird: any) => bird.wtd_rf),
+          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
         },
-      },
-      stroke: {
-        curve: "straight"
-      },
-      title: {
-        text: 'Bird Frequency Ranking',
-        align: 'left'
-      },
-      grid: {
-        row: {
-          colors: ['#f3f3f3', 'transparent'],
-          opacity: 0.5
-        },
-      },
-      xaxis: {
-        categories: birds.value.map((bird: any) => bird.rank),
-        //categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-      }
-    }));
+      ],
+    };
 
     return {
       analyticsStore,
       birds,
       placeholdPic,
-      series,
-      chartOptions
+      chartData
     };
   },
 
@@ -183,6 +144,7 @@ export default defineComponent({
   background: white;
   color: #222;
   overflow: scroll;
+  opacity: 100%;
 }
 
 .bird-lists-container {
@@ -190,6 +152,7 @@ export default defineComponent({
   gap: 24px;
   width: 100vh;
   color: #222;
+  opacity: 100%;
 }
 
 .bird-table {
