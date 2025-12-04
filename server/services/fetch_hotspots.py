@@ -15,7 +15,7 @@ Returns:
 -hotspot id,name,region,location, and list of ranked birds for the given hotspot using ranking engine
 '''
 
-def detailed_hotspot_data(
+async def detailed_hotspot_data(
     hotspotID: str,
     start_yr: int | None = None,
     end_yr: int | None = None,
@@ -25,7 +25,7 @@ def detailed_hotspot_data(
     end_week: int | None = None
 ):
     
-    ret = get_rankings(
+    ret = await get_rankings(
         hotspotID,
         start_yr,
         end_yr,

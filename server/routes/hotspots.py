@@ -64,7 +64,7 @@ Returns:
 -hotspot id,name,region,location, and list of ranked birds for the given hotspot
 '''
 @router.get("/report/{hotspotId}", response_model=DetailedHotspot)
-def get_detailed_hotspot_data(
+async def get_detailed_hotspot_data(
     hotspotId: str,
     start_yr: int | None = Query(None, description="Start year for data range"),
     end_yr: int | None = Query(None, description="End year for data range"),
@@ -80,7 +80,7 @@ def get_detailed_hotspot_data(
         if end_yr < start_yr or end_yr > datetime.now().year:
             raise HTTPException(status_code=400, detail="Invalid Year Input")
         
-    data = detailed_hotspot_data(
+    data = await detailed_hotspot_data(
         hotspotId,
         start_yr,
         end_yr,
