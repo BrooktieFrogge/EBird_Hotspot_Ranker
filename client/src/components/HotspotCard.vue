@@ -15,21 +15,6 @@
       <span class="value">{{ subregion1 }}</span>
     </div>
 
-
-    <!-- eBird color / stats -->
-    <!-- <div class="row">
-      <span class="label">Species Observed :</span>
-      <span class="value">
-        <span class="color-dot" :style="{ backgroundColor: colorClass }"></span>
-        {{ speciesCount }} species
-      </span>
-    </div> -->
-
-    <!--<div class="row">
-      <span class="label">Checklists:</span>
-      <span class="value">{{ checklistCount }}</span>
-    </div> -->
-
     <!-- Saved indicator -->
     <div class="saved-indicator" v-if="isSaved">
       ★ Saved
@@ -80,9 +65,9 @@ export default defineComponent({
   emits: ['click'],
 
   methods: {
-    handleClick() {
-      // bubble up the click so the parent can route to HotspotDetail
-      this.$emit('click', this.isSelected);
+   handleClick() {
+    // tell the parent which hotspot was clicked
+    this.$emit('click', this.id);
     },
   },
 });
@@ -90,7 +75,7 @@ export default defineComponent({
 
 <style scoped>
 .hotspot-card {
-  border: 1px solid #296239;
+  border: 2px solid transparent; 
   border-radius: 12px;
   padding: 10px;
   max-width: 290px;
@@ -99,13 +84,12 @@ export default defineComponent({
   cursor: pointer;
   margin: 8px;
   position: relative;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .hotspot-card.selected {
-  border: 1px solid #71e7ff; 
-  padding: 10px;
-  box-shadow: 0 0 10px 1px rgba(113, 231, 255, 0.7); /* Glow effect */
-  transition: box-shadow 0.3s ease; /* Smooth transition */
+  border-color: #457999;
+  box-shadow: 0 0 12px 2px #457999;
 }
 
 h3 {

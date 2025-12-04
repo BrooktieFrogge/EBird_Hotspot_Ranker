@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank           Species   wtd_rf       rfpc
+    1       Crested Tit 0.700000 100.000000
+    2  Eurasian Griffon 0.600300  85.757142
+    3       Water Pipit 0.600000  85.714284
+    4 Northern Wheatear 0.600000  85.714284
+    5   Eurasian Linnet 0.600000  85.714284
+    6          Coal Tit 0.500000  71.428572
+    7      Citril Finch 0.500000  71.428572
+    8  Common Chaffinch 0.500000  71.428572
+    9         Goldcrest 0.400150  57.164283
+   10      Common Raven 0.400000  57.142858
+
+Summary
+--------------------
+Location: Andorra--route du coll de la Botella
+Source: Live Data from (L1207786)
+Total Sample Size: 10.0
+
+Weeks Used:
+May_w4: 0.0
+Jun_w1: 1.0
+Jun_w2: 0.0
+Jun_w3: 0.0
+Jun_w4: 0.0
+Jul_w1: 0.0
+Jul_w2: 0.0
+Jul_w3: 1.0
+Jul_w4: 2.0
+Aug_w1: 1.0
+Aug_w2: 0.0
+Aug_w3: 1.0
+Aug_w4: 3.0
+Sep_w1: 1.0
+Sep_w2: 0.0
