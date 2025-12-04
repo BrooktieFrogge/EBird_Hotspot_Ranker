@@ -80,7 +80,7 @@
       >
         <img
           class="photo"
-          :src="bird.photo"
+          :src="bird.imageUrl || placeholdPic"
           alt=""
         />
         <div class="photo-caption">

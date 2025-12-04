@@ -147,7 +147,6 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     async fetchHotspotDetail() {
-      console.log("fetchHotspotDetail called");
       if (!this.selectedHotspotId) return
 
       this.isLoading = true
@@ -160,6 +159,7 @@ export const useAnalyticsStore = defineStore('analytics', {
         const response = await axios.get(`http://localhost:8000/hotspots/report/${this.selectedHotspotId}`); //update link
 
         this.selectedHotspot = response.data;
+        console.log("Fetched hotspot detail:", response.data);
 
       } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
