@@ -9,6 +9,7 @@ import requests
 import unicodedata
 from dotenv import load_dotenv
 import io
+from services.bird_metadata import enrich_data
 
 ##### config
 # load api key 
@@ -263,7 +264,7 @@ def process_file(filepath, filename, start_month=None, start_week=None, end_mont
         return final, sample_sizes_map
 
 # fetch location data and process
-def process_data(raw_tsv, loc_id, start_year, end_year, start_month=None, start_week=None, end_month=None, end_week=None, save=True):
+async def process_data(raw_tsv, loc_id, start_year, end_year, start_month=None, start_week=None, end_month=None, end_week=None, save=True):
         """
         process eBird barchart data for API endpoint.
         
@@ -339,9 +340,14 @@ def process_data(raw_tsv, loc_id, start_year, end_year, start_month=None, start_
                 print(f"[success] | saved: {out_csv}")
 
         # return in a frontend stlye:
+        data_records = final.to_dict('records') # converts df to a list of dicts
+        
+        # enrich species data with bird codes, URLs, and images for top 3
+        enriched_data = await enrich_data(data_records)
+        
         return {
                 "location": loc_name,
                 "total_sample_size": total_weight,
                 "sample_sizes_by_week": sample_sizes_map,  # All weekly sample sizes for frontend display
-                "data": final.to_dict('records') # converts df to a list of dicts
+                "data": enriched_data
         }
