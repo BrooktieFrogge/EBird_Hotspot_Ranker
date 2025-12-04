@@ -223,7 +223,6 @@ export default defineComponent({
     const selectBird = (bird: Bird) => {
       birdSearch.value = bird.Species;
       filteredBirds.value = [];
-      console.log("Selected bird:", bird.Species);
       analyticsStore.selectBird(bird);
     };
 
@@ -336,8 +335,7 @@ export default defineComponent({
 }
 
 .config-section {
-  margin-top: 24px;
-  margin-bottom: 24px;
+  margin-top: 20px;
 }
 
 .config-section h4 {

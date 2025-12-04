@@ -10,7 +10,7 @@
 
         <div class="table-header">
           <div>Species</div>
-          <div>WTDRF</div>
+          <div>Weighted Rank Factor</div>
           <div>RFPC</div>
         </div>
 
@@ -31,18 +31,14 @@
 
 
       <!-- RIGHT SECTION: Graph -->
-      <div id="chart">
-        <apexchart type="line" height="350" :options="chartOptions" :series="series"></apexchart>
-      </div>
-
-      <div style="width: 500px; padding-left: 20px;" v-show="analyticsStore.showLikelihoodCurve">
-        <img
-            class="photo"
-            width="50%"
-            height="50%"
-            :src="placeholdPic"
-            alt=""
-          />
+      <div id="apexchart" style="width:100%; height:350px; border: 1px solid black;">
+        <apexchart 
+          ref="chart"
+          type="line"
+          :options = "chartOptions"
+          :series = "series"
+          >
+        </apexchart>
       </div>
 
 
@@ -52,8 +48,8 @@
 
         <div class="table-header">
           <div>Species</div>
-          <div>Data 1</div>
-          <div>Data 2</div>
+          <div>Weighted Rank Factor</div>
+          <div>RFPC</div>
         </div>
 
         <div
@@ -68,6 +64,11 @@
 
           <div class="cell">{{ bird.wtd_rf }}</div>
           <div class="cell">{{ bird.rfpc }}</div>
+          <div class="cell">
+            <div id="remove-bird-button" @click="analyticsStore.deselectBird(bird)">
+              <BIconXCircle/>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -95,15 +96,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, nextTick, ref, watch } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import VueApexCharts from 'apexcharts';
+import VueApexCharts from 'vue3-apexcharts';
+import { BIconXCircle } from 'bootstrap-icons-vue';
+import type { ApexOptions } from 'apexcharts';
+import { addSyntheticTrailingComment } from 'typescript';
 
 export default defineComponent({
   name: 'HotspotAnalyticsReport',
 
   components: {
-    apexChart: VueApexCharts,
+    apexchart: VueApexCharts,
+    BIconXCircle
   },
 
   setup() {
@@ -112,25 +117,34 @@ export default defineComponent({
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
+    //not sure if necessary for the chart to update when toggling visibility
+    const chart = ref<InstanceType<typeof VueApexCharts> | null>(null);
+
+    //same as above
+    watch(() => analyticsStore.showLikelihoodCurve, async (visible) => {
+      if (visible) {
+        await nextTick();
+        chart.value?.updateOptions({});
+      }
+    });
+
     const series = computed(() => [{
       name: "Ranking",
-      //data: birds.value.map((bird: any) => bird.wtdrf)
-      data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+      data: birds.value.map((bird: any) => bird.wtd_rf)
+      //data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
     }]);
 
-    const chartOptions = computed(() => ({
+    const chartOptions = computed<ApexOptions>(() => ({
       chart: {
+        id: "apexchart",
         height: 350,
         type: 'line',
         zoom: {
-          enabled: false
-        }
-      },
-      dataLabels: {
-        enabled: false
+          enabled: true
+        },
       },
       stroke: {
-        curve: 'straight'
+        curve: "straight"
       },
       title: {
         text: 'Bird Frequency Ranking',
@@ -143,8 +157,8 @@ export default defineComponent({
         },
       },
       xaxis: {
-        //categories: birds.value.map((bird: any) => bird.rank),
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+        categories: birds.value.map((bird: any) => bird.rank),
+        //categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
       }
     }));
 
@@ -174,9 +188,7 @@ export default defineComponent({
 .bird-lists-container {
   display: block;
   gap: 24px;
-  height: 100vh;
   width: 100vh;
-  background: white;
   color: #222;
 }
 
@@ -194,7 +206,7 @@ export default defineComponent({
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 1.1fr 1fr 1fr 0.1fr;
   padding: 8px 0;
   border-bottom: 1px solid #e4e4e4;
 }
