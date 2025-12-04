@@ -1,5 +1,7 @@
 <template>
-  <div :class="['hotspot-card', { selected: isSelected }]" @click="handleClick">
+  <div
+    :class="['hotspot-card', { 'selected': isSelected }]" @click="handleClick"
+  >
     <!-- Title -->
     <h3>{{ name }}</h3>
 
@@ -13,31 +15,33 @@
       <span class="value">{{ subregion1 }}</span>
     </div>
 
+
     <!-- eBird color / stats -->
-    <div class="row">
+    <!-- <div class="row">
       <span class="label">Species Observed :</span>
       <span class="value">
         <span class="color-dot" :style="{ backgroundColor: colorClass }"></span>
         {{ speciesCount }} species
       </span>
-    </div>
-    -->
+    </div> -->
 
     <!--<div class="row">
       <span class="label">Checklists:</span>
       <span class="value">{{ checklistCount }}</span>
-    </div>
+    </div> -->
 
     <!-- Saved indicator -->
-    <div class="saved-indicator" v-if="isSaved">★ Saved</div>
+    <div class="saved-indicator" v-if="isSaved">
+      ★ Saved
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: "HotspotCard",
+  name: 'HotspotCard',
 
   props: {
     id: {
@@ -59,22 +63,7 @@ export default defineComponent({
     colorClass: {
       type: String,
       required: false,
-      default: "#4caf50",
-    },
-    speciesCount: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    checklistCount: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    topBirds: {
-      type: Array as PropType<string[]>,
-      required: false,
-      default: () => [],
+      default: '#4caf50', 
     },
     isSaved: {
       type: Boolean,
@@ -88,12 +77,12 @@ export default defineComponent({
     },
   },
 
-  emits: ["click"],
+  emits: ['click'],
 
   methods: {
     handleClick() {
       // bubble up the click so the parent can route to HotspotDetail
-      this.$emit("click", this.isSelected);
+      this.$emit('click', this.isSelected);
     },
   },
 });
@@ -113,7 +102,7 @@ export default defineComponent({
 }
 
 .hotspot-card.selected {
-  border: 1px solid #71e7ff;
+  border: 1px solid #71e7ff; 
   padding: 10px;
   box-shadow: 0 0 10px 1px rgba(113, 231, 255, 0.7); /* Glow effect */
   transition: box-shadow 0.3s ease; /* Smooth transition */
