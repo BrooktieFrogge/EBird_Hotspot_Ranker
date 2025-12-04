@@ -167,11 +167,10 @@ export default defineComponent({
     console.log("running setup");
     const analyticsStore = useAnalyticsStore();
 
-    console.log("about to fetch hotspots...");
     analyticsStore.fetchAllHotspots();
-    console.log("fetched hotspots...");
+    console.log("fetched hotspots & stored in analyticsStore [msg from hotspotSearch.vue]");
     
-    const hotspots = analyticsStore.allHotspots;
+    const hotspots = computed(() => analyticsStore.allHotspots);
       //when you want to access these, use: 
       //hotspots = analyticsStore.allHotspots 
       //selectedRegion = analyticsStore.selectedCountry
@@ -181,9 +180,7 @@ export default defineComponent({
 
     const availableCountries = computed(() => {
       const set = new Set<string>();
-      console.log(hotspots[0]);
-      console.log(hotspots);
-      hotspots.forEach(h => set.add(h.country));
+      hotspots.value.forEach(h => set.add(h.country));
       //analyticsStore.allHotspots.value.forEach(h => set.add(h.region));
       return Array.from(set).sort();
     });
@@ -349,7 +346,7 @@ export default defineComponent({
       //const region = selectedRegion.value;
       const country = analyticsStore.selectedCountry;
 
-      return hotspots.filter(h => {
+      return hotspots.value.filter(h => {
         const matchesSearch =
           !q ||
           h.name.toLowerCase().includes(q) ||
@@ -380,13 +377,6 @@ export default defineComponent({
     const redirectToHomeScreen = () => {
       router.push({ name: 'HomeScreen' });
     };
-
-    onMounted(() => {
-      //loadHotspots();
-      console.log("about to fetch hotspots")
-      analyticsStore.fetchAllHotspots();
-      console.log("fetched hotspots");
-    });
 
     return {
       hotspots,

@@ -40,7 +40,7 @@ Custom Query: return the number of hotspots specified by the limit starting from
     limit- adjusts the amount of hotspots returned
     offset- adjusts how many overviews to skip from the start of the data set
 '''
-@router.get("/browse-hotspots{limit}", response_model=List[HotspotOverview])
+@router.get("/browse-hotspots/{limit}", response_model=List[HotspotOverview])
 async def browse_hotspots(
     limit:Annotated[
         int, 
