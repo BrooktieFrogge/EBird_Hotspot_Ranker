@@ -73,14 +73,41 @@ def create_summary(filename, source_file, total_weight, df, used_weeks, location
                         f.write(f"{k}: {v}\n")
 
 ##### main logic
-def calculate_metrics(df, raw_weights, month_row):
-        ### filter columns based on config
+def calculate_metrics(df, raw_weights, month_row, start_month=None, start_week=None, end_month=None, end_week=None):
+        """
+        Filter eBird barchart data by month and week within month.
+        
+        Args:
+            df: DataFrame with species data (columns are weekly observations)
+            raw_weights: List of sample sizes for each week
+            month_row: Row containing month headers (from row 13)
+            start_month: Month number 1-12 (None = Jan)
+            start_week: Week within month 1-4 (None = week 1)
+            end_month: Month number 1-12 (None = Dec)
+            end_week: Week within month 1-4 (None = week 4)
+        
+        Returns:
+            Tuple: (final_df, total_weight, used_weeks_map, cols_used_count)
+        """
+        # Default to full year if not specified
+        if start_month is None:
+                start_month = 1
+        if start_week is None:
+                start_week = 1
+        if end_month is None:
+                end_month = 12
+        if end_week is None:
+                end_week = 4
+        
+        ### filter columns based on month/week range
         cols_to_keep = []
         weights_to_use = []
         used_weeks_map = {} # for summary.txt
 
         current_month = ""
+        current_month_num = 0
         week_counter = 0
+        month_names = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
         # iterate through cols to decide what to keep
         for i, col_name in enumerate(df.columns[1:]): 
@@ -92,18 +119,41 @@ def calculate_metrics(df, raw_weights, month_row):
                         m = month_row[month_row_index].strip()
                         if m:
                                 current_month = m
+                                # convert month str to num
+                                try:
+                                        current_month_num = month_names.index(m)
+                                except ValueError:
+                                        current_month_num = 0
                                 week_counter = 1
                         else:
                                 week_counter += 1
 
-                # check if we want this month/week
+                # check if this (month, week) is in the range
                 keep = False
-                if not FILTER_CONFIG:
-                        keep = True # keep all if config empty
-                elif current_month in FILTER_CONFIG:
-                        req = FILTER_CONFIG[current_month]
-                        if req == 'all' or week_counter in req:
+                
+                if current_month_num == 0:
+                        keep = False  # Unknown month, skip
+                elif start_month < end_month:
+                        # Normal case: e.g., May (5) to Sep (9)
+                        if current_month_num > start_month or current_month_num < end_month:
+                                keep = True  # in the middle months
+                        elif current_month_num == start_month and week_counter >= start_week:
+                                keep = True  # start month, week >= start_week
+                        elif current_month_num == end_month and week_counter <= end_week:
+                                keep = True  # end month, week <= end_week
+                elif start_month == end_month:
+                        # Same month: e.g., May week 2 to May week 4
+                        if current_month_num == start_month and start_week <= week_counter <= end_week:
                                 keep = True
+                else:
+                        # Wrap-around: e.g., Nov (11) to Feb (2) - crosses year boundary
+                        if current_month_num >= start_month or current_month_num <= end_month:
+                                if current_month_num == start_month and week_counter >= start_week:
+                                        keep = True
+                                elif current_month_num == end_month and week_counter <= end_week:
+                                        keep = True
+                                elif start_month < current_month_num < end_month:
+                                        keep = True
 
                 if keep:
                         cols_to_keep.append(col_name)
@@ -194,7 +244,7 @@ def process_file(filepath, filename):
         print(f"[success] | saved: {out_csv}")
 
 # fetch location data with a login, the main idea for now
-def process_data(raw_tsv, loc_id, start_year, end_year,save = True):
+def process_data(raw_tsv, loc_id, start_year, end_year, start_month=None, start_week=None, end_month=None, end_week=None, save=True):
 
         print(f"[calc] | calculating rankings for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
@@ -226,7 +276,15 @@ def process_data(raw_tsv, loc_id, start_year, end_year,save = True):
         df = df.dropna(subset=['Species']) 
 
         ### calculate metrics
-        final, total_weight, used_weeks_map, cols_used = calculate_metrics(df, raw_weights, month_row)
+        final, total_weight, used_weeks_map, cols_used = calculate_metrics(
+                df, 
+                raw_weights, 
+                month_row,
+                start_month=start_month,
+                start_week=start_week,
+                end_month=end_month,
+                end_week=end_week
+        )
         loc_name = get_location_name(loc_id)
 
         ### save output
