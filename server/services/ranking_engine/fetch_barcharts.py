@@ -1,11 +1,11 @@
-'''
+''''
 automated data request to eBird using Playwright for session/cookie management.
 handles login and cookie storage + grabbing data from eBird barchart websites for specific hotspots.
 '''
 ##### imports
 import os
-import time
-from playwright.sync_api import sync_playwright
+import asyncio
+from playwright.async_api import async_playwright
 from dotenv import load_dotenv
 
 load_dotenv('server/.env')
@@ -18,26 +18,32 @@ HEADLESS = True
 
 ##### helper functions
 # check if we need to get cookies again
-def is_session_valid(BROWSER):
+async def is_session_valid(BROWSER):
     # do the cookies exist
     if not os.path.exists(SESSION_FILE):
         return False
     # if they do, try to ping a force login page and see if it redirects us
+    context = None
     try:
-        context = BROWSER.new_context(storage_state=SESSION_FILE)
-        response = context.request.get("https://ebird.org/prefs")
+        # await the context creation
+        context = await BROWSER.new_context(storage_state=SESSION_FILE)
+        request_context = context.request 
+        # await the get request
+        response = await request_context.get("https://ebird.org/prefs")
+
         if "login" in response.url:
             return False
         return True
     except Exception:
         return False
     finally:
-        if 'context' in locals():
-            context.close()
+        if context:
+            await context.close()
             
 # get new cookies via playwright
-def ensure_session(BROWSER):
-    if is_session_valid(BROWSER):
+async def ensure_session(BROWSER):
+    # await the session check
+    if await is_session_valid(BROWSER):
         print("[cookies] | existing session ok. using saved cookies.")
         return
 
@@ -46,54 +52,56 @@ def ensure_session(BROWSER):
     context = None
     page = None
     try:
-        context = BROWSER.new_context()
-        page = context.new_page()
-        page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
+        context = await BROWSER.new_context()
+        page = await context.new_page()
+        await page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
 
-        page.wait_for_selector('input[name="username"]', timeout=5000)
+        await page.wait_for_selector('input[name="username"]', timeout=5000)
 
         ## automated login
         print("[playwright] | typing .env username...")
-        page.click('input[name="username"]') 
-        page.fill('input[name="username"]', EBIRD_USERNAME)
-        time.sleep(1) 
+        await page.click('input[name="username"]') 
+        await page.fill('input[name="username"]', EBIRD_USERNAME)
+        await asyncio.sleep(1) 
 
-        page.keyboard.press("Tab")
+        await page.keyboard.press("Tab")
 
         print("[playwright] | typing .env password...")
-        page.fill('input[name="password"]', EBIRD_PASSWORD)
-        time.sleep(1) 
+        await page.fill('input[name="password"]', EBIRD_PASSWORD)
+        await asyncio.sleep(1) 
 
-        page.keyboard.press("Enter")
+        await page.keyboard.press("Enter")
 
         print("[playwright] | submitted. redirecting...")
-        time.sleep(3) # wait for redirect
+        await asyncio.sleep(3) # wait for redirect
 
         # save the cookies
-        context.storage_state(path=SESSION_FILE)
+        await context.storage_state(path=SESSION_FILE)
         print("[cookies] | playwright login success! session saved.")
 
     except Exception as e:
         print(f"[error] | .env login skipped or failed: {e}")
     finally:
-        if page: page.close()
-        if context: context.close()
+        if page: await page.close()
+        if context: await context.close()
 
-def fetch_data(BROWSER, loc, start, end):
+async def fetch_data(BROWSER, loc, start, end):
     print(f"[input] | connecting to eBird for {loc} ({start}-{end})...")
     print("[info] | downloading data...")
 
     context = None
     try:
-        context = BROWSER.new_context(storage_state=SESSION_FILE)
+        context = await BROWSER.new_context(storage_state=SESSION_FILE)
         data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
-        response = context.request.get(data_url)
-        data_text = response.text()
+        
+        request_context = context.request
+        response = await request_context.get(data_url)
+        data_text = await response.text()
 
         if "<!doctype html>" in data_text.lower():
-    
+            # session might be invalid or page failed to load properly
             return None
 
         return data_text
     finally:
-        if context: context.close()
+        if context: await context.close()

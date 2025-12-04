@@ -17,7 +17,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import HotspotAnalyticsReport from '../components/HotspotAnalyticsReport.vue';
 import AnalyticsConfigPanel from '../components/AnalyticsConfigPanel.vue';
 
@@ -30,6 +32,20 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useAnalyticsStore();
+    const route = useRoute();
+
+    // trigger fetch on load instead of search page
+    onMounted(() => {
+      const id = route.params.id as string;
+
+      if (id) {
+          store.selectedHotspotId = id
+          store.fetchHotspotDetail();
+      }
+    });
+
+    return { store };
   }
 
 });
