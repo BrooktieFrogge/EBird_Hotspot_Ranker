@@ -77,12 +77,16 @@
 
         <div class="summary-row">
           <span class="summary-label">Country:</span>
-          <span class="summary-value">{{ analyticsStore.selectedHotspot.region }}</span>
+          <span class="summary-value">
+            {{ analyticsStore.selectedHotspot.country }}
+          </span>
         </div>
 
         <div class="summary-row">
           <span class="summary-label">Location:</span>
-          <span class="summary-value">{{ analyticsStore.selectedHotspot.location }}</span>
+          <span class="summary-value">
+            {{ analyticsStore.selectedHotspot.subregion1 }}
+          </span>
         </div>
 
         <div class="summary-row">
