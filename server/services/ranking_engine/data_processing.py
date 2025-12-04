@@ -46,8 +46,30 @@ def create_locations():
 
 #TODO add type checking & error handling for weeks
 ##### main function
-def get_rankings(locId:int, start_yr:int| None = None, end_yr:str| None = None):
-
+def get_rankings(
+    locId: int,
+    start_yr: int | None = None,
+    end_yr: str | None = None,
+    start_month: int | None = None,
+    start_week: int | None = None,
+    end_month: int | None = None,
+    end_week: int | None = None
+):
+        """
+        Get bird rankings for a location with optional month/week filtering.
+        
+        Args:
+            locId: eBird location ID (e.g., 'L123456')
+            start_yr: Start year for data range
+            end_yr: End year for data range
+            start_month: Start month (1-12)
+            start_week: Start week within start_month (1-4)
+            end_month: End month (1-12)
+            end_week: End week within end_month (1-4)
+        
+        Returns:
+            Dictionary with location name, sample size, and ranked bird data
+        """
         # if loc_input == 'BATCH':
         #     batch_choice = input("[input] | load from file (f) or create new (n)? ").strip().upper()
         #     if batch_choice == 'N':
@@ -80,7 +102,17 @@ def get_rankings(locId:int, start_yr:int| None = None, end_yr:str| None = None):
                 if raw_data:
                     try:
                         # pass data + inputs to calculator
-                        result_dict = process_data(raw_data, loc, start_yr, end_yr, save=SAVE_FILE)
+                        result_dict = process_data(
+                            raw_data,
+                            loc,
+                            start_yr,
+                            end_yr,
+                            start_month=start_month,
+                            start_week=start_week,
+                            end_month=end_month,
+                            end_week=end_week,
+                            save=SAVE_FILE
+                        )
 
                         if SAVE_FILE:
                             print ({"Request Status":"[success] | saved results to '{rank_calculator.OUTPUT_DIR}'"})

@@ -58,13 +58,21 @@ async def browse_hotspots(
         raise HTTPException(status_code=400, detail=f"Invalid Input: {e}")
 
 '''
-Provides detailed hotspot overview. 
+Provides detailed hotspot overview with optional month/week filtering.
 
 Returns:
 -hotspot id,name,region,location, and list of ranked birds for the given hotspot
 '''
 @router.get("/report/{hotspotId}", response_model=DetailedHotspot)
-def get_detailed_hotspot_data(hotspotId:str, start_yr: int |None = None, end_yr: int |None = None):
+def get_detailed_hotspot_data(
+    hotspotId: str,
+    start_yr: int | None = Query(None, description="Start year for data range"),
+    end_yr: int | None = Query(None, description="End year for data range"),
+    start_month: int | None = Query(None, ge=1, le=12, description="Start month (1-12)"),
+    start_week: int | None = Query(None, ge=1, le=4, description="Start week within start_month (1-4)"),
+    end_month: int | None = Query(None, ge=1, le=12, description="End month (1-12)"),
+    end_week: int | None = Query(None, ge=1, le=4, description="End week within end_month (1-4)"),
+):
     print(f"Received request for hotspotID: {hotspotId}")
     if end_yr or start_yr:
         if not end_yr or not start_yr:
@@ -72,7 +80,15 @@ def get_detailed_hotspot_data(hotspotId:str, start_yr: int |None = None, end_yr:
         if end_yr < start_yr or end_yr > datetime.now().year:
             raise HTTPException(status_code=400, detail="Invalid Year Input")
         
-    data =  detailed_hotspot_data(hotspotId, start_yr,end_yr)
+    data = detailed_hotspot_data(
+        hotspotId,
+        start_yr,
+        end_yr,
+        start_month=start_month,
+        start_week=start_week,
+        end_month=end_month,
+        end_week=end_week
+    )
     if not data:
         raise HTTPException(status_code=404, detail="No Information Found.")
     return data
