@@ -303,7 +303,6 @@ export default defineComponent({
   background: #ffffff;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   overflow-y: auto;
 }
 
@@ -341,7 +340,7 @@ export default defineComponent({
 }
 
 .summary-footer {
-  margin-top: 16px;
+  margin-top: auto; 
   padding-top: 12px;
   border-top: 1px solid #eee;
   display: flex;
