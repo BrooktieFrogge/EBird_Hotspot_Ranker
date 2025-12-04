@@ -16,7 +16,9 @@ class Bird(BaseModel):
     Species: str
     wtd_rf: float
     rfpc: float
-    # photo: str #TODO make seperate endpoint for this? only needed for top N birds 
+    birdCode: Optional[str] = None
+    speciesUrl: Optional[str] = None
+    imageUrl: Optional[str] = None
 
 class DetailedHotspot(BaseModel):
     id: str
