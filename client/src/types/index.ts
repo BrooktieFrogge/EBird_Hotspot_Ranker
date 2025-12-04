@@ -3,8 +3,11 @@ export interface Bird {
   Species: string,
   wtd_rf: number,
   rfpc: number,
-  photo?: string
+  birdCode?: string,
+  speciesUrl?: string,
+  imageUrl?: string
 }
+
 
 export interface DetailedHotspot {
   id: string;
