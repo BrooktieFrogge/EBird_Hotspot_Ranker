@@ -58,7 +58,11 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     setHotspot(id: string) {
       this.selectedHotspotId = id;
-      this.fetchHotspotDetail();
+      const overview = this.allHotspots.find(h => h.id === id);
+      if (overview) {
+        // cast to DetailedHotspot temporarily (birds will be empty)
+        this.selectedHotspot = { ...overview, birds: [] } as any; 
+      }
     },
 
     setDateRange(start: number, end: number) {
