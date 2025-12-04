@@ -49,7 +49,7 @@
     <!-- MIDDLE PANEL: Hotspot Cards (scrollable) -->
     <div class="results">
       <div class="cards-container">
-        <HotspotCard
+       <HotspotCard
           v-for="hotspot in filteredHotspots"
           :key="hotspot.id"
           :id="hotspot.id"
@@ -57,7 +57,8 @@
           :country="hotspot.country"
           :subregion1="hotspot.subregion1"
           :species-count="hotspot.speciesCount"
-          @click="selectHotspot(hotspot)"
+          :is-selected="analyticsStore.selectedHotspot && analyticsStore.selectedHotspot.id === hotspot.id"
+          @click="selectHotspotById"
         />
       </div>
     </div>
@@ -359,9 +360,9 @@ export default defineComponent({
       });
     });
 
-    const selectHotspot = (hotspot: HotspotOverview) => {
-      analyticsStore.setHotspot(hotspot.id)
-    };
+    const selectHotspotById = (id: HotspotOverview['id']) => {
+  analyticsStore.setHotspot(id);
+};
 
     /*
     const selectHotspot = (hotspot: Hotspot) => {
@@ -386,7 +387,7 @@ export default defineComponent({
       availableCountries,
       filteredHotspots,
       //selectedHotspot,
-      selectHotspot,
+      selectHotspotById,
       goToSelectedHotspotDetail,
       redirectToHomeScreen,
     };

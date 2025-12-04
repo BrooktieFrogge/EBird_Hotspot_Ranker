@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank              Species   wtd_rf       rfpc
+    1 Western House-Martin 0.666667 100.000000
+    2       Black Redstart 0.611111  91.666669
+    3             Coal Tit 0.611111  91.666665
+    4     Eurasian Griffon 0.500000  75.000001
+    5 Eurasian Crag-Martin 0.500000  74.999998
+    6     Common Chaffinch 0.444444  66.666666
+    7            Great Tit 0.389139  58.370832
+    8        White Wagtail 0.388889  58.333335
+    9       Common Buzzard 0.388889  58.333334
+   10       European Robin 0.388889  58.333332
+
+Summary
+--------------------
+Location: Andorra--route d'Arcalis
+Source: Live Data from (L1207784)
+Total Sample Size: 18.0
+
+Weeks Used:
+May_w4: 1.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 1.0
+Jun_w4: 0.0
+Jul_w1: 1.0
+Jul_w2: 0.0
+Jul_w3: 6.0
+Jul_w4: 3.0
+Aug_w1: 0.0
+Aug_w2: 2.0
+Aug_w3: 0.0
+Aug_w4: 2.0
+Sep_w1: 2.0
+Sep_w2: 0.0
