@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank            Species   wtd_rf       rfpc
+    1        Brown Booby 0.909091 100.000000
+    2        Brown Noddy 0.818182  90.000000
+    3 Lesser Frigatebird 0.818182  90.000000
+    4         Sooty Tern 0.727273  80.000000
+    5 Great Crested Tern 0.636364  70.000000
+    6       Masked Booby 0.545455  60.000000
+    7 Pacific Reef-Heron 0.454545  50.000000
+    8   Red-footed Booby 0.454545  50.000000
+    9  Great Frigatebird 0.454545  50.000000
+   10       Bridled Tern 0.454545  50.000000
+
+Summary
+--------------------
+Location: Ashmore Reef
+Source: Live Data from (L2533783)
+Total Sample Size: 11.0
+
+Weeks Used:
+May_w4: 1.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 0.0
+Jun_w4: 0.0
+Jul_w1: 0.0
+Jul_w2: 0.0
+Jul_w3: 0.0
+Jul_w4: 1.0
+Aug_w1: 1.0
+Aug_w2: 1.0
+Aug_w3: 0.0
+Aug_w4: 2.0
+Sep_w1: 5.0
+Sep_w2: 0.0

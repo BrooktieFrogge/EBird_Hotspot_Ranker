@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank              Species   wtd_rf       rfpc
+    1          Water Pipit 0.777778 100.000000
+    2    Northern Wheatear 0.666667  85.714286
+    3 Yellow-billed Chough 0.555722  71.450000
+    4     Eurasian Kestrel 0.444444  57.142857
+    5         Common Swift 0.333333  42.857143
+    6         Citril Finch 0.333333  42.857143
+    7     Eurasian Griffon 0.333333  42.857143
+    8      Eurasian Linnet 0.333333  42.857143
+    9    Red-billed Chough 0.333333  42.857143
+   10        White Wagtail 0.222389  28.592857
+
+Summary
+--------------------
+Location: Port d'Envalira
+Source: Live Data from (L6120583)
+Total Sample Size: 9.0
+
+Weeks Used:
+May_w4: 0.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 0.0
+Jun_w4: 1.0
+Jul_w1: 2.0
+Jul_w2: 1.0
+Jul_w3: 0.0
+Jul_w4: 4.0
+Aug_w1: 0.0
+Aug_w2: 0.0
+Aug_w3: 0.0
+Aug_w4: 1.0
+Sep_w1: 0.0
+Sep_w2: 0.0

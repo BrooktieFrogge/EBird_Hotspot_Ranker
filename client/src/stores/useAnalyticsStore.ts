@@ -33,70 +33,21 @@ export const useAnalyticsStore = defineStore('analytics', {
   }),
 
   getters: {
-    //Maybe we'll need this?? ===============================
-    //sortedTopBirds(state) {
-    //  return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => b.Rank - a.Rank)
-    //},
 
-    //TEMPORARY ============== !!! -> replace later
-    getPlacementTopBirds(state) {
-      const birds: Bird[] = [
-        { Species: "American Robin", Rank: 1, wtd_rf: 12, rfpc: 8, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/303441381/2400" },
-        { Species: "Mourning Dove", Rank: 2, wtd_rf: 10, rfpc: 7, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/60386921/2400" },
-        { Species: "House Finch", Rank: 3, wtd_rf: 9, rfpc: 6, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/306327341/2400" },
-        { Species: "Blue Jay", Rank: 4, wtd_rf: 8, rfpc: 5, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/311635911/2400" },
-        { Species: "Northern Cardinal", Rank: 5, wtd_rf: 7, rfpc: 5, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/297087301/2400" },
-        { Species: "Dark-eyed Junco", Rank: 6, wtd_rf: 6, rfpc: 4, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/66115711/2400" },
-        { Species: "Black-capped Chickadee", Rank: 7, wtd_rf: 5, rfpc: 4, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/302472691/2400" },
-        { Species: "European Starling", Rank: 8, wtd_rf: 5, rfpc: 3, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/303928891/2400" },
-        { Species: "Red-tailed Hawk", Rank: 9, wtd_rf: 4, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/60384771/2400" },
-        { Species: "Canada Goose", Rank: 10, wtd_rf: 4, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/59953191/2400" },
-        { Species: "Great Blue Heron", Rank: 11, wtd_rf: 3, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/304479371/2400" },
-        { Species: "Bald Eagle", Rank: 12, wtd_rf: 3, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/306062281/2400" },
-        { Species: "American Goldfinch", Rank: 13, wtd_rf: 3, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/306710541/2400" },
-        { Species: "Downy Woodpecker", Rank: 14, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/60397941/2400" },
-        { Species: "White-breasted Nuthatch", Rank: 15, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/68039391/2400" },
-        { Species: "American Crow", Rank: 16, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/59858041/2400" },
-        { Species: "Tufted Titmouse", Rank: 17, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/302627281/2400" },
-        { Species: "Common Grackle", Rank: 18, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/307948931/2400" },
-        { Species: "Rock Pigeon", Rank: 19, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/308065631/2400" },
-        { Species: "Song Sparrow", Rank: 20, wtd_rf: 1, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/308771371/2400" },
-      ];
-      return birds.sort((a, b) => b.Rank - a.Rank).slice(0, state.numTopBirds);
-    },
-
-    //Replacement? 
+    /**
+     * Sorts and returns the top N birds for the selected hotspot
+     * @param state 
+     * @returns Top N birds sorted by Rank
+     */
     getTopBirds(state) {
         return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => a.Rank - b.Rank).slice(0, state.numTopBirds);
     },
 
-
-    getAllPlacementBirds() {
-      const birds: Bird[] = [
-        { Species: "American Robin", Rank: 1, wtd_rf: 12, rfpc: 8, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/303441381/2400" },
-        { Species: "Mourning Dove", Rank: 2, wtd_rf: 10, rfpc: 7, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/60386921/2400" },
-        { Species: "House Finch", Rank: 3, wtd_rf: 9, rfpc: 6, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/306327341/2400" },
-        { Species: "Blue Jay", Rank: 4, wtd_rf: 8, rfpc: 5, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/311635911/2400" },
-        { Species: "Northern Cardinal", Rank: 5, wtd_rf: 7, rfpc: 5, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/297087301/2400" },
-        { Species: "Dark-eyed Junco", Rank: 6, wtd_rf: 6, rfpc: 4, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/66115711/2400" },
-        { Species: "Black-capped Chickadee", Rank: 7, wtd_rf: 5, rfpc: 4, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/302472691/240  0" },
-        { Species: "European Starling", Rank: 8, wtd_rf: 5, rfpc: 3, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/303928891/2400" },
-        { Species: "Red-tailed Hawk", Rank: 9, wtd_rf: 4, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/60384771/2400" },
-        { Species: "Canada Goose", Rank: 10, wtd_rf: 4, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/59953191/2400" },
-        { Species: "Great Blue Heron", Rank: 11, wtd_rf: 3, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/304479371/2400" },
-        { Species: "Bald Eagle", Rank: 12, wtd_rf: 3, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/306062281/2400" },
-        { Species: "American Goldfinch", Rank: 13, wtd_rf: 3, rfpc: 2, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/306710541/2400" },
-        { Species: "Downy Woodpecker", Rank: 14, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/60397941/2400" },
-        { Species: "White-breasted Nuthatch", Rank: 15, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/68039391/2400" },
-        { Species: "American Crow", Rank: 16, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/59858041/2400" },
-        { Species: "Tufted Titmouse", Rank: 17, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/302627281/2400" }, 
-        { Species: "Common Grackle", Rank: 18, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/307948931/2400" },
-        { Species: "Rock Pigeon", Rank: 19, wtd_rf: 2, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/308065631/2400" },
-        { Species: "Song Sparrow", Rank: 20, wtd_rf: 1, rfpc: 1, photo: "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/308771371/2400" },
-      ];
-      return birds.sort((a, b) => a.Rank - b.Rank);
-    },
-
+    /**
+     * Returns all birds for the selected hotspot, sorted by Rank
+     * @param state 
+     * @returns All birds sorted by Rank
+     */
     getAllBirds(state) {
       return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => a.Rank - b.Rank);
     }
@@ -104,6 +55,7 @@ export const useAnalyticsStore = defineStore('analytics', {
   },
 
   actions: {
+
     setHotspot(id: string) {
       this.selectedHotspotId = id;
       const overview = this.allHotspots.find(h => h.id === id);
@@ -119,16 +71,57 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
     },
 
+    /**
+     * Toggles the visibility of the likelihood curve in the analytics report
+     */
     toggleLikelihoodCurve() {
       this.showLikelihoodCurve = !this.showLikelihoodCurve;
     },
 
+    /**
+     * Toggles the visibility of top bird photos in the analytics report
+     */
     toggleTopPhotos() {
       this.showTopBirdPhotos = !this.showTopBirdPhotos;
     },
 
+    /**
+     * Selects a bird to be highlighted in the analytics report
+     * @param bird 
+     */
     selectBird(bird: Bird) {
-      this.selectedBirds.push(bird);
+      if (!this.selectedBirds.some(b => b === bird)) {
+        this.selectedBirds.push(bird);
+      }
+    },
+
+    /**
+     * Deselects a bird from the analytics report
+     * @param bird 
+     */
+    deselectBird(bird: Bird) {
+      console.log("deselected bird");
+      this.selectedBirds = this.selectedBirds.filter(b => b !== bird);
+      console.log(this.selectedBirds);
+    },
+
+    /**
+     * Resets the analytics configuration to default values
+     */
+    resetAnalyticsConfiguration() {
+      this.selectedBirds = [];
+      this.numTopBirds = 10;
+      this.showLikelihoodCurve = false;
+      this.showTopBirdPhotos = true;
+      this.yearRange = { start: null, end: null };
+    },
+
+    /**
+     * Resets the selected hotspot
+     */
+    resetSelectedHotspot() {
+      this.selectedHotspotId = null;
+      this.selectedHotspot = null;
     },
 
     async fetchAllHotspots() {
@@ -155,7 +148,6 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     async fetchHotspotDetail() {
       console.log("fetchHotspotDetail called");
-      //this.selectedHotspotId = "L901084"; //TEMPORARY
       if (!this.selectedHotspotId) return
 
       this.isLoading = true

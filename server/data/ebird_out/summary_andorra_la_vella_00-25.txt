@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank              Species   wtd_rf       rfpc
+    1 Western House-Martin 0.709302 100.000000
+    2          Rock Pigeon 0.662791  93.442623
+    3        House Sparrow 0.593023  83.606556
+    4 Eurasian Crag-Martin 0.558140  78.688524
+    5        White Wagtail 0.488372  68.852459
+    6   Eurasian Blackbird 0.395436  55.750000
+    7         Gray Wagtail 0.383721  54.098358
+    8         Common Swift 0.372145  52.466394
+    9       Black Redstart 0.302326  42.622948
+   10         Eurasian Jay 0.255901  36.077868
+
+Summary
+--------------------
+Location: Andorra la Vella
+Source: Live Data from (L1120128)
+Total Sample Size: 86.0
+
+Weeks Used:
+May_w4: 7.0
+Jun_w1: 2.0
+Jun_w2: 7.0
+Jun_w3: 5.0
+Jun_w4: 6.0
+Jul_w1: 3.0
+Jul_w2: 6.0
+Jul_w3: 10.0
+Jul_w4: 15.0
+Aug_w1: 5.0
+Aug_w2: 4.0
+Aug_w3: 5.0
+Aug_w4: 5.0
+Sep_w1: 3.0
+Sep_w2: 3.0

@@ -10,7 +10,7 @@
       </div>
 
       <!-- Home Button -->
-      <div id="home-button" @click="redirectToWelcomeScreen">
+      <div id="home-button" @click="redirectToHomeScreen">
         <div class="button-wrapper">
           <BIconHouseFill />
         </div>
@@ -200,11 +200,8 @@ export default defineComponent({
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
 
-
     const yearRange = ref([1900, 2025]);
     const weekRange = ref([0, 48]);
-    const ex11 = ['red', 'indigo', 'orange', 'primary', 'secondary', 'success', 'info', 
-    'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
 
     const birdSearch = ref("");
     const allBirds = computed(() => analyticsStore.getAllBirds);
@@ -219,26 +216,31 @@ export default defineComponent({
       );
     };
 
+    /**
+     * Selects a bird from the search results.
+     * @param bird - The bird to select.
+     */
     const selectBird = (bird: Bird) => {
       birdSearch.value = bird.Species;
       filteredBirds.value = [];
-      console.log("Selected bird:", bird.Species);
       analyticsStore.selectBird(bird);
-      // optionally emit event or store selected state
     };
 
     
     /**
      * Redirects the router to the welcome screen.
      */
-    const redirectToWelcomeScreen = () => {
-      router.push({ name: 'WelcomeScreen' });
+    const redirectToHomeScreen = () => {
+      analyticsStore.resetAnalyticsConfiguration();
+      analyticsStore.resetSelectedHotspot();
+      router.push({ name: 'HomeScreen' });
     };
 
      /**
      * Redirects the router to the hotspot search.
      */
     const redirectToHotspotSearch = () => {
+      analyticsStore.resetAnalyticsConfiguration();
       router.push({ name: 'HotspotSearch' });
     };
 
@@ -264,11 +266,10 @@ export default defineComponent({
     };
 
     return {
-      redirectToWelcomeScreen,
+      redirectToHomeScreen,
       redirectToHotspotSearch,
       yearRange,
       weekRange,
-      ex11, 
       birdSearch, 
       allBirds,
       filteredBirds,
@@ -334,8 +335,7 @@ export default defineComponent({
 }
 
 .config-section {
-  margin-top: 24px;
-  margin-bottom: 24px;
+  margin-top: 20px;
 }
 
 .config-section h4 {

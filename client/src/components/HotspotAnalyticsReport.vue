@@ -1,8 +1,8 @@
 <template>
   <div class="analytics-container">
     <div class="bird-lists-container">
-      <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? "Ankasa NP" }} Analytics Report </h3>
-      <hr/></hr>
+      <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}: Analytics Report </h3>
+      <hr />
 
       <!-- LEFT SECTION: Table -->
       <div class="bird-table">
@@ -10,7 +10,7 @@
 
         <div class="table-header">
           <div>Species</div>
-          <div>WTDRF</div>
+          <div>Weighted Rank Factor</div>
           <div>RFPC</div>
         </div>
 
@@ -31,17 +31,14 @@
 
 
       <!-- RIGHT SECTION: Graph -->
-      <!-- <div id="chart">
-        <ApexChart type="line" height="350" :options="chartOptions" :series="series"></ApexChart>
-      </div>-->
-      <div style="width: 500px; padding-left: 20px;" v-show="analyticsStore.showLikelihoodCurve">
-        <img
-            class="photo"
-            width="50%"
-            height="50%"
-            :src="placeholdPic"
-            alt=""
-          />
+      <div id="apexchart" style="width:100%; height:350px; border: 1px solid black;">
+        <apexchart 
+          ref="chart"
+          type="line"
+          :options = "chartOptions"
+          :series = "series"
+          >
+        </apexchart>
       </div>
 
 
@@ -51,8 +48,8 @@
 
         <div class="table-header">
           <div>Species</div>
-          <div>Data 1</div>
-          <div>Data 2</div>
+          <div>Weighted Rank Factor</div>
+          <div>RFPC</div>
         </div>
 
         <div
@@ -67,6 +64,11 @@
 
           <div class="cell">{{ bird.wtd_rf }}</div>
           <div class="cell">{{ bird.rfpc }}</div>
+          <div class="cell">
+            <div id="remove-bird-button" @click="analyticsStore.deselectBird(bird)">
+              <BIconXCircle/>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -90,88 +92,86 @@
       </div>
     </div>
 
-
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted } from 'vue';
+import { computed, defineComponent, nextTick, ref, watch } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import VueApexCharts from 'apexcharts';
-
-const analyticsStore = useAnalyticsStore();
+import VueApexCharts from 'vue3-apexcharts';
+import { BIconXCircle } from 'bootstrap-icons-vue';
+import type { ApexOptions } from 'apexcharts';
+import { addSyntheticTrailingComment } from 'typescript';
 
 export default defineComponent({
   name: 'HotspotAnalyticsReport',
 
   components: {
-    ApexChart: VueApexCharts,
-  },
-  
-  data() {
-    return {
-      series: [{
-        name: "Ranking",
-        data: analyticsStore.getPlacementTopBirds.map(bird => bird.wtd_rf)
-      }],
-      chartOptions: {
-        chart: {
-          height: 350,
-          type: 'line',
-          zoom: {
-            enabled: false
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          curve: 'straight'
-        },
-        title: {
-          text: 'Bird Frequency Ranking',
-          align: 'left'
-        },
-        grid: {
-          row: {
-            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-            opacity: 0.5
-          },
-        },
-        xaxis: {
-          categories: analyticsStore.getPlacementTopBirds.map(bird => bird.Rank),
-        }
-      },
-    };
+    apexchart: VueApexCharts,
+    BIconXCircle
   },
 
   setup() {
-
-    onMounted(() => {
-      console.log('Component has been mounted to the DOM!');
-      analyticsStore.fetchHotspotDetail()
-
-    });
-
     const analyticsStore = useAnalyticsStore();
     const birds = computed(() => analyticsStore.getTopBirds);
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
+    //not sure if necessary for the chart to update when toggling visibility
+    const chart = ref<InstanceType<typeof VueApexCharts> | null>(null);
+
+    //same as above
+    watch(() => analyticsStore.showLikelihoodCurve, async (visible) => {
+      if (visible) {
+        await nextTick();
+        chart.value?.updateOptions({});
+      }
+    });
+
+    const series = computed(() => [{
+      name: "Ranking",
+      data: birds.value.map((bird: any) => bird.wtd_rf)
+      //data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+    }]);
+
+    const chartOptions = computed<ApexOptions>(() => ({
+      chart: {
+        id: "apexchart",
+        height: 350,
+        type: 'line',
+        zoom: {
+          enabled: true
+        },
+      },
+      stroke: {
+        curve: "straight"
+      },
+      title: {
+        text: 'Bird Frequency Ranking',
+        align: 'left'
+      },
+      grid: {
+        row: {
+          colors: ['#f3f3f3', 'transparent'],
+          opacity: 0.5
+        },
+      },
+      xaxis: {
+        categories: birds.value.map((bird: any) => bird.rank),
+        //categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+      }
+    }));
 
     return {
       analyticsStore,
       birds,
-      placeholdPic
-      
+      placeholdPic,
+      series,
+      chartOptions
     };
-  
   },
 
 });
-
-
-
 </script>
 
 <style scoped>
@@ -188,9 +188,7 @@ export default defineComponent({
 .bird-lists-container {
   display: block;
   gap: 24px;
-  height: 100vh;
   width: 100vh;
-  background: white;
   color: #222;
 }
 
@@ -208,7 +206,7 @@ export default defineComponent({
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 1.1fr 1fr 1fr 0.1fr;
   padding: 8px 0;
   border-bottom: 1px solid #e4e4e4;
 }
@@ -247,7 +245,7 @@ export default defineComponent({
 
 .photo {
   width: 100%;
-  height: 200;
+  height: 200px;
   object-fit: cover;
 }
 
@@ -257,4 +255,3 @@ export default defineComponent({
   text-align: center;
 }
 </style>
-
