@@ -1,0 +1,140 @@
+Rank,Species,wtd_rf,rfpc
+1,Sooty Tern,1.0,100.0
+2,Brown Noddy,0.975,97.5
+3,Brown Booby,0.95,95.0
+4,Pacific Reef-Heron,0.925,92.5
+5,Lesser Frigatebird,0.925,92.5
+6,Red-footed Booby,0.925,92.5
+7,Red-tailed Tropicbird,0.9,90.0
+8,Black Noddy,0.875,87.5
+9,Great Crested Tern,0.825,82.5
+10,Bridled Tern,0.824999995,82.4999995
+11,Masked Booby,0.6250000099999999,62.500001
+12,Great Frigatebird,0.625000005,62.5000005
+13,Nankeen Night Heron,0.600000005,60.00000049999999
+14,Buff-banded Rail,0.550150005,55.0150005
+15,Ruddy Turnstone,0.550000005,55.0000005
+16,Lesser Noddy,0.525,52.5
+17,Common Sandpiper,0.500000005,50.0000005
+18,White-tailed Tropicbird,0.4750000075,47.50000075
+19,Eurasian Whimbrel,0.47500000499999995,47.50000049999999
+20,Sacred Kingfisher,0.450000005,45.0000005
+21,Little Egret,0.45,45.0
+22,Greater Sand-Plover,0.275000005,27.5000005
+23,Common Greenshank,0.24999999749999996,24.999999749999997
+24,Gray-tailed Tattler,0.15,15.0
+25,Great Knot,0.12499999499999999,12.4999995
+26,Roseate Tern,0.09999999749999999,9.999999749999999
+27,Pacific Golden-Plover,0.0999999925,9.99999925
+28,frigatebird sp.,0.075,7.5
+29,Sooty/Bridled Tern,0.075,7.5
+30,Shining Bronze-Cuckoo,0.075,7.5
+31,Little Black Cormorant,0.050000002499999995,5.000000249999999
+32,Barn Swallow,0.05,5.0
+33,Sanderling,0.05,5.0
+34,cuckoo sp. (Cuculidae sp.),0.05,5.0
+35,Great Egret,0.05,5.0
+36,Brown/Black Noddy,0.025,2.5
+37,Red-billed Tropicbird,0.025,2.5
+38,Wedge-tailed Shearwater,0.025,2.5
+39,Medium/Plumed Egret,0.025,2.5
+40,Little Bronze-Cuckoo,0.025,2.5
+41,Horsfield's Bronze-Cuckoo,0.025,2.5
+42,Far Eastern Curlew,0.025,2.5
+43,Wood Sandpiper,0.0249999925,2.4999992499999997
+44,Whiskered Tern,0.0249999925,2.4999992499999997
+45,Wilson's Storm-Petrel,0.00022500000000000002,0.022500000000000003
+46,Sahul Cicadabird,0.0,0.0
+47,Supertramp Fantail,0.0,0.0
+48,White-winged Triller,0.0,0.0
+49,Black-faced Cuckooshrike,0.0,0.0
+50,Rufous-throated Honeyeater,0.0,0.0
+51,Magpie-lark,0.0,0.0
+52,Peregrine Falcon,0.0,0.0
+53,Nankeen Kestrel,0.0,0.0
+54,Dollarbird,0.0,0.0
+55,Collared Kingfisher,0.0,0.0
+56,Island Monarch,0.0,0.0
+57,Australian Spectacled Monarch,0.0,0.0
+58,Gray's Grasshopper Warbler,0.0,0.0
+59,Broad-billed Flycatcher,0.0,0.0
+60,Tiger Shrike,0.0,0.0
+61,Eastern Yellow Wagtail,0.0,0.0
+62,Gray Wagtail,0.0,0.0
+63,Eurasian Tree Sparrow,0.0,0.0
+64,Siberian Blue Robin,0.0,0.0
+65,Blue-and-white/Zappey's Flycatcher,0.0,0.0
+66,Blue-and-white Flycatcher,0.0,0.0
+67,Asian Brown Flycatcher,0.0,0.0
+68,Dark-sided Flycatcher,0.0,0.0
+69,Gray-streaked Flycatcher,0.0,0.0
+70,Siberian Thrush,0.0,0.0
+71,Daurian/Chestnut-cheeked Starling,0.0,0.0
+72,Rosy Starling,0.0,0.0
+73,Australian Yellow White-eye,0.0,0.0
+74,Ashy-bellied White-eye,0.0,0.0
+75,Phylloscopus sp.,0.0,0.0
+76,Japanese Leaf/Arctic/Kamchatka Leaf Warbler,0.0,0.0
+77,Arctic/Kamchatka Leaf Warbler,0.0,0.0
+78,Kamchatka Leaf Warbler,0.0,0.0
+79,Arctic Warbler,0.0,0.0
+80,Eastern Crowned Warbler,0.0,0.0
+81,Willow Warbler,0.0,0.0
+82,Tree Martin,0.0,0.0
+83,Fairy Martin,0.0,0.0
+84,Eastern Red-rumped Swallow,0.0,0.0
+85,Middendorff's Grasshopper Warbler,0.0,0.0
+86,Pallas's Grasshopper Warbler,0.0,0.0
+87,Northern Boobook,0.0,0.0
+88,Australian Reed Warbler,0.0,0.0
+89,Oriental Reed Warbler,0.0,0.0
+90,Rainbow Bee-eater,0.0,0.0
+91,Rose-crowned Fruit-Dove,0.0,0.0
+92,Swamp Harrier,0.0,0.0
+93,Chinese Sparrowhawk,0.0,0.0
+94,Terek Sandpiper,0.0,0.0
+95,Red-necked Phalarope,0.0,0.0
+96,Bar-tailed Godwit,0.0,0.0
+97,Little Curlew,0.0,0.0
+98,Siberian/Tibetan Sand-Plover,0.0,0.0
+99,Siberian Sand-Plover,0.0,0.0
+100,Oriental Plover,0.0,0.0
+101,Black-bellied Plover,0.0,0.0
+102,Pied Stilt,0.0,0.0
+103,Red-legged Crake,0.0,0.0
+104,White-breasted Waterhen,0.0,0.0
+105,Watercock,0.0,0.0
+106,swift sp.,0.0,0.0
+107,Apus/Tachymarptis sp.,0.0,0.0
+108,Pacific Swift,0.0,0.0
+109,dark swiftlet sp.,0.0,0.0
+110,White-nest Swiftlet,0.0,0.0
+111,White-throated Needletail,0.0,0.0
+112,Oriental Cuckoo,0.0,0.0
+113,Sahul Brush Cuckoo,0.0,0.0
+114,Black-eared Cuckoo,0.0,0.0
+115,Marsh Sandpiper,0.0,0.0
+116,Red Knot,0.0,0.0
+117,Sharp-tailed Sandpiper,0.0,0.0
+118,White-winged Tern,0.0,0.0
+119,Japanese Sparrowhawk,0.0,0.0
+120,Black Bittern,0.0,0.0
+121,Little Pied Cormorant,0.0,0.0
+122,Nazca Booby,0.0,0.0
+123,Streaked Shearwater,0.0,0.0
+124,Trindade Petrel,0.0,0.0
+125,Pacific Koel,0.0,0.0
+126,tern sp.,0.0,0.0
+127,Common Tern,0.0,0.0
+128,Caspian Tern,0.0,0.0
+129,Curlew Sandpiper,0.0,0.0
+130,Gull-billed/Australian Tern,0.0,0.0
+131,Australian Tern,0.0,0.0
+132,Gull-billed Tern,0.0,0.0
+133,Little Tern,0.0,0.0
+134,shorebird sp.,0.0,0.0
+135,Oriental Pratincole,0.0,0.0
+136,Australian Pratincole,0.0,0.0
+137,Red-backed Buttonquail,0.0,0.0
+138,Red-necked Stint,0.0,0.0
+139,Pechora Pipit,0.0,0.0

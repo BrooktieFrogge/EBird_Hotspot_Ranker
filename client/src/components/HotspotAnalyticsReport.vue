@@ -1,7 +1,7 @@
 <template>
   <div class="analytics-container">
     <div class="bird-lists-container">
-      <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? "Ankasa NP" }} Analytics Report </h3>
+      <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}: Analytics Report </h3>
       <hr />
 
       <!-- LEFT SECTION: Table -->
@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import VueApexCharts from 'apexcharts';
 
@@ -108,7 +108,7 @@ export default defineComponent({
 
   setup() {
     const analyticsStore = useAnalyticsStore();
-    const birds = computed(() => analyticsStore.getPlacementTopBirds);
+    const birds = computed(() => analyticsStore.getTopBirds);
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
