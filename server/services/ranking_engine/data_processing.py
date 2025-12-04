@@ -3,10 +3,10 @@ main ranker script. uses data_request.py to fetch data and rank_calculator.py ca
 '''
 ##### imports
 from  services.ranking_engine.rank_calculator import process_data
-from  services.ranking_engine.fetch_barcharts import fetch_data,ensure_session,HEADLESS
+from  services.ranking_engine.fetch_barcharts import fetch_data, ensure_session, HEADLESS
 import pandas as pd
-import os,httpx
-from playwright.sync_api import sync_playwright
+import os, httpx
+from playwright.async_api import async_playwright
 
 ### config
 SAVE_FILE = True
@@ -25,6 +25,7 @@ def load_locations(filepath=None):
     except FileNotFoundError:
         print(f"[error] | '{filepath}' was not found.")
         return []
+
 # create locations via user input
 def create_locations():
     location_list = []
@@ -44,56 +45,79 @@ def create_locations():
 
     return location_list
 
-#TODO add type checking & error handling for weeks
 ##### main function
-def get_rankings(locId:int, start_yr:int| None = None, end_yr:str| None = None):
+async def get_rankings(
+    locId: str,
+    start_yr: int | None = None,
+    end_yr: int | None = None,
+    start_month: int | None = None,
+    start_week: int | None = None,
+    end_month: int | None = None,
+    end_week: int | None = None
+):
+    """
+    get bird rankings for a location with optional month/week filtering.
+    
+    args:
+        locId: eBird location ID (e.g., 'L123456')
+        start_yr: Start year for data range
+        end_yr: End year for data range
+        start_month: Start month (1-12)
+        start_week: Start week within start_month (1-4)
+        end_month: End month (1-12)
+        end_week: End week within end_month (1-4)
+    
+    returns:
+        Dictionary with location name, sample size, and ranked bird data
+    """
+    
+    process_list = [locId.upper()]
+    
+    try:
+        start_yr = start_yr if start_yr else 1900
+        end_yr = end_yr if end_yr else 2025
 
-        # if loc_input == 'BATCH':
-        #     batch_choice = input("[input] | load from file (f) or create new (n)? ").strip().upper()
-        #     if batch_choice == 'N':
-        #         process_list = create_locations()
-        #     elif batch_choice == 'F':
-        #         process_list = load_locations()
-        #     if not process_list: continue
-        # elif loc_input:
-        process_list = [locId.upper()]
-       
-        try:
-        
-            start_yr = start_yr if start_yr else 1900
-            end_yr = end_yr if end_yr else 2025
+    except Exception as e:
+            return(f"Invalid Daterange - {e}.")
 
-        except Exception as e:
-             return(f"Invalid Daterange - {e}.")
-  
-        with sync_playwright() as p:
-            BROWSER =  p.chromium.launch(headless= HEADLESS)
+    # using async context manager
+    async with async_playwright() as p:
+        BROWSER = await p.chromium.launch(headless=HEADLESS)
 
-            # ensure session is valid, autologin if needed
-            ensure_session(BROWSER)
+        # await the session check
+        await ensure_session(BROWSER)
 
-            for loc in process_list:
-                # print(f"[info] | fetching {loc} data from ebird...")
-                raw_data = fetch_data(BROWSER, loc, start_yr, end_yr)
+        for loc in process_list:
+            # await the fetch data call
+            raw_data = await fetch_data(BROWSER, loc, start_yr, end_yr)
 
-                # process in memory
-                if raw_data:
-                    try:
-                        # pass data + inputs to calculator
-                        result_dict = process_data(raw_data, loc, start_yr, end_yr, save=SAVE_FILE)
+            # process in memory
+            if raw_data:
+                try:
+                    # await the calculator process
+                    result_dict = await process_data(
+                        raw_data,
+                        loc,
+                        start_yr,
+                        end_yr,
+                        start_month=start_month,
+                        start_week=start_week,
+                        end_month=end_month,
+                        end_week=end_week,
+                        save=SAVE_FILE
+                    )
 
-                        if SAVE_FILE:
-                            print ({"Request Status":"[success] | saved results to '{rank_calculator.OUTPUT_DIR}'"})
-                            return result_dict
+                    if SAVE_FILE:
+                        print ({"Request Status":"[success] | saved results to output directory"})
+                        return result_dict
+                
+                    else:
+                        # convert the dict back to df just to show head in logs
+                        df = pd.DataFrame(result_dict['data'])
+                        return {f"[success] | results stored in result_dict (location: {result_dict['location']})": df.head(10)}
                     
-                        else:
-                            # convert the dict back to df just to show head in logs
-                            df = pd.DataFrame(result_dict['data'])
-
-                            return{f"[success] | results stored in result_dict (location: {result_dict['location']})": df.head(10)}
+                except Exception as e:
+                    return(f"[error] | calculation/formatting failed - {e}")
                         
-                    except Exception as e:
-                        return(f"[error] | calculation/formatting failed - {e}")
-                         
-                else:
-                    return None
+            else:
+                return None

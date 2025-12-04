@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from routes import hotspots, rankings
+from routes import hotspots, rankings, species
 
 load_dotenv()
 app = FastAPI()
@@ -17,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(hotspots.router)
+app.include_router(species.router)
 
 @app.get("/")
 def main():

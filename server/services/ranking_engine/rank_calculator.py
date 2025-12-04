@@ -23,17 +23,23 @@ MONTH_ROW_INDEX = 13
 SAMPLE_SIZE_ROW_INDEX = 14
 DATA_START_ROW_INDEX = 16
 
-# filter config: 'Jun': [1, 2, 4] or 'Jun': 'all'
-FILTER_CONFIG = {
-        'May': [4],
-        'Jun': 'all',
-        'Jul': 'all',
-        'Aug': 'all',
-        'Sep': [1,2]
-}
+# month name mapping
+MONTH_NAMES = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+MONTH_TO_NUM = {name: idx for idx, name in enumerate(MONTH_NAMES)}
+
 TOP_N_VIEW = 10
 
 ##### helper functions
+def month_str_to_num(month_str: str) -> int:
+        if not month_str:
+                return 0
+        return MONTH_TO_NUM.get(month_str.strip(), 0)
+
+def month_num_to_str(month_num: int) -> str:
+        if month_num and 1 <= month_num <= 12:
+                return MONTH_NAMES[month_num]
+        return None
+
 def get_location_name(loc_id):
         ## call api to convert id -> name
         url = f"https://api.ebird.org/v2/ref/hotspot/info/{loc_id}"
@@ -73,13 +79,44 @@ def create_summary(filename, source_file, total_weight, df, used_weeks, location
                         f.write(f"{k}: {v}\n")
 
 ##### main logic
-def calculate_metrics(df, raw_weights, month_row):
-        ### filter columns based on config
+def calculate_metrics(df, raw_weights, month_row, start_month=None, start_week=None, end_month=None, end_week=None):
+        """
+        filter eBird barchart data by month and week within month.
+        
+        args:
+                df: DataFrame with species data (columns are weekly observations)
+                raw_weights: list of sample sizes for each week
+                month_row: row containing month headers on txt file
+                start_month: month name (3letter code) or None for Jan
+                start_week: week within month 1-4 or None for week 1
+                end_month: month name (3letter code) or None for Dec
+                end_week: Wwek within month 1-4 or None for week 4
+        
+        returns:
+                tuple: (final_df, total_weight, used_weeks_map, cols_used_count, sample_sizes_map)
+        """
+        
+        start_month_num = month_str_to_num(start_month) if isinstance(start_month, str) else (start_month if start_month else 1)
+        end_month_num = month_str_to_num(end_month) if isinstance(end_month, str) else (end_month if end_month else 12)
+        
+        # default config
+        if start_week is None:
+                start_week = 1
+        if end_week is None:
+                end_week = 4
+        
+        # validate inputs
+        start_week = max(1, min(4, int(start_week)))
+        end_week = max(1, min(4, int(end_week)))
+        
+        ### filter columns based on month/week range
         cols_to_keep = []
         weights_to_use = []
         used_weeks_map = {} # for summary.txt
+        sample_sizes_map = {} # all weekly sample sizes for frontend
 
         current_month = ""
+        current_month_num = 0
         week_counter = 0
 
         # iterate through cols to decide what to keep
@@ -92,25 +129,47 @@ def calculate_metrics(df, raw_weights, month_row):
                         m = month_row[month_row_index].strip()
                         if m:
                                 current_month = m
+                                current_month_num = month_str_to_num(m)
                                 week_counter = 1
                         else:
                                 week_counter += 1
 
-                # check if we want this month/week
+                # get this week's sample size
+                w = raw_weights[weight_index] if weight_index < len(raw_weights) else 0
+                week_key = f"{current_month}_w{week_counter}"
+                sample_sizes_map[week_key] = w 
+
+                # check if this (month, week) is in the range
                 keep = False
-                if not FILTER_CONFIG:
-                        keep = True # keep all if config empty
-                elif current_month in FILTER_CONFIG:
-                        req = FILTER_CONFIG[current_month]
-                        if req == 'all' or week_counter in req:
+                
+                if current_month_num == 0:
+                        keep = False  # unknown month, skip
+                elif start_month_num < end_month_num:
+                        # normal case:
+                        if start_month_num < current_month_num < end_month_num:
+                                keep = True  # middle months
+                        elif current_month_num == start_month_num and week_counter >= start_week:
+                                keep = True  # start month, week >= start_week
+                        elif current_month_num == end_month_num and week_counter <= end_week:
+                                keep = True  # end month, week <= end_week
+                elif start_month_num == end_month_num:
+                        # same month case
+                        if current_month_num == start_month_num and start_week <= week_counter <= end_week:
                                 keep = True
+                else:
+                        # wrap around case
+                        if current_month_num >= start_month_num or current_month_num <= end_month_num:
+                                if current_month_num == start_month_num and week_counter >= start_week:
+                                        keep = True
+                                elif current_month_num == end_month_num and week_counter <= end_week:
+                                        keep = True
+                                elif start_month_num < current_month_num or current_month_num < end_month_num:
+                                        keep = True
 
                 if keep:
                         cols_to_keep.append(col_name)
-                        # match weight index
-                        w = raw_weights[weight_index] if weight_index < len(raw_weights) else 0
                         weights_to_use.append(w)
-                        used_weeks_map[f"{current_month}_w{week_counter}"] = w
+                        used_weeks_map[week_key] = w
 
         total_weight = sum(weights_to_use)
 
@@ -132,10 +191,10 @@ def calculate_metrics(df, raw_weights, month_row):
         final['rfpc'] = ( final['wtd_rf'] / top_score ) * 100
         final['rfpc'] = final['rfpc'].fillna(0) # handle div by zero
         
-        return final[['Rank', 'Species', 'wtd_rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep)
+        return final[['Rank', 'Species', 'wtd_rf', 'rfpc']], total_weight, used_weeks_map, len(cols_to_keep), sample_sizes_map
 
 # may not be needed anymore, still good for debug
-def process_file(filepath, filename):
+def process_file(filepath, filename, start_month=None, start_week=None, end_month=None, end_week=None):
         print(f"[calc] | processing {filename}...")
 
         ### read headers and sample sizes
@@ -168,7 +227,15 @@ def process_file(filepath, filename):
         df = df.dropna(subset=['Species'])        
 
         ### calculate metrics
-        final, total_weight, used_weeks_map, cols_used = calculate_metrics(df, raw_weights, month_row)
+        final, total_weight, used_weeks_map, cols_used, sample_sizes_map = calculate_metrics(
+                df,
+                raw_weights,
+                month_row,
+                start_month=start_month,
+                start_week=start_week,
+                end_month=end_month,
+                end_week=end_week
+        )
 
         ### save output
 
@@ -180,7 +247,7 @@ def process_file(filepath, filename):
         dates = re.search(r'(\d{4})_(\d{4})_(\d)_(\d)', filename)
         date_str = ""
         if dates:
-                date_str = f"_{dates.group(1)[-2:]}-{dates.group(2)[-2:]}_{dates.group(3)}-{dates.group(4)}"
+                date_str = f"_{dates.group(1)[-2:]}-{dates.group(2)[-2:]}"
 
         slug = fix_filename_string(loc_name)
 
@@ -192,10 +259,29 @@ def process_file(filepath, filename):
         final.to_csv(out_csv, index=False)
         create_summary(out_txt, filename, total_weight, final, used_weeks_map, loc_name)
         print(f"[success] | saved: {out_csv}")
+        
+        return final, sample_sizes_map
 
-# fetch location data with a login, the main idea for now
-def process_data(raw_tsv, loc_id, start_year, end_year,save = True):
-
+# fetch location data and process
+def process_data(raw_tsv, loc_id, start_year, end_year, start_month=None, start_week=None, end_month=None, end_week=None, save=True):
+        """
+        process eBird barchart data for API endpoint.
+        
+        args:
+                raw_tsv: raw barchart data as TSV string from eBird API
+                loc_id: location ID ('L123456')
+                start_year: start year (used for fetching)
+                end_year: end year (used for fetching)
+                start_month: month name (3letter code) or None for Jan
+                start_week: start week (1-4) or None for week 1
+                end_month: month name (3-letter) or None for Dec
+                end_week: end week (1-4) or None for week 4
+                save: whether to save results to file
+        
+        returns:
+                dictionary with location, total_sample_size, sample_sizes_by_week, and ranked bird data
+        """
+        
         print(f"[calc] | calculating rankings for {loc_id}...")
         f_stream = io.StringIO(raw_tsv)
         lines = f_stream.readlines()
@@ -226,7 +312,15 @@ def process_data(raw_tsv, loc_id, start_year, end_year,save = True):
         df = df.dropna(subset=['Species']) 
 
         ### calculate metrics
-        final, total_weight, used_weeks_map, cols_used = calculate_metrics(df, raw_weights, month_row)
+        final, total_weight, used_weeks_map, cols_used, sample_sizes_map = calculate_metrics(
+                df, 
+                raw_weights, 
+                month_row,
+                start_month=start_month,
+                start_week=start_week,
+                end_month=end_month,
+                end_week=end_week
+        )
         loc_name = get_location_name(loc_id)
 
         ### save output
@@ -248,5 +342,6 @@ def process_data(raw_tsv, loc_id, start_year, end_year,save = True):
         return {
                 "location": loc_name,
                 "total_sample_size": total_weight,
+                "sample_sizes_by_week": sample_sizes_map,  # All weekly sample sizes for frontend display
                 "data": final.to_dict('records') # converts df to a list of dicts
         }

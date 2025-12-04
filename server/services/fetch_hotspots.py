@@ -9,15 +9,31 @@ HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 SEMAPHORE = asyncio.Semaphore(5)
 
 '''
-Provides detailed hotspot overview. 
+Provides detailed hotspot overview with optional month/week filtering.
 
 Returns:
 -hotspot id,name,region,location, and list of ranked birds for the given hotspot using ranking engine
 '''
 
-def detailed_hotspot_data(hotspotID: str, start_yr: int |None = None, end_yr: int |None = None):
+async def detailed_hotspot_data(
+    hotspotID: str,
+    start_yr: int | None = None,
+    end_yr: int | None = None,
+    start_month: int | None = None,
+    start_week: int | None = None,
+    end_month: int | None = None,
+    end_week: int | None = None
+):
     
-    ret = get_rankings(hotspotID,start_yr,end_yr)
+    ret = await get_rankings(
+        hotspotID,
+        start_yr,
+        end_yr,
+        start_month=start_month,
+        start_week=start_week,
+        end_month=end_month,
+        end_week=end_week
+    )
 
     if ret:
         ret = ret['data']
