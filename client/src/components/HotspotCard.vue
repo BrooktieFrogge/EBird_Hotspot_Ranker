@@ -90,7 +90,7 @@ export default defineComponent({
 
 <style scoped>
 .hotspot-card {
-  border: 2px solid transparent; /* avoids layout jump on select */
+  border: 2px solid transparent; 
   border-radius: 12px;
   padding: 10px;
   max-width: 290px;
