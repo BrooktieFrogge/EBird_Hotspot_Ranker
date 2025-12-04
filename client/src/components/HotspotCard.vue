@@ -15,21 +15,6 @@
       <span class="value">{{ subregion1 }}</span>
     </div>
 
-
-    <!-- eBird color / stats -->
-    <!-- <div class="row">
-      <span class="label">Species Observed :</span>
-      <span class="value">
-        <span class="color-dot" :style="{ backgroundColor: colorClass }"></span>
-        {{ speciesCount }} species
-      </span>
-    </div> -->
-
-    <!--<div class="row">
-      <span class="label">Checklists:</span>
-      <span class="value">{{ checklistCount }}</span>
-    </div> -->
-
     <!-- Saved indicator -->
     <div class="saved-indicator" v-if="isSaved">
       ★ Saved
