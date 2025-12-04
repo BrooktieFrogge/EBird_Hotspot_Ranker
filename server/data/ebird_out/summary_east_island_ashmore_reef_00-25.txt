@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank             Species   wtd_rf       rfpc
+    1  Lesser Frigatebird 1.000000 100.000000
+    2  Great Crested Tern 1.000000 100.000000
+    3    Red-footed Booby 1.000000 100.000000
+    4         Brown Booby 1.000000 100.000000
+    5        Masked Booby 1.000000 100.000000
+    6        Bridled Tern 1.000000 100.000000
+    7          Sooty Tern 1.000000 100.000000
+    8         Nazca Booby 1.000000 100.000000
+    9         Brown Noddy 1.000000 100.000000
+   10 Nankeen Night Heron 1.000000 100.000000
+
+Summary
+--------------------
+Location: East Island (Ashmore Reef)
+Source: Live Data from (L5073013)
+Total Sample Size: 3.0
+
+Weeks Used:
+May_w4: 0.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 0.0
+Jun_w4: 0.0
+Jul_w1: 0.0
+Jul_w2: 0.0
+Jul_w3: 0.0
+Jul_w4: 0.0
+Aug_w1: 1.0
+Aug_w2: 1.0
+Aug_w3: 1.0
+Aug_w4: 0.0
+Sep_w1: 0.0
+Sep_w2: 0.0

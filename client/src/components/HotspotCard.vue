@@ -1,48 +1,34 @@
 <template>
   <div
-    :class="['hotspot-card', { selected: isSelected }]"
-    @click="handleClick"
+    :class="['hotspot-card', { 'selected': isSelected }]" @click="handleClick"
   >
     <!-- Title -->
     <h3>{{ name }}</h3>
 
-    <!-- Region / Location -->
+    <!-- Country / Subregion1  -->
     <div class="row">
-      <span class="label">Region:</span>
-      <span class="value">{{ region }}</span>
+      <span class="label">Country:</span>
+      <span class="value">{{ country }}</span>
     </div>
     <div class="row">
-      <span class="label">Location:</span>
-      <span class="value">{{ location }}</span>
+      <span class="label">subregion 1:</span>
+      <span class="value">{{ subregion1 }}</span>
     </div>
 
-    <!-- Peak season -->
-    <div class="row">
-      <span class="label">Peak time:</span>
-      <span class="value">{{ peakSeason }}</span>
-    </div>
 
     <!-- eBird color / stats -->
-    <div class="row">
-      <span class="label">Classification:</span>
+    <!-- <div class="row">
+      <span class="label">Species Observed :</span>
       <span class="value">
         <span class="color-dot" :style="{ backgroundColor: colorClass }"></span>
         {{ speciesCount }} species
       </span>
-    </div>
+    </div> -->
 
-    <div class="row">
+    <!--<div class="row">
       <span class="label">Checklists:</span>
       <span class="value">{{ checklistCount }}</span>
-    </div>
-
-    <!-- Top birds -->
-    <div class="row top-birds">
-      <span class="label">Top birds:</span>
-      <span class="value">
-        {{ topBirds.join(', ') }}
-      </span>
-    </div>
+    </div> -->
 
     <!-- Saved indicator -->
     <div class="saved-indicator" v-if="isSaved">
@@ -52,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'HotspotCard',
@@ -66,38 +52,18 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    region: {
+    country: {
       type: String,
       required: true,
     },
-    location: {
+    subregion1: {
       type: String,
       required: true,
-    },
-    peakSeason: {
-      type: String,
-      required: false,
-      default: '–',
     },
     colorClass: {
       type: String,
       required: false,
-      default: '#4caf50', // default color
-    },
-    speciesCount: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    checklistCount: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    topBirds: {
-      type: Array as PropType<string[]>,
-      required: false,
-      default: () => [],
+      default: '#4caf50', 
     },
     isSaved: {
       type: Boolean,
@@ -116,7 +82,7 @@ export default defineComponent({
   methods: {
     handleClick() {
       // bubble up the click so the parent can route to HotspotDetail
-      this.$emit('click', this.id);
+      this.$emit('click', this.isSelected);
     },
   },
 });
@@ -124,20 +90,22 @@ export default defineComponent({
 
 <style scoped>
 .hotspot-card {
-  border: 1px solid #252525;
+  border: 1px solid #296239;
   border-radius: 12px;
   padding: 10px;
-  max-width: 260px;
+  max-width: 290px;
   font-family: Arial, sans-serif;
-  box-shadow: 0 0 8px 1px #0e0e0e;
+  box-shadow: 0 0 8px 1px #949494;
   cursor: pointer;
   margin: 8px;
   position: relative;
 }
 
 .hotspot-card.selected {
-  border-color: #71e7ff;
-  box-shadow: 0 0 10px 1px rgba(113, 231, 255, 0.7);
+  border: 1px solid #71e7ff; 
+  padding: 10px;
+  box-shadow: 0 0 10px 1px rgba(113, 231, 255, 0.7); /* Glow effect */
+  transition: box-shadow 0.3s ease; /* Smooth transition */
 }
 
 h3 {
@@ -154,7 +122,7 @@ h3 {
 }
 
 .label {
-  min-width: 90px;
+  min-width: 300px;
   color: #aaa;
 }
 
