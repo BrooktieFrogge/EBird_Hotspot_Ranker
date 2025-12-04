@@ -41,6 +41,21 @@
         </select>
       </div>
 
+      <!-- Subregion filter -->
+      <div class="filter-group">
+        <label for="subregion">Subregion</label>
+        <select id="subregion" v-model="selectedSubregion">
+          <option value="">All subregions</option>
+          <option
+            v-for="subregion in availableSubregions"
+            :key="subregion"
+            :value="subregion"
+          >
+            {{ subregion }}
+          </option>
+        </select>
+      </div>
+
       <div class="filter-summary">
         Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
       </div>
@@ -49,7 +64,7 @@
     <!-- MIDDLE PANEL: Hotspot Cards (scrollable) -->
     <div class="results">
       <div class="cards-container">
-       <HotspotCard
+        <HotspotCard
           v-for="hotspot in filteredHotspots"
           :key="hotspot.id"
           :id="hotspot.id"
@@ -116,6 +131,7 @@
 </template>
 
 
+
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
@@ -143,6 +159,8 @@ export default defineComponent({
     
     const hotspots = computed(() => analyticsStore.allHotspots);
 
+    const selectedSubregion = ref('');  // local state for subregion filter
+
 
     const availableCountries = computed(() => {
       const set = new Set<string>();
@@ -150,22 +168,36 @@ export default defineComponent({
       return Array.from(set).sort();
     });
 
-    const filteredHotspots = computed(() => {
-      const q = searchQuery.value.trim().toLowerCase();
-      const country = analyticsStore.selectedCountry;
+     const filteredHotspots = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  const country = analyticsStore.selectedCountry;
 
-      return hotspots.value.filter(h => {
-        const matchesSearch =
-          !q ||
-          h.name.toLowerCase().includes(q) ||
-          h.subregion1.toLowerCase().includes(q);
+  return hotspots.value.filter(h => {
+    const matchesSearch =
+      !q ||
+      h.name.toLowerCase().includes(q) ||
+      h.subregion1.toLowerCase().includes(q);
 
-        const matchesCountry =
-          !country || h.country === country;
+    const matchesCountry =
+      !country || h.country === country;
 
-        return matchesSearch && matchesCountry;
-      });
-    });
+    return matchesSearch && matchesCountry;
+  });
+});
+
+
+    const availableSubregions = computed(() => {
+  const set = new Set<string>();
+
+  hotspots.value.forEach(h => {
+    // only include subregions for the currently selected country
+    if (!analyticsStore.selectedCountry || h.country === analyticsStore.selectedCountry) {
+      set.add(h.subregion1);
+    }
+  });
+
+  return Array.from(set).sort();
+});
 
     const selectHotspotById = (id: HotspotOverview['id']) => {
   analyticsStore.setHotspot(id);
@@ -187,6 +219,7 @@ export default defineComponent({
       searchQuery,
       availableCountries,
       filteredHotspots,
+      availableSubregions,
       selectHotspotById,
       goToSelectedHotspotDetail,
       redirectToHomeScreen,

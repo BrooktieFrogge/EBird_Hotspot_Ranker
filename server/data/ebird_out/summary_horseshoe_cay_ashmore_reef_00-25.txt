@@ -1,0 +1,36 @@
+Top 10 Species
+--------------------
+ Rank               Species  wtd_rf     rfpc
+    1  Black-bellied Plover       0 0.000000
+    2 Pacific Golden-Plover       0 0.000000
+    3          Little Stint       0 0.000000
+    4   Oriental Pratincole       0 0.000000
+    5           Brown Noddy       0 0.000000
+    6          Lesser Noddy       0 0.000000
+    7           Black Noddy       0 0.000000
+    8            Sooty Tern       0 0.000000
+    9           Little Tern       0 0.000000
+   10           Common Tern       0 0.000000
+
+Summary
+--------------------
+Location: Horseshoe Cay (Ashmore Reef)
+Source: Live Data from (L5073009)
+Total Sample Size: 0.0
+
+Weeks Used:
+May_w4: 0.0
+Jun_w1: 0.0
+Jun_w2: 0.0
+Jun_w3: 0.0
+Jun_w4: 0.0
+Jul_w1: 0.0
+Jul_w2: 0.0
+Jul_w3: 0.0
+Jul_w4: 0.0
+Aug_w1: 0.0
+Aug_w2: 0.0
+Aug_w3: 0.0
+Aug_w4: 0.0
+Sep_w1: 0.0
+Sep_w2: 0.0
