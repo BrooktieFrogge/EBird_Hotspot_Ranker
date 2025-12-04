@@ -1,24 +1,43 @@
 Top 10 Species
 --------------------
- Rank            Species   wtd_rf       rfpc
-    1        Brown Booby 0.909091 100.000000
-    2        Brown Noddy 0.818182  90.000000
-    3 Lesser Frigatebird 0.818182  90.000000
-    4         Sooty Tern 0.727273  80.000000
-    5 Great Crested Tern 0.636364  70.000000
-    6       Masked Booby 0.545455  60.000000
-    7 Pacific Reef-Heron 0.454545  50.000000
-    8   Red-footed Booby 0.454545  50.000000
-    9  Great Frigatebird 0.454545  50.000000
-   10       Bridled Tern 0.454545  50.000000
+ Rank               Species   wtd_rf       rfpc
+    1           Brown Booby 0.837838 100.000000
+    2    Lesser Frigatebird 0.729730  87.096774
+    3    Great Crested Tern 0.702703  83.870968
+    4    Pacific Reef-Heron 0.702703  83.870967
+    5            Sooty Tern 0.594595  70.967742
+    6           Brown Noddy 0.594595  70.967739
+    7   Greater Sand-Plover 0.513514  61.290323
+    8 Red-tailed Tropicbird 0.513514  61.290323
+    9       Ruddy Turnstone 0.513514  61.290322
+   10   Nankeen Night Heron 0.513514  61.290321
 
 Summary
 --------------------
 Location: Ashmore Reef
 Source: Live Data from (L2533783)
-Total Sample Size: 11.0
+Total Sample Size: 37.0
 
 Weeks Used:
+Jan_w1: 1.0
+Jan_w2: 0.0
+Jan_w3: 0.0
+Jan_w4: 0.0
+Feb_w1: 0.0
+Feb_w2: 0.0
+Feb_w3: 0.0
+Feb_w4: 0.0
+Mar_w1: 0.0
+Mar_w2: 0.0
+Mar_w3: 0.0
+Mar_w4: 7.0
+Apr_w1: 1.0
+Apr_w2: 0.0
+Apr_w3: 0.0
+Apr_w4: 0.0
+May_w1: 0.0
+May_w2: 0.0
+May_w3: 0.0
 May_w4: 1.0
 Jun_w1: 0.0
 Jun_w2: 0.0
@@ -34,3 +53,17 @@ Aug_w3: 0.0
 Aug_w4: 2.0
 Sep_w1: 5.0
 Sep_w2: 0.0
+Sep_w3: 0.0
+Sep_w4: 0.0
+Oct_w1: 1.0
+Oct_w2: 0.0
+Oct_w3: 2.0
+Oct_w4: 9.0
+Nov_w1: 3.0
+Nov_w2: 2.0
+Nov_w3: 0.0
+Nov_w4: 0.0
+Dec_w1: 0.0
+Dec_w2: 0.0
+Dec_w3: 0.0
+Dec_w4: 0.0
