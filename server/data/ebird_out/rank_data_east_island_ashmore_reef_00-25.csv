@@ -1,0 +1,49 @@
+Rank,Species,wtd_rf,rfpc
+1,Lesser Frigatebird,1.0,100.0
+2,Great Crested Tern,1.0,100.0
+3,Red-footed Booby,1.0,100.0
+4,Brown Booby,1.0,100.0
+5,Masked Booby,1.0,100.0
+6,Bridled Tern,1.0,100.0
+7,Sooty Tern,1.0,100.0
+8,Nazca Booby,1.0,100.0
+9,Brown Noddy,1.0,100.0
+10,Nankeen Night Heron,1.0,100.0
+11,Pacific Reef-Heron,1.0,100.0
+12,Ruddy Turnstone,1.0,100.0
+13,Red-necked Stint,1.0,100.0
+14,Great Frigatebird,0.6666666666666666,66.66666666666666
+15,Roseate Tern,0.6666666666666666,66.66666666666666
+16,Buff-banded Rail,0.6666666666666666,66.66666666666666
+17,Red Knot,0.6666666666666666,66.66666666666666
+18,Gray-tailed Tattler,0.6666666666666666,66.66666666666666
+19,Eurasian Whimbrel,0.6666666666666666,66.66666666666666
+20,Bar-tailed Godwit,0.6666666666666666,66.66666666666666
+21,Common Sandpiper,0.6666666666666666,66.66666666666666
+22,Little Egret,0.6666666666666666,66.66666666666666
+23,Great Knot,0.6666666666666666,66.66666666666666
+24,Common Greenshank,0.3333333333333333,33.33333333333333
+25,Curlew Sandpiper,0.3333333333333333,33.33333333333333
+26,Sanderling,0.3333333333333333,33.33333333333333
+27,Siberian Sand-Plover,0.3333333333333333,33.33333333333333
+28,Little Black Cormorant,0.0,0.0
+29,Sacred Kingfisher,0.0,0.0
+30,Supertramp Fantail,0.0,0.0
+31,Barn Swallow,0.0,0.0
+32,Gray Wagtail,0.0,0.0
+33,Great Egret,0.0,0.0
+34,Black Noddy,0.0,0.0
+35,White-winged Tern,0.0,0.0
+36,Whiskered Tern,0.0,0.0
+37,Little Tern,0.0,0.0
+38,Black-bellied Plover,0.0,0.0
+39,Lesser Noddy,0.0,0.0
+40,Oriental Pratincole,0.0,0.0
+41,Australian Pratincole,0.0,0.0
+42,Sharp-tailed Sandpiper,0.0,0.0
+43,Terek Sandpiper,0.0,0.0
+44,Asian Dowitcher,0.0,0.0
+45,Far Eastern Curlew,0.0,0.0
+46,Greater Sand-Plover,0.0,0.0
+47,Pacific Golden-Plover,0.0,0.0
+48,Eastern Yellow Wagtail,0.0,0.0

@@ -1,6 +1,15 @@
 fastapi
 uvicorn
 pandas
-numpy
 python-dotenv
 requests
+rapidfuzz
+unicodedata
+datetime
+asyncio
+selenium
+datetime
+re
+pydantic
+typing
+playwright

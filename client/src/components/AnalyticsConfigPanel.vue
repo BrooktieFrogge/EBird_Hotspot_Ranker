@@ -151,21 +151,20 @@
       >
         <div
           v-for="bird in filteredBirds"
-          :key="bird.species"
+          :key="bird.Species"
           class="search-result-item"
           @click="selectBird(bird)"
         >
-          {{ bird.species }} &emsp; &#8212;&#8212; &emsp; {{ bird.rfpc }} &emsp; &#8212;&#8212; &emsp;  {{ bird.wtdrf }}
+          {{ bird.Species }} &emsp; &#8212;&#8212; &emsp; {{ Math.round((10**3)*bird.wtd_rf)/(10**3) }} &emsp; &#8212;&#8212; &emsp;  {{ Math.round((10**2)*bird.rfpc)/(10**2) }}
         </div>
       </div>
     </div>
 
     <!-- Upload Button -->
-    <div class="buttons-container" style="justify-content: left; margin-top: 200px;">
+    <div class="buttons-container" style="justify-content: left; margin-top: 150px;">
       <div id="upload-button">
         <div class="button-wrapper" style="width: 150px; height: 50px; color: black">
           Export
-          <BIconCloudDownload />
         </div>
       </div>
     </div>
@@ -174,12 +173,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   BIconHouseFill,
-  BIconArrowLeft,
-  BIconCloudDownload
+  BIconArrowLeft
 } from 'bootstrap-icons-vue';
 import { ref } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
@@ -209,22 +207,22 @@ export default defineComponent({
     'warning', 'error', 'red-darken-3', 'indigo-darken-3', 'orange-darken-3'];
 
     const birdSearch = ref("");
-    const allBirds = analyticsStore.getAllPlacementBirds;
+    const allBirds = computed(() => analyticsStore.getAllBirds);
     
 
     const filteredBirds = ref<Bird[]>([]);
 
     const filterBirds = () => {
       const q = birdSearch.value.toLowerCase();
-      filteredBirds.value = allBirds.filter(bird =>
-        bird.species.toLowerCase().includes(q)
+      filteredBirds.value = allBirds.value.filter(bird =>
+        bird.Species.toLowerCase().includes(q)
       );
     };
 
     const selectBird = (bird: Bird) => {
-      birdSearch.value = bird.species;
+      birdSearch.value = bird.Species;
       filteredBirds.value = [];
-      console.log("Selected bird:", bird.species);
+      console.log("Selected bird:", bird.Species);
       analyticsStore.selectBird(bird);
       // optionally emit event or store selected state
     };
