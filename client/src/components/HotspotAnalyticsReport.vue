@@ -1,7 +1,12 @@
 <template>
   <div class="analytics-container">
     <div class="bird-lists-container">
-      <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}: Analytics Report </h3>
+      <h3 style="text-align: left; padding-left: 20px;"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}</h3>
+      <div class="hotspot-header">
+        <span><BIconPinMapFill style="margin-right: 15px;"/></span> 
+        <h4>{{ analyticsStore.selectedHotspot?.country ?? ''}}, {{ analyticsStore.selectedHotspot?.subregion1 ?? ''}}</h4>
+      </div>
+
       <hr />
 
       <!-- LEFT SECTION: Table -->
@@ -11,7 +16,7 @@
         <div class="table-header">
           <div>Species</div>
           <div>Weighted Rank Factor</div>
-          <div>RFPC</div>
+          <div>Ranked Frequency Percentage</div>
         </div>
 
         <div
@@ -24,14 +29,14 @@
             <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtd_rf }}</div>
-          <div class="cell">{{ bird.rfpc }}</div>
+          <div class="cell">{{ Math.round((10**5)*bird.wtd_rf)/(10**5)}}</div>
+          <div class="cell">{{ Math.round((10**4)*bird.rfpc)/(10**4) }}</div>
         </div>
       </div>
 
 
       <!-- LIKELIHOOD GRAPH-->
-      <div id="linechart" style="width:90%; height:50%; padding:30px" v-show="(analyticsStore.showLikelihoodCurve && (analyticsStore.selectedHotspot.birds.length > 0))">
+      <div id="linechart" style="width:95%; height:60%; padding:10px" v-show="(analyticsStore.showLikelihoodCurve && (analyticsStore.selectedHotspot != null) && ('birds' in analyticsStore.selectedHotspot) && (analyticsStore.selectedHotspot.birds.length > 0))">
         <LineChart 
           style="height: 100%;"
           :chartData="chartData" 
@@ -46,7 +51,7 @@
         <div class="table-header">
           <div>Species</div>
           <div>Weighted Rank Factor</div>
-          <div>RFPC</div>
+          <div>Ranked Frequency Percentage</div>
         </div>
 
         <div
@@ -59,8 +64,8 @@
             <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtd_rf }}</div>
-          <div class="cell">{{ bird.rfpc }}</div>
+          <div class="cell">{{ Math.round((10**5)*bird.wtd_rf)/(10**5) }}</div>
+          <div class="cell">{{ Math.round((10**4)*bird.rfpc)/(10**4)}}</div>
           <div class="cell">
             <div id="remove-bird-button" @click="analyticsStore.deselectBird(bird)">
               <BIconXCircle/>
@@ -95,7 +100,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import { BIconXCircle } from 'bootstrap-icons-vue';
+import { BIconXCircle, BIconPinMapFill } from 'bootstrap-icons-vue';
 import { LineChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 
@@ -106,6 +111,7 @@ export default defineComponent({
 
   components: {
     BIconXCircle,
+    BIconPinMapFill,
     LineChart
   },
 
@@ -172,6 +178,14 @@ export default defineComponent({
   width: 100vh;
   color: #222;
   opacity: 100%;
+}
+
+.hotspot-header {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  font-size: 0.9em;
+  padding-left: 20px
 }
 
 .bird-table {
