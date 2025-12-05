@@ -88,6 +88,7 @@ export default defineComponent({
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   box-sizing: border-box;
   flex: 0 0 calc(33.333% - 16px); 
+}
 
 h3 {
   margin: 0 0 6px 0;
