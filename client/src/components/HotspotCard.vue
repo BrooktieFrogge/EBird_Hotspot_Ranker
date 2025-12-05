@@ -80,34 +80,51 @@ export default defineComponent({
   padding: 10px;
   max-width: 290px;
   font-family: Arial, sans-serif;
-  box-shadow: 0 0 8px 1px #949494;
+  box-shadow: 0 0 8px 1px #20415a;
+  background: #20415a;
   cursor: pointer;
   margin: 8px;
   position: relative;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.hotspot-card.selected {
-  border-color: #457999;
-  box-shadow: 0 0 12px 2px #457999;
-}
 
 h3 {
   margin: 0 0 6px 0;
   font-size: 1.1em;
   font-weight: 500;
-  color: #000000;
+  color: #a2bcd0;
 }
+
 
 .row {
   display: flex;
   font-size: 0.85em;
   margin-bottom: 4px;
+  color: #a2bcd0;
 }
 
 .label {
   min-width: 300px;
-  color: #aaa;
+  color: #a2bcd0;
+}
+
+.hotspot-card.selected {
+  border-color: #b0e28c;
+  box-shadow: 0 0 5px 2px #cfe9bd;
+  background: #203727;
+}
+
+.hotspot-card.selected h3 {
+  color: #cfe9bd;
+}
+
+.hotspot-card.selected .row {
+  color: #cfe9bd;
+}
+
+.hotspot-card.selected .label {
+  color: #cfe9bd;
 }
 
 .value {
@@ -122,12 +139,6 @@ h3 {
   margin-right: 6px;
 }
 
-.top-birds {
-  margin-top: 6px;
-  border-top: 0.5px solid gray;
-  padding-top: 4px;
-}
-
 .saved-indicator {
   position: absolute;
   top: 8px;
@@ -135,4 +146,5 @@ h3 {
   font-size: 0.8em;
   color: #ffd700;
 }
+
 </style>

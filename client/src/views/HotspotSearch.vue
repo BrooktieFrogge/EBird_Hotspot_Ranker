@@ -528,7 +528,7 @@ export default defineComponent({
   flex: 1.5;
   padding: 20px;
   box-sizing: border-box;
-  background: white;
+  background: #385b74;
   overflow-y: auto;
 }
 
