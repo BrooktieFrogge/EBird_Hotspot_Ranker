@@ -22,7 +22,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     numTopBirds: 10,
-    showLikelihoodCurve: false,
+    showLikelihoodCurve: true,
     showTopBirdPhotos: true,
     selectedBirds: [] as Bird[],
 
@@ -111,7 +111,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     resetAnalyticsConfiguration() {
       this.selectedBirds = [];
       this.numTopBirds = 10;
-      this.showLikelihoodCurve = false;
+      this.showLikelihoodCurve = true;
       this.showTopBirdPhotos = true;
       this.yearRange = { start: null, end: null };
     },

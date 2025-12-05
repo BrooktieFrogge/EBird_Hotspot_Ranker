@@ -31,7 +31,7 @@
 
 
       <!-- LIKELIHOOD GRAPH-->
-      <div id="linechart" style="width:90%; height:50%; padding:30px" v-show="analyticsStore.showLikelihoodCurve">
+      <div id="linechart" style="width:90%; height:50%; padding:30px" v-show="(analyticsStore.showLikelihoodCurve && (analyticsStore.selectedHotspot.birds.length > 0))">
         <LineChart 
           style="height: 100%;"
           :chartData="chartData" 
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import { BIconXCircle } from 'bootstrap-icons-vue';
 import { LineChart } from 'vue-chart-3';
@@ -115,12 +115,16 @@ export default defineComponent({
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
-    const chartData = {
-      labels: birds.value.map((bird: any) => bird.Species),
+    const chartData = computed(() => {
+    const wtdrfData = birds.value.map((b: any) => b.wtd_rf);
+    const rfpcData = birds.value.map((b: any) => b.rfpc / 100);
+
+    return {
+      labels: birds.value.map((b: any) => b.Species),
       datasets: [
         {
           label: 'Weighted Rank Factor',
-          data: birds.value.map((bird: any) => bird.wtd_rf),
+          data: wtdrfData,
           backgroundColor: '#45799980',
           borderColor: '#457999',
           pointRadius: 6,
@@ -128,7 +132,7 @@ export default defineComponent({
         },
         {
           label: 'Ranked Frequency Percentage',
-          data: birds.value.map((bird: any) => bird.rfpc/100),
+          data: rfpcData,
           backgroundColor: '#29623980',
           borderColor: '#296239',
           pointRadius: 6,
@@ -136,6 +140,8 @@ export default defineComponent({
         },
       ],
     };
+  });
+
 
     return {
       analyticsStore,
