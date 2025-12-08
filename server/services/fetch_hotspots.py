@@ -24,41 +24,41 @@ async def detailed_hotspot_data(
     end_month: int | None = None,
     end_week: int | None = None
 ):
-    
-    ret = await get_rankings(
-        hotspotID,
-        start_yr,
-        end_yr,
-        start_month=start_month,
-        start_week=start_week,
-        end_month=end_month,
-        end_week=end_week
-    )
+    pass #TODO refactor to use db
+    # ret = await get_rankings(
+    #     hotspotID,
+    #     start_yr,
+    #     end_yr,
+    #     start_month=start_month,
+    #     start_week=start_week,
+    #     end_month=end_month,
+    #     end_week=end_week
+    # )
 
-    if ret:
-        ret = ret['data']
-    else:
-        return None
+    # if ret:
+    #     ret = ret['data']
+    # else:
+    #     return None
 
-    with open('server/data/hotspot-overviews.json','r')as file:
-        hotspot_data = json.load(file)
+    # with open('server/data/hotspot-overviews.json','r')as file:
+    #     hotspot_data = json.load(file)
 
-    ranked = None
+    # ranked = None
 
-    for hotspot in hotspot_data:
+    # for hotspot in hotspot_data:
 
-        if hotspot['id'] == hotspotID:
-            ranked = {
-            "id": hotspot['id'],
-            "name" : hotspot['name'],
-            "country" : hotspot['country'],
-            "subregion1" :hotspot['subregion1'],
-            "subregion2": hotspot['subregion1'],
-            "birds":ret
-            }            
-            break
+    #     if hotspot['id'] == hotspotID:
+    #         ranked = {
+    #         "id": hotspot['id'],
+    #         "name" : hotspot['name'],
+    #         "country" : hotspot['country'],
+    #         "subregion1" :hotspot['subregion1'],
+    #         "subregion2": hotspot['subregion1'],
+    #         "birds":ret
+    #         }            
+    #         break
 
-    return ranked
+    # return ranked
 
 '''
 Returns: subregion 1 name given subregion 1 code.
@@ -120,23 +120,24 @@ Uses ebird api calls to fetch most recent hotspot info for all locations by coun
 Returns: list of dictionaries containing info about each hotspot. Dumps information into a json file.
 '''
 async def get_location_hotspots():
+    pass #TODO refactor to pull from db
     #loading hotspot specific info
-    df = pd.read_csv('server/data/countries-Table 1.csv')
-    country_codes = df['country_code'].to_list()
+    # df = pd.read_csv('server/data/countries-Table 1.csv')
+    # country_codes = df['country_code'].to_list()
 
-    all_results = []
+    # all_results = []
 
-    async with httpx.AsyncClient() as client:
-        for country in country_codes:
-            if pd.isna(country):
-                continue
-            print("Fetching:", country,end="\n")
-            hotspots = await fetch_country_hotspots(client,country)
-            all_results.extend(hotspots)
+    # async with httpx.AsyncClient() as client:
+    #     for country in country_codes:
+    #         if pd.isna(country):
+    #             continue
+    #         print("Fetching:", country,end="\n")
+    #         hotspots = await fetch_country_hotspots(client,country)
+    #         all_results.extend(hotspots)
 
-    with open('hotspot-overviews.json','w') as f:
-        json.dump(all_results,f,indent=4)
+    # with open('hotspot-overviews.json','w') as f:
+    #     json.dump(all_results,f,indent=4)
 
-    print(f"Saved {len(all_results)} hotspots.")
+    # print(f"Saved {len(all_results)} hotspots.")
 
-    return all_results
+    # return all_results
