@@ -3,7 +3,6 @@
 
     <!-- LEFT PANEL -->
     <div class="filters">
-
       <!-- Buttons container -->
       <div class="buttons-container">
         <div id="home-button" @click="redirectToHomeScreen">
@@ -15,81 +14,125 @@
 
       <h1 class="panel-title">Hotspot Browser</h1>
 
-      <!-- Text search -->
-      <div class="filter-group">
-        <label for="search">Search by name or location</label>
-        <input
-          id="search"
-          type="text"
-          v-model="searchQuery"
-          placeholder="Type a hotspot name or location..."
-        />
-      </div>
+      <!-- Floating filters card -->
+      <div class="filters-card">
+        <!-- Text search -->
+        <div class="filter-group">
+          <label for="search">Search by name or location</label>
+          <input
+            id="search"
+            type="text"
+            v-model="searchQuery"
+            placeholder="Type a hotspot name or location..."
+          />
+        </div>
 
-      <!-- Country Autocomplete -->
-      <div class="filter-group autocomplete">
-        <label>Country</label>
+        <!-- Country Autocomplete -->
+        <div class="filter-group autocomplete">
+          <label>Country</label>
 
-        <input
-          type="text"
-          v-model="countrySearch"
-          placeholder="Search countries..."
-          @input="showCountryDropdown = true"
-        />
+          <input
+            type="text"
+            v-model="countrySearch"
+            placeholder="Search countries..."
+            @input="showCountryDropdown = true"
+          />
 
-        <!-- Autocomplete dropdown -->
-        <div
-          v-if="showCountryDropdown && filteredCountries.length > 0"
-          class="dropdown"
-        >
+          <!-- Autocomplete dropdown -->
           <div
-            class="dropdown-item"
-            v-for="country in filteredCountries"
-            :key="country"
-            @click="selectCountry(country)"
+            v-if="showCountryDropdown && filteredCountries.length > 0"
+            class="dropdown"
           >
-            {{ country }}
+            <div
+              class="dropdown-item"
+              v-for="country in filteredCountries"
+              :key="country"
+              @click="selectCountry(country)"
+            >
+              {{ country }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Subregion Autocomplete -->
-      <div class="filter-group autocomplete">
-        <label>Subregion</label>
+        <!-- Subregion Autocomplete -->
+        <div class="filter-group autocomplete">
+          <label>Subregion</label>
 
-        <input
-          type="text"
-          v-model="subregionSearch"
-          placeholder="Search subregions..."
-          @input="showSubregionDropdown = true"
-        />
+          <input
+            type="text"
+            v-model="subregionSearch"
+            placeholder="Search subregions..."
+            @input="showSubregionDropdown = true"
+          />
 
-        <!-- Autocomplete dropdown -->
-        <div
-          v-if="showSubregionDropdown && filteredSubregions.length > 0"
-          class="dropdown"
-        >
+          <!-- Autocomplete dropdown -->
           <div
-            class="dropdown-item"
-            v-for="subregion in filteredSubregions"
-            :key="subregion"
-            @click="selectSubregion(subregion)"
+            v-if="showSubregionDropdown && filteredSubregions.length > 0"
+            class="dropdown"
           >
-            {{ subregion }}
+            <div
+              class="dropdown-item"
+              v-for="subregion in filteredSubregions"
+              :key="subregion"
+              @click="selectSubregion(subregion)"
+            >
+              {{ subregion }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="filter-summary">
-        Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
+        <div class="filter-summary">
+          Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
+        </div>
       </div>
-
     </div>
     <!-- END LEFT PANEL -->
 
 
     <!-- MIDDLE PANEL: Hotspot Cards -->
     <div class="results">
+
+      <!-- Applied filters bar ABOVE cards -->
+      <div v-if="hasActiveFilters" class="results-filters">
+        <div class="active-filters">
+          <div class="chips">
+            <!-- Text search -->
+            <button
+              v-if="searchQuery.trim()"
+              class="chip"
+              @click="clearSearch"
+            >
+              {{ searchQuery }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Country -->
+            <button
+              v-if="analyticsStore.selectedCountry"
+              class="chip"
+              @click="clearCountry"
+            >
+              {{ analyticsStore.selectedCountry }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Subregion -->
+            <button
+              v-if="selectedSubregion"
+              class="chip"
+              @click="clearSubregion"
+            >
+              {{ selectedSubregion }}
+              <span class="chip-x">×</span>
+            </button>
+          </div>
+
+          <button class="clear-filters" @click="clearAllFilters">
+            Delete all
+          </button>
+        </div>
+      </div>
+
       <div class="cards-container">
         <HotspotCard
           v-for="hotspot in filteredHotspots"
@@ -297,6 +340,39 @@ export default defineComponent({
     });
 
     // -------------------------
+    // APPLIED FILTERS STATE
+    // -------------------------
+    const hasActiveFilters = computed(() => {
+      return (
+        !!searchQuery.value.trim() ||
+        !!analyticsStore.selectedCountry ||
+        !!selectedSubregion.value
+      );
+    });
+
+    const clearSearch = () => {
+      searchQuery.value = '';
+    };
+
+    const clearCountry = () => {
+      analyticsStore.selectedCountry = null;
+      countrySearch.value = '';
+    };
+
+    const clearSubregion = () => {
+      selectedSubregion.value = '';
+      subregionSearch.value = '';
+    };
+
+    const clearAllFilters = () => {
+      searchQuery.value = '';
+      analyticsStore.selectedCountry = null;
+      countrySearch.value = '';
+      selectedSubregion.value = '';
+      subregionSearch.value = '';
+    };
+
+    // -------------------------
     // DROPDOWN HIDING BEHAVIOR
     // -------------------------
     const handleClickOutside = (event: MouseEvent) => {
@@ -372,6 +448,13 @@ export default defineComponent({
       filteredHotspots,
       selectHotspotById,
 
+      // Applied filters
+      hasActiveFilters,
+      clearSearch,
+      clearCountry,
+      clearSubregion,
+      clearAllFilters,
+
       // Navigation
       goToSelectedHotspotDetail,
       redirectToHomeScreen,
@@ -379,7 +462,6 @@ export default defineComponent({
   },
 });
 </script>
-
 
 <style scoped>
 .hotspot-search {
@@ -395,43 +477,91 @@ export default defineComponent({
 .filters {
   width: 280px;
   padding: 16px;
-  border-right: 1px solid #ddd;
   box-sizing: border-box;
-  background: #fafafa;
+  background: #f9f9f9;     
   overflow-y: auto; 
 }
 
+/* floating card for filters */
+.filters-card {
+  margin-top: 12px;
+  padding: 14px 12px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Dropdown wrapper */
 .autocomplete {
   position: relative;
 }
 
+/* MIDDLE PANEL: cards */
+.results {
+  flex: 1.5;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #f9f9f9;
+  overflow-y: auto;
+}
+
+/* Applied filters bar in middle */
+.results-filters {
+  margin-bottom: 16px;
+}
+
 .active-filters {
-  margin-top: 8px;
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 18px;             /* rounded background */
+  background: #ffffff;
+  border: 1px solid #0066cc;       /* blue border */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  font-size: 0.95rem;             
 }
 
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 8px;
 }
 
 .chip {
-  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: #eee;
+  border: 1px solid #0066cc;
+  background: #f3f8ff;
+  color: #0066cc;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.chip-x {
+  font-weight: 600;
+  line-height: 1;
+}
+
+.chip:hover {
+  background: #e4f0ff;
 }
 
 .clear-filters {
   border: none;
   background: transparent;
-  color: #0066cc;
+  color: #0066cc; /* same blue as border */
   cursor: pointer;
-  padding: 0;
-  font-size: 0.8rem;
+  padding: 0 4px;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
+/* Dropdown for autocomplete */
 .dropdown {
   position: absolute;
   top: 100%;
@@ -492,8 +622,8 @@ export default defineComponent({
 .panel-title {
   font-size: 18px;
   font-weight: 600;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 16px;
+  margin-bottom: 4px;
 }
 
 .filter-group {
@@ -523,15 +653,6 @@ export default defineComponent({
   color: #555;
 }
 
-/* MIDDLE PANEL: cards */
-.results {
-  flex: 1.5;
-  padding: 20px;
-  box-sizing: border-box;
-  background: #385b74;
-  overflow-y: auto;
-}
-
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -542,10 +663,9 @@ export default defineComponent({
 /* RIGHT PANEL: summary */
 .summary-panel {
   width: 320px;
-  border-left: 1px solid #ddd;
   box-sizing: border-box;
   padding: 16px;
-  background: #ffffff;
+  background: #f9f9f9;
   display: flex;
   flex-direction: column;
   overflow-y: auto;

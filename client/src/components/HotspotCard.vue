@@ -1,9 +1,11 @@
 <template>
   <div
-    :class="['hotspot-card', { 'selected': isSelected }]" @click="handleClick"
+    :class="['hotspot-card', { 'selected': isSelected }]"
+    @click="handleClick"
   >
     <!-- Title -->
     <h3>{{ name }}</h3>
+    <div class="title-line"></div>
 
     <!-- Country / Subregion1  -->
     <div class="row">
@@ -11,7 +13,7 @@
       <span class="value">{{ country }}</span>
     </div>
     <div class="row">
-      <span class="label">subregion 1:</span>
+      <span class="label">Subregion 1:</span>
       <span class="value">{{ subregion1 }}</span>
     </div>
 
@@ -48,7 +50,7 @@ export default defineComponent({
     colorClass: {
       type: String,
       required: false,
-      default: '#4caf50', 
+      default: '#4caf50',
     },
     isSaved: {
       type: Boolean,
@@ -65,9 +67,9 @@ export default defineComponent({
   emits: ['click'],
 
   methods: {
-   handleClick() {
-    // tell the parent which hotspot was clicked
-    this.$emit('click', this.id);
+    handleClick() {
+      // tell the parent which hotspot was clicked
+      this.$emit('click', this.id);
     },
   },
 });
@@ -75,56 +77,49 @@ export default defineComponent({
 
 <style scoped>
 .hotspot-card {
-  border: 2px solid transparent; 
+  border: 2px solid transparent;
   border-radius: 12px;
   padding: 10px;
-  max-width: 290px;
   font-family: Arial, sans-serif;
-  box-shadow: 0 0 8px 1px #20415a;
-  background: #20415a;
+  box-shadow: 0 0 0px 1px #eeeeee;
+  background: #ffffff;
   cursor: pointer;
-  margin: 8px;
   position: relative;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
+  flex: 0 0 calc(33.333% - 16px); 
 }
-
 
 h3 {
   margin: 0 0 6px 0;
   font-size: 1.1em;
   font-weight: 500;
-  color: #a2bcd0;
+  color: #797979;
 }
 
+/* line under the hotspot name */
+.title-line {
+  height: 2px;
+  border-radius: 999px;
+  background: #e0e0e0;
+  margin-bottom: 6px;
+}
 
 .row {
   display: flex;
   font-size: 0.85em;
   margin-bottom: 4px;
-  color: #a2bcd0;
+  color: #797979;
 }
 
 .label {
-  min-width: 300px;
-  color: #a2bcd0;
+  min-width: 110px;
+  color: #797979;
+  font-weight: 700; /* bold Country */
 }
 
 .hotspot-card.selected {
-  border-color: #b0e28c;
-  box-shadow: 0 0 5px 2px #cfe9bd;
-  background: #203727;
-}
-
-.hotspot-card.selected h3 {
-  color: #cfe9bd;
-}
-
-.hotspot-card.selected .row {
-  color: #cfe9bd;
-}
-
-.hotspot-card.selected .label {
-  color: #cfe9bd;
+  box-shadow: 0 0 5px 4px #457999;
 }
 
 .value {
@@ -146,5 +141,4 @@ h3 {
   font-size: 0.8em;
   color: #ffd700;
 }
-
 </style>
