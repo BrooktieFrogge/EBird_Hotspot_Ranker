@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Path, Query
 from services.search_db import dynamic_search
-from services.fetch_hotspots import (detailed_hotspot_data,get_location_hotspots)
+from services.fetch_hotspots import (detailed_hotspot_data,get_location_hotspots,get_overviews)
 from models.hotspot_models import (HotspotOverview,DetailedHotspot)
 from datetime import datetime
 import json
@@ -13,10 +13,6 @@ router = APIRouter(
     prefix="/hotspots",
     tags=["Hotspots"]
     )
-
-# #loading hotspots file 
-# with open('server/data/hotspot-overviews.json','r') as file:
-#         data = json.load(file)
 
 '''
 Dynamically search by location name (country, subnational, hotspot name)
@@ -51,15 +47,15 @@ async def location_search(hotspot:str = '',
 
 '''
 Will eventually be background script that updates hotspot overview data monthly
-TODO add background scheduler and refactor
+TODO add background scheduler and test refactor
 '''
-@router.get("/fetch-hotspot-data")
-async def fetch_hotspot_data():
-    data = await get_location_hotspots()
+# @router.get("/fetch-hotspot-data")
+# async def fetch_hotspot_data():
+#     data = await get_location_hotspots()
     
-    if not data:
-        raise HTTPException(status_code=404, detail="Location not found.")
-    return data
+#     if not data:
+#         raise HTTPException(status_code=404, detail="Location not found.")
+#     return data
 
 '''
 Default: returns the first 100 hotspots overviews 
@@ -70,20 +66,22 @@ Custom Query: return the number of hotspots specified by the limit starting from
    TODO add back to Query ,le=len(data)
 
 '''
-@router.get("/browse-hotspots/{limit}", response_model=List[HotspotOverview])
+@router.get("/browse-hotspots", response_model=List[HotspotOverview])
 async def browse_hotspots(
     limit:Annotated[
-        int, 
-        Path(description="Amount of overviews to return",ge=0,le=100)],
+        int|None, 
+        Query(description="Amount of overviews to return",ge=0,le=100)]=20,
     offset: Annotated[
         int|None,
           Query(description="Amount of overviews to skip from start of dataset",ge=0)]= 0
     ):
 
+    data = get_overviews(limit,offset)
+
     if not data:
         raise HTTPException(status_code=404, detail="No Hotspots Found.")
     try:
-        return  data[offset:(offset+limit+1)]
+        return  data
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid Input: {e}")
 
