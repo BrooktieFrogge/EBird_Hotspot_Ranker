@@ -1,0 +1,69 @@
+Top 10 Species
+--------------------
+ Rank                   Species   wtd_rf       rfpc
+    1  Russet-backed Oropendola 0.477492 100.000000
+    2                   Hoatzin 0.447347  93.686868
+    3       Speckled Chachalaca 0.431270  90.319865
+    4     Silver-beaked Tanager 0.398714  83.501683
+    5         Social Flycatcher 0.393891  82.491581
+    6     Yellow-rumped Cacique 0.368971  77.272725
+    7    Chestnut-fronted Macaw 0.344059  72.055513
+    8 Blue-throated Piping-Guan 0.328376  68.771043
+    9            Violaceous Jay 0.304260  63.720538
+   10            Great Kiskadee 0.296222  62.037035
+
+Summary
+--------------------
+Location: Manu Biolodge (anteriormente Estación Biológica Villa Carmen)
+Source: Live Data from (L2170333)
+Total Sample Size: 2488.0
+
+Weeks Used:
+Jan_w1: 5.0
+Jan_w2: 13.0
+Jan_w3: 13.0
+Jan_w4: 40.0
+Feb_w1: 10.0
+Feb_w2: 12.0
+Feb_w3: 15.0
+Feb_w4: 10.0
+Mar_w1: 13.0
+Mar_w2: 54.0
+Mar_w3: 31.0
+Mar_w4: 58.0
+Apr_w1: 8.0
+Apr_w2: 74.0
+Apr_w3: 35.0
+Apr_w4: 60.0
+May_w1: 35.0
+May_w2: 182.0
+May_w3: 29.0
+May_w4: 68.0
+Jun_w1: 28.0
+Jun_w2: 22.0
+Jun_w3: 5.0
+Jun_w4: 54.0
+Jul_w1: 58.0
+Jul_w2: 79.0
+Jul_w3: 115.0
+Jul_w4: 87.0
+Aug_w1: 62.0
+Aug_w2: 85.0
+Aug_w3: 35.0
+Aug_w4: 131.0
+Sep_w1: 98.0
+Sep_w2: 87.0
+Sep_w3: 67.0
+Sep_w4: 80.0
+Oct_w1: 86.0
+Oct_w2: 90.0
+Oct_w3: 86.0
+Oct_w4: 100.0
+Nov_w1: 75.0
+Nov_w2: 61.0
+Nov_w3: 21.0
+Nov_w4: 28.0
+Dec_w1: 30.0
+Dec_w2: 13.0
+Dec_w3: 19.0
+Dec_w4: 21.0
