@@ -24,6 +24,7 @@
             type="text"
             v-model="searchQuery"
             placeholder="Type a hotspot name or location..."
+            @keyup.enter="applyFilters"
           />
         </div>
 
@@ -142,10 +143,7 @@
           :country="hotspot.country"
           :subregion1="hotspot.subregion1"
           :species-count="hotspot.speciesCount"
-          :is-selected="
-            analyticsStore.selectedHotspot &&
-            analyticsStore.selectedHotspot.id === hotspot.id
-          "
+          :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
           @click="selectHotspotById"
         />
       </div>
@@ -231,8 +229,13 @@ export default defineComponent({
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
 
-    // Fetch hotspot list
-    analyticsStore.fetchAllHotspots();
+    // Fetch hotspot list initially (browse endpoint)
+    onMounted(() => {
+      analyticsStore.fetchAllHotspots();
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    });
+
     const hotspots = computed(() => analyticsStore.allHotspots);
 
     // Filters
@@ -244,6 +247,18 @@ export default defineComponent({
     // Dropdown visibility
     const showCountryDropdown = ref(false);
     const showSubregionDropdown = ref(false);
+
+    // -------------------------
+    // APPLY FILTERS → backend search
+    // -------------------------
+    const applyFilters = () => {
+      analyticsStore.searchHotspots({
+        hotspot: searchQuery.value,
+        country: analyticsStore.selectedCountry ?? '',
+        subregion1: selectedSubregion.value || '',
+        mode: 'hotspot',
+      });
+    };
 
     // -------------------------
     // AVAILABLE FILTER VALUES
@@ -292,12 +307,16 @@ export default defineComponent({
       // Reset subregion when country changes
       selectedSubregion.value = '';
       subregionSearch.value = '';
+
+      applyFilters();
     };
 
     const selectSubregion = (subregion: string) => {
       selectedSubregion.value = subregion;
       subregionSearch.value = subregion;
       showSubregionDropdown.value = false;
+
+      applyFilters();
     };
 
     // -------------------------
@@ -306,17 +325,19 @@ export default defineComponent({
     watch(countrySearch, (val) => {
       if (!val.trim()) {
         analyticsStore.selectedCountry = null;
+        applyFilters();
       }
     });
 
     watch(subregionSearch, (val) => {
       if (!val.trim()) {
         selectedSubregion.value = '';
+        applyFilters();
       }
     });
 
     // -------------------------
-    // FILTER HOTSPOTS
+    // FILTER HOTSPOTS (client-side)
     // -------------------------
     const filteredHotspots = computed(() => {
       const q = searchQuery.value.trim().toLowerCase();
@@ -352,16 +373,19 @@ export default defineComponent({
 
     const clearSearch = () => {
       searchQuery.value = '';
+      applyFilters();
     };
 
     const clearCountry = () => {
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
+      applyFilters();
     };
 
     const clearSubregion = () => {
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      applyFilters();
     };
 
     const clearAllFilters = () => {
@@ -370,6 +394,7 @@ export default defineComponent({
       countrySearch.value = '';
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      applyFilters();
     };
 
     // -------------------------
@@ -377,7 +402,6 @@ export default defineComponent({
     // -------------------------
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      // if click is not inside an element with .autocomplete, close both dropdowns
       if (!target.closest('.autocomplete')) {
         showCountryDropdown.value = false;
         showSubregionDropdown.value = false;
@@ -390,11 +414,6 @@ export default defineComponent({
         showSubregionDropdown.value = false;
       }
     };
-
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
-    });
 
     onBeforeUnmount(() => {
       document.removeEventListener('click', handleClickOutside);
@@ -454,6 +473,7 @@ export default defineComponent({
       clearCountry,
       clearSubregion,
       clearAllFilters,
+      applyFilters,
 
       // Navigation
       goToSelectedHotspotDetail,
