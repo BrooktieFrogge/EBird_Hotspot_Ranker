@@ -68,7 +68,6 @@ export default defineComponent({
   background-color: #181818;
   padding: none;
   box-sizing: border-box;
-  overflow-y: scroll;
 }
 
 .analytics-report {
