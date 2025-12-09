@@ -113,7 +113,7 @@ def dynamic_search(hotspot='',country='',subregion1='',subregion2='',mode=None):
     if mode == "subregion2" and subregion2:
         return search_sub2(subregion2,subregion1)
     
-    if mode == "hotspot" and hotspot:
+    if mode == "hotspot":
         return search_hotspots(hotspot,country,subregion1,subregion2)
     else:
         return None
@@ -256,6 +256,8 @@ def search_hotspots(query,country,sub1,sub2):
     w_params = ()
     tokens = []
 
+    if (query + country + sub1 + sub2) == '':
+        where = ''
   
     if sub2:
         where_clauses.append('SUBREGION2 = ?')
@@ -277,7 +279,6 @@ def search_hotspots(query,country,sub1,sub2):
             w_params += ("%" + t + '%',)#prefix for each token 
 
         where_clauses.append('NAME LIKE ?' + ' OR ? '*(len(tokens)))
-
 
     where += ' AND '.join(where_clauses)
 
