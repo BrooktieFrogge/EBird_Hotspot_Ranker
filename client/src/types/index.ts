@@ -3,14 +3,18 @@ export interface Bird {
   Species: string,
   wtd_rf: number,
   rfpc: number,
-  photo?: string
+  birdCode?: string,
+  speciesUrl?: string,
+  imageUrl?: string
 }
+
 
 export interface DetailedHotspot {
   id: string;
   name: string;
-  region: string;
-  location: string;
+  country: string;
+  subregion1: string;
+  subregion2: string;
   birds: Bird[]; // list of bird species with data
   isSaved?: boolean;
 }

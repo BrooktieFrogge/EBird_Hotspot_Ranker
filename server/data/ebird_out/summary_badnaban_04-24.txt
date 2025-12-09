@@ -1,0 +1,44 @@
+Top 10 Species
+--------------------
+ Rank                Species  wtd_rf     rfpc
+    1          Graylag Goose       0 0.000000
+    2           Common Eider       0 0.000000
+    3            Rock Pigeon       0 0.000000
+    4 Eurasian Collared-Dove       0 0.000000
+    5 European Golden-Plover       0 0.000000
+    6   Common Ringed Plover       0 0.000000
+    7            Common Gull       0 0.000000
+    8  European Herring Gull       0 0.000000
+    9     Eurasian Blackbird       0 0.000000
+   10         European Robin       0 0.000000
+
+Summary
+--------------------
+Location: Badnaban
+Source: Live Data from (L4704638)
+Total Sample Size: 0.0
+
+Weeks Used:
+Jul_w1: 0.0
+Jul_w2: 0.0
+Jul_w3: 0.0
+Jul_w4: 0.0
+Aug_w1: 0.0
+Aug_w2: 0.0
+Aug_w3: 0.0
+Aug_w4: 0.0
+Sep_w1: 0.0
+Sep_w2: 0.0
+Sep_w3: 0.0
+Sep_w4: 0.0
+Oct_w1: 0.0
+Oct_w2: 0.0
+Oct_w3: 0.0
+Oct_w4: 0.0
+Nov_w1: 0.0
+Nov_w2: 0.0
+Nov_w3: 0.0
+Nov_w4: 0.0
+Dec_w1: 0.0
+Dec_w2: 0.0
+Dec_w3: 0.0

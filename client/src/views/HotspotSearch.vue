@@ -3,8 +3,7 @@
 
     <!-- LEFT PANEL -->
     <div class="filters">
-
-      <!-- Buttons container  -->
+      <!-- Buttons container -->
       <div class="buttons-container">
         <div id="home-button" @click="redirectToHomeScreen">
           <div class="back-button-wrapper">
@@ -15,54 +14,126 @@
 
       <h1 class="panel-title">Hotspot Browser</h1>
 
-      <!-- Text search -->
-      <div class="filter-group">
-        <label for="search">Search by name or location</label>
-        <input
-          id="search"
-          type="text"
-          v-model="searchQuery"
-          placeholder="Type a hotspot name or location..."
-        />
-      </div>
+      <!-- Floating filters card -->
+      <div class="filters-card">
+        <!-- Text search -->
+        <div class="filter-group">
+          <label for="search">Search by name or location</label>
+          <input
+            id="search"
+            type="text"
+            v-model="searchQuery"
+            placeholder="Type a hotspot name or location..."
+            @keyup.enter="applyFilters"
+          />
+        </div>
 
-      <!-- Country filter -->
-      <div class="filter-group">
-        <label for="country">Country</label>
-        <select id="country" v-model="analyticsStore.selectedCountry">
-          <option value="">All countries</option>
-          <option
-            v-for="country in availableCountries"
-            :key="country"
-            :value="country"
+        <!-- Country Autocomplete -->
+        <div class="filter-group autocomplete">
+          <label>Country</label>
+
+          <input
+            type="text"
+            v-model="countrySearch"
+            placeholder="Search countries..."
+            @input="showCountryDropdown = true"
+          />
+
+          <!-- Autocomplete dropdown -->
+          <div
+            v-if="showCountryDropdown && filteredCountries.length > 0"
+            class="dropdown"
           >
-            {{ country }}
-          </option>
-        </select>
-      </div>
+            <div
+              class="dropdown-item"
+              v-for="country in filteredCountries"
+              :key="country"
+              @click="selectCountry(country)"
+            >
+              {{ country }}
+            </div>
+          </div>
+        </div>
 
-      <!-- Subregion filter -->
-      <div class="filter-group">
-        <label for="subregion">Subregion</label>
-        <select id="subregion" v-model="selectedSubregion">
-          <option value="">All subregions</option>
-          <option
-            v-for="subregion in availableSubregions"
-            :key="subregion"
-            :value="subregion"
+        <!-- Subregion Autocomplete -->
+        <div class="filter-group autocomplete">
+          <label>Subregion</label>
+
+          <input
+            type="text"
+            v-model="subregionSearch"
+            placeholder="Search subregions..."
+            @input="showSubregionDropdown = true"
+          />
+
+          <!-- Autocomplete dropdown -->
+          <div
+            v-if="showSubregionDropdown && filteredSubregions.length > 0"
+            class="dropdown"
           >
-            {{ subregion }}
-          </option>
-        </select>
-      </div>
+            <div
+              class="dropdown-item"
+              v-for="subregion in filteredSubregions"
+              :key="subregion"
+              @click="selectSubregion(subregion)"
+            >
+              {{ subregion }}
+            </div>
+          </div>
+        </div>
 
-      <div class="filter-summary">
-        Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
+        <div class="filter-summary">
+          Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
+        </div>
       </div>
     </div>
+    <!-- END LEFT PANEL -->
 
-    <!-- MIDDLE PANEL: Hotspot Cards (scrollable) -->
+
+    <!-- MIDDLE PANEL: Hotspot Cards -->
     <div class="results">
+
+      <!-- Applied filters bar ABOVE cards -->
+      <div v-if="hasActiveFilters" class="results-filters">
+        <div class="active-filters">
+          <div class="chips">
+            <!-- Text search -->
+            <button
+              v-if="searchQuery.trim()"
+              class="chip"
+              @click="clearSearch"
+            >
+              {{ searchQuery }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Country -->
+            <button
+              v-if="analyticsStore.selectedCountry"
+              class="chip"
+              @click="clearCountry"
+            >
+              {{ analyticsStore.selectedCountry }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Subregion -->
+            <button
+              v-if="selectedSubregion"
+              class="chip"
+              @click="clearSubregion"
+            >
+              {{ selectedSubregion }}
+              <span class="chip-x">×</span>
+            </button>
+          </div>
+
+          <button class="clear-filters" @click="clearAllFilters">
+            Delete all
+          </button>
+        </div>
+      </div>
+
       <div class="cards-container">
         <HotspotCard
           v-for="hotspot in filteredHotspots"
@@ -72,13 +143,14 @@
           :country="hotspot.country"
           :subregion1="hotspot.subregion1"
           :species-count="hotspot.speciesCount"
-          :is-selected="analyticsStore.selectedHotspot && analyticsStore.selectedHotspot.id === hotspot.id"
+          :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
           @click="selectHotspotById"
         />
       </div>
     </div>
 
-    <!-- RIGHT PANEL: Selected Hotspot Summary -->
+
+    <!-- RIGHT PANEL -->
     <div class="summary-panel">
       <div class="summary-header">
         <h2 v-if="analyticsStore.selectedHotspot">Selected Hotspot</h2>
@@ -107,7 +179,7 @@
         <div class="summary-row">
           <span class="summary-label">Saved:</span>
           <span class="summary-value">
-            {{ analyticsStore.selectedHotspot.isSaved ? 'Yes' : 'No' }}
+            {{ analyticsStore.selectedHotspot.isSaved ? "Yes" : "No" }}
           </span>
         </div>
       </div>
@@ -130,10 +202,15 @@
   </div>
 </template>
 
-
-
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+} from 'vue';
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
 import { BIconHouseFill } from 'bootstrap-icons-vue';
@@ -150,84 +227,261 @@ export default defineComponent({
 
   setup() {
     const router = useRouter();
-
-    const searchQuery = ref('');
-
     const analyticsStore = useAnalyticsStore();
 
-    analyticsStore.fetchAllHotspots();
-    
+    // Fetch hotspot list initially (browse endpoint)
+    onMounted(() => {
+      analyticsStore.fetchAllHotspots();
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    });
+
     const hotspots = computed(() => analyticsStore.allHotspots);
 
-    const selectedSubregion = ref('');  // local state for subregion filter
+    // Filters
+    const searchQuery = ref('');
+    const countrySearch = ref('');
+    const subregionSearch = ref('');
+    const selectedSubregion = ref('');
 
+    // Dropdown visibility
+    const showCountryDropdown = ref(false);
+    const showSubregionDropdown = ref(false);
 
+    // -------------------------
+    // APPLY FILTERS → backend search
+    // -------------------------
+    const applyFilters = () => {
+      analyticsStore.searchHotspots({
+        hotspot: searchQuery.value,
+        country: analyticsStore.selectedCountry ?? '',
+        subregion1: selectedSubregion.value || '',
+        mode: 'hotspot',
+      });
+    };
+
+    // -------------------------
+    // AVAILABLE FILTER VALUES
+    // -------------------------
     const availableCountries = computed(() => {
       const set = new Set<string>();
       hotspots.value.forEach(h => set.add(h.country));
       return Array.from(set).sort();
     });
 
-     const filteredHotspots = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase();
-  const country = analyticsStore.selectedCountry;
-
-  return hotspots.value.filter(h => {
-    const matchesSearch =
-      !q ||
-      h.name.toLowerCase().includes(q) ||
-      h.subregion1.toLowerCase().includes(q);
-
-    const matchesCountry =
-      !country || h.country === country;
-
-    return matchesSearch && matchesCountry;
-  });
-});
-
-
     const availableSubregions = computed(() => {
-  const set = new Set<string>();
+      const set = new Set<string>();
+      hotspots.value.forEach(h => {
+        if (!analyticsStore.selectedCountry || h.country === analyticsStore.selectedCountry) {
+          set.add(h.subregion1);
+        }
+      });
+      return Array.from(set).sort();
+    });
 
-  hotspots.value.forEach(h => {
-    // only include subregions for the currently selected country
-    if (!analyticsStore.selectedCountry || h.country === analyticsStore.selectedCountry) {
-      set.add(h.subregion1);
-    }
-  });
+    // -------------------------
+    // AUTOCOMPLETE FILTERING
+    // -------------------------
+    const filteredCountries = computed(() => {
+      if (!countrySearch.value.trim()) return availableCountries.value;
+      return availableCountries.value.filter(c =>
+        c.toLowerCase().includes(countrySearch.value.toLowerCase())
+      );
+    });
 
-  return Array.from(set).sort();
-});
+    const filteredSubregions = computed(() => {
+      if (!subregionSearch.value.trim()) return availableSubregions.value;
+      return availableSubregions.value.filter(sr =>
+        sr.toLowerCase().includes(subregionSearch.value.toLowerCase())
+      );
+    });
 
+    // -------------------------
+    // SELECTING FILTER VALUES
+    // -------------------------
+    const selectCountry = (country: string) => {
+      analyticsStore.selectedCountry = country;
+      countrySearch.value = country;
+      showCountryDropdown.value = false;
+
+      // Reset subregion when country changes
+      selectedSubregion.value = '';
+      subregionSearch.value = '';
+
+      applyFilters();
+    };
+
+    const selectSubregion = (subregion: string) => {
+      selectedSubregion.value = subregion;
+      subregionSearch.value = subregion;
+      showSubregionDropdown.value = false;
+
+      applyFilters();
+    };
+
+    // -------------------------
+    // WATCHERS: CLEAR FILTERS WHEN INPUT CLEARED
+    // -------------------------
+    watch(countrySearch, (val) => {
+      if (!val.trim()) {
+        analyticsStore.selectedCountry = null;
+        applyFilters();
+      }
+    });
+
+    watch(subregionSearch, (val) => {
+      if (!val.trim()) {
+        selectedSubregion.value = '';
+        applyFilters();
+      }
+    });
+
+    // -------------------------
+    // FILTER HOTSPOTS (client-side)
+    // -------------------------
+    const filteredHotspots = computed(() => {
+      const q = searchQuery.value.trim().toLowerCase();
+      const country = analyticsStore.selectedCountry;
+      const subregion = selectedSubregion.value;
+
+      return hotspots.value.filter(h => {
+        const matchesSearch =
+          !q ||
+          h.name.toLowerCase().includes(q) ||
+          h.subregion1.toLowerCase().includes(q);
+
+        const matchesCountry =
+          !country || h.country === country;
+
+        const matchesSubregion =
+          !subregion || h.subregion1 === subregion;
+
+        return matchesSearch && matchesCountry && matchesSubregion;
+      });
+    });
+
+    // -------------------------
+    // APPLIED FILTERS STATE
+    // -------------------------
+    const hasActiveFilters = computed(() => {
+      return (
+        !!searchQuery.value.trim() ||
+        !!analyticsStore.selectedCountry ||
+        !!selectedSubregion.value
+      );
+    });
+
+    const clearSearch = () => {
+      searchQuery.value = '';
+      applyFilters();
+    };
+
+    const clearCountry = () => {
+      analyticsStore.selectedCountry = null;
+      countrySearch.value = '';
+      applyFilters();
+    };
+
+    const clearSubregion = () => {
+      selectedSubregion.value = '';
+      subregionSearch.value = '';
+      applyFilters();
+    };
+
+    const clearAllFilters = () => {
+      searchQuery.value = '';
+      analyticsStore.selectedCountry = null;
+      countrySearch.value = '';
+      selectedSubregion.value = '';
+      subregionSearch.value = '';
+      applyFilters();
+    };
+
+    // -------------------------
+    // DROPDOWN HIDING BEHAVIOR
+    // -------------------------
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.autocomplete')) {
+        showCountryDropdown.value = false;
+        showSubregionDropdown.value = false;
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        showCountryDropdown.value = false;
+        showSubregionDropdown.value = false;
+      }
+    };
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    });
+
+    // -------------------------
+    // HOTSPOT SELECTION
+    // -------------------------
     const selectHotspotById = (id: HotspotOverview['id']) => {
-  analyticsStore.setHotspot(id);
-};
+      analyticsStore.setHotspot(id);
+    };
 
-  
     const goToSelectedHotspotDetail = () => {
       if (!analyticsStore.selectedHotspot) return;
-      router.push({ name: 'HotspotDetail', params: { id: analyticsStore.selectedHotspot.id } });
+      router.push({
+        name: "HotspotDetail",
+        params: { id: analyticsStore.selectedHotspot.id },
+      });
     };
 
     const redirectToHomeScreen = () => {
-      router.push({ name: 'HomeScreen' });
+      router.push({ name: "HomeScreen" });
     };
 
+    // -------------------------
+    // RETURN TO TEMPLATE
+    // -------------------------
     return {
+      // Data
       hotspots,
       analyticsStore,
       searchQuery,
+
+      // Autocomplete input + dropdown state
+      countrySearch,
+      subregionSearch,
+      showCountryDropdown,
+      showSubregionDropdown,
+
+      // Filters & options
       availableCountries,
-      filteredHotspots,
       availableSubregions,
+      filteredCountries,
+      filteredSubregions,
+      selectedSubregion,
+      selectCountry,
+      selectSubregion,
+
+      // Hotspot display
+      filteredHotspots,
       selectHotspotById,
+
+      // Applied filters
+      hasActiveFilters,
+      clearSearch,
+      clearCountry,
+      clearSubregion,
+      clearAllFilters,
+      applyFilters,
+
+      // Navigation
       goToSelectedHotspotDetail,
       redirectToHomeScreen,
     };
   },
 });
 </script>
-
 
 <style scoped>
 .hotspot-search {
@@ -243,11 +497,115 @@ export default defineComponent({
 .filters {
   width: 280px;
   padding: 16px;
-  border-right: 1px solid #ddd;
   box-sizing: border-box;
-  background: #fafafa;
+  background: #f9f9f9;     
   overflow-y: auto; 
 }
+
+/* floating card for filters */
+.filters-card {
+  margin-top: 12px;
+  padding: 14px 12px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Dropdown wrapper */
+.autocomplete {
+  position: relative;
+}
+
+/* MIDDLE PANEL: cards */
+.results {
+  flex: 1.5;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #f9f9f9;
+  overflow-y: auto;
+}
+
+/* Applied filters bar in middle */
+.results-filters {
+  margin-bottom: 16px;
+}
+
+.active-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 18px;             /* rounded background */
+  background: #ffffff;
+  border: 1px solid #0066cc;       /* blue border */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  font-size: 0.95rem;             
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #0066cc;
+  background: #f3f8ff;
+  color: #0066cc;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.chip-x {
+  font-weight: 600;
+  line-height: 1;
+}
+
+.chip:hover {
+  background: #e4f0ff;
+}
+
+.clear-filters {
+  border: none;
+  background: transparent;
+  color: #0066cc; /* same blue as border */
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Dropdown for autocomplete */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  z-index: 20;
+}
+
+.dropdown-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f2f2f2;
+}
+
 
 /* Buttons container  */
 .buttons-container {
@@ -284,8 +642,8 @@ export default defineComponent({
 .panel-title {
   font-size: 18px;
   font-weight: 600;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 16px;
+  margin-bottom: 4px;
 }
 
 .filter-group {
@@ -315,15 +673,6 @@ export default defineComponent({
   color: #555;
 }
 
-/* MIDDLE PANEL: cards */
-.results {
-  flex: 1.5;
-  padding: 20px;
-  box-sizing: border-box;
-  background: white;
-  overflow-y: auto;
-}
-
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -334,10 +683,9 @@ export default defineComponent({
 /* RIGHT PANEL: summary */
 .summary-panel {
   width: 320px;
-  border-left: 1px solid #ddd;
   box-sizing: border-box;
   padding: 16px;
-  background: #ffffff;
+  background: #f9f9f9;
   display: flex;
   flex-direction: column;
   overflow-y: auto;

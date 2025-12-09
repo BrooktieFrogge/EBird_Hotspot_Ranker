@@ -1,7 +1,12 @@
 <template>
   <div class="analytics-container">
     <div class="bird-lists-container">
-      <h3 style="text-align: left; padding-left:40px"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}: Analytics Report </h3>
+      <h3 style="text-align: left; padding-left: 20px;"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}</h3>
+      <div class="hotspot-header">
+        <span><BIconPinMapFill style="margin-right: 15px;"/></span> 
+        <h4>{{ analyticsStore.selectedHotspot?.country ?? ''}}, {{ analyticsStore.selectedHotspot?.subregion1 ?? ''}}</h4>
+      </div>
+
       <hr />
 
       <!-- LEFT SECTION: Table -->
@@ -11,7 +16,7 @@
         <div class="table-header">
           <div>Species</div>
           <div>Weighted Rank Factor</div>
-          <div>RFPC</div>
+          <div>Ranked Frequency Percentage</div>
         </div>
 
         <div
@@ -24,21 +29,18 @@
             <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtd_rf }}</div>
-          <div class="cell">{{ bird.rfpc }}</div>
+          <div class="cell">{{ Math.round((10**5)*bird.wtd_rf)/(10**5)}}</div>
+          <div class="cell">{{ Math.round((10**4)*bird.rfpc)/(10**4) }}</div>
         </div>
       </div>
 
 
-      <!-- RIGHT SECTION: Graph -->
-      <div id="apexchart" style="width:100%; height:350px; border: 1px solid black;">
-        <apexchart 
-          ref="chart"
-          type="line"
-          :options = "chartOptions"
-          :series = "series"
-          >
-        </apexchart>
+      <!-- LIKELIHOOD GRAPH-->
+      <div id="linechart" style="width:95%; height:60%; padding:10px" v-show="(analyticsStore.showLikelihoodCurve && (analyticsStore.selectedHotspot != null) && ('birds' in analyticsStore.selectedHotspot) && (analyticsStore.selectedHotspot.birds.length > 0))">
+        <LineChart 
+          style="height: 100%;"
+          :chartData="chartData" 
+        />
       </div>
 
 
@@ -49,7 +51,7 @@
         <div class="table-header">
           <div>Species</div>
           <div>Weighted Rank Factor</div>
-          <div>RFPC</div>
+          <div>Ranked Frequency Percentage</div>
         </div>
 
         <div
@@ -62,8 +64,8 @@
             <span>{{ bird.Species }}</span>
           </div>
 
-          <div class="cell">{{ bird.wtd_rf }}</div>
-          <div class="cell">{{ bird.rfpc }}</div>
+          <div class="cell">{{ Math.round((10**5)*bird.wtd_rf)/(10**5) }}</div>
+          <div class="cell">{{ Math.round((10**4)*bird.rfpc)/(10**4)}}</div>
           <div class="cell">
             <div id="remove-bird-button" @click="analyticsStore.deselectBird(bird)">
               <BIconXCircle/>
@@ -83,7 +85,7 @@
       >
         <img
           class="photo"
-          :src="bird.photo"
+          :src="bird.imageUrl || placeholdPic"
           alt=""
         />
         <div class="photo-caption">
@@ -96,19 +98,21 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, ref, watch } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import VueApexCharts from 'vue3-apexcharts';
-import { BIconXCircle } from 'bootstrap-icons-vue';
-import type { ApexOptions } from 'apexcharts';
-import { addSyntheticTrailingComment } from 'typescript';
+import { BIconXCircle, BIconPinMapFill } from 'bootstrap-icons-vue';
+import { LineChart } from 'vue-chart-3';
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 export default defineComponent({
   name: 'HotspotAnalyticsReport',
 
   components: {
-    apexchart: VueApexCharts,
-    BIconXCircle
+    BIconXCircle,
+    BIconPinMapFill,
+    LineChart
   },
 
   setup() {
@@ -117,57 +121,39 @@ export default defineComponent({
 
     const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
 
-    //not sure if necessary for the chart to update when toggling visibility
-    const chart = ref<InstanceType<typeof VueApexCharts> | null>(null);
+    const chartData = computed(() => {
+    const wtdrfData = birds.value.map((b: any) => b.wtd_rf);
+    const rfpcData = birds.value.map((b: any) => b.rfpc / 100);
 
-    //same as above
-    watch(() => analyticsStore.showLikelihoodCurve, async (visible) => {
-      if (visible) {
-        await nextTick();
-        chart.value?.updateOptions({});
-      }
-    });
-
-    const series = computed(() => [{
-      name: "Ranking",
-      data: birds.value.map((bird: any) => bird.wtd_rf)
-      //data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
-    }]);
-
-    const chartOptions = computed<ApexOptions>(() => ({
-      chart: {
-        id: "apexchart",
-        height: 350,
-        type: 'line',
-        zoom: {
-          enabled: true
+    return {
+      labels: birds.value.map((b: any) => b.Species),
+      datasets: [
+        {
+          label: 'Weighted Rank Factor',
+          data: wtdrfData,
+          backgroundColor: '#45799980',
+          borderColor: '#457999',
+          pointRadius: 6,
+          pointHoverRadius: 10,
         },
-      },
-      stroke: {
-        curve: "straight"
-      },
-      title: {
-        text: 'Bird Frequency Ranking',
-        align: 'left'
-      },
-      grid: {
-        row: {
-          colors: ['#f3f3f3', 'transparent'],
-          opacity: 0.5
+        {
+          label: 'Ranked Frequency Percentage',
+          data: rfpcData,
+          backgroundColor: '#29623980',
+          borderColor: '#296239',
+          pointRadius: 6,
+          pointHoverRadius: 10,
         },
-      },
-      xaxis: {
-        categories: birds.value.map((bird: any) => bird.rank),
-        //categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-      }
-    }));
+      ],
+    };
+  });
+
 
     return {
       analyticsStore,
       birds,
       placeholdPic,
-      series,
-      chartOptions
+      chartData
     };
   },
 
@@ -183,6 +169,7 @@ export default defineComponent({
   background: white;
   color: #222;
   overflow: scroll;
+  opacity: 100%;
 }
 
 .bird-lists-container {
@@ -190,6 +177,15 @@ export default defineComponent({
   gap: 24px;
   width: 100vh;
   color: #222;
+  opacity: 100%;
+}
+
+.hotspot-header {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  font-size: 0.9em;
+  padding-left: 20px
 }
 
 .bird-table {
