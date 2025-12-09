@@ -14,6 +14,11 @@ export const useAnalyticsStore = defineStore('analytics', {
     selectedSpeciesCount: null as number | null,
     selectedCountry: null as string | null,
 
+    // search/filter text that UI can bind to
+    searchHotspotName: '' as string,      
+    searchCountry: '' as string,          
+    searchSubregion1: '' as string,       
+    searchSubregion2: '' as string,       
 
     // --- Analytics Panels / Toggles ---
     yearRange: {
@@ -26,41 +31,29 @@ export const useAnalyticsStore = defineStore('analytics', {
     showTopBirdPhotos: true,
     selectedBirds: [] as Bird[],
 
-
     // --- UI-only state ---
     isLoading: false,
     error: null as string | null,
   }),
 
   getters: {
-
-    /**
-     * Sorts and returns the top N birds for the selected hotspot
-     * @param state 
-     * @returns Top N birds sorted by Rank
-     */
     getTopBirds(state) {
-        return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => a.Rank - b.Rank).slice(0, state.numTopBirds);
+      return [...(state.selectedHotspot?.birds ?? [])]
+        .sort((a, b) => a.Rank - b.Rank)
+        .slice(0, state.numTopBirds);
     },
 
-    /**
-     * Returns all birds for the selected hotspot, sorted by Rank
-     * @param state 
-     * @returns All birds sorted by Rank
-     */
     getAllBirds(state) {
-      return [...(state.selectedHotspot?.birds ?? [])].sort((a, b) => a.Rank - b.Rank);
+      return [...(state.selectedHotspot?.birds ?? [])]
+        .sort((a, b) => a.Rank - b.Rank);
     }
-
   },
 
   actions: {
-
     setHotspot(id: string) {
       this.selectedHotspotId = id;
       const overview = this.allHotspots.find(h => h.id === id);
       if (overview) {
-        // cast to DetailedHotspot temporarily (birds will be empty)
         this.selectedHotspot = { ...overview, birds: [] } as any; 
       }
     },
@@ -68,46 +61,29 @@ export const useAnalyticsStore = defineStore('analytics', {
     setDateRange(start: number, end: number) {
       this.yearRange.start = start;
       this.yearRange.end = end;
-      this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
+      this.fetchHotspotDetail();
     },
 
-    /**
-     * Toggles the visibility of the likelihood curve in the analytics report
-     */
     toggleLikelihoodCurve() {
       this.showLikelihoodCurve = !this.showLikelihoodCurve;
     },
 
-    /**
-     * Toggles the visibility of top bird photos in the analytics report
-     */
     toggleTopPhotos() {
       this.showTopBirdPhotos = !this.showTopBirdPhotos;
     },
 
-    /**
-     * Selects a bird to be highlighted in the analytics report
-     * @param bird 
-     */
     selectBird(bird: Bird) {
       if (!this.selectedBirds.some(b => b === bird)) {
         this.selectedBirds.push(bird);
       }
     },
 
-    /**
-     * Deselects a bird from the analytics report
-     * @param bird 
-     */
     deselectBird(bird: Bird) {
       console.log("deselected bird");
       this.selectedBirds = this.selectedBirds.filter(b => b !== bird);
       console.log(this.selectedBirds);
     },
 
-    /**
-     * Resets the analytics configuration to default values
-     */
     resetAnalyticsConfiguration() {
       this.selectedBirds = [];
       this.numTopBirds = 10;
@@ -116,9 +92,6 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.yearRange = { start: null, end: null };
     },
 
-    /**
-     * Resets the selected hotspot
-     */
     resetSelectedHotspot() {
       this.selectedHotspotId = null;
       this.selectedHotspot = null;
@@ -129,17 +102,55 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.error = null
 
       try {
-        // simulate API call
-        console.log("making a call");
-         // const num = 100
-        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots`); //update link -now a query param
-
-        console.log("length", response.data);
+        const response = await axios.get(
+          `http://localhost:8000/hotspots/browse-hotspots`
+        );
         this.allHotspots = response.data;
-
       } catch (e: any) {
         console.log("there was an error");
         console.log(e);
+        this.error = e.message ?? 'Unknown error'
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    // use the /hotspots/search endpoint and update allHotspots
+    async searchHotspots(options?: {
+      hotspot?: string
+      country?: string
+      subregion1?: string
+      subregion2?: string
+      mode?: 'hotspot' | 'country' | 'subregion1' | 'subregion2' | null
+    }) {
+      this.isLoading = true
+      this.error = null
+
+      try {
+        const {
+          hotspot = this.searchHotspotName || '',
+          country = this.searchCountry || '',
+          subregion1 = this.searchSubregion1 || '',
+          subregion2 = this.searchSubregion2 || '',
+          mode = 'hotspot',
+        } = options || {}
+
+        const response = await axios.get(
+          'http://localhost:8000/hotspots/search',
+          {
+            params: {
+              hotspot,
+              country,
+              subregion1,
+              subregion2,
+              mode,
+            },
+          }
+        )
+
+        this.allHotspots = response.data.results
+      } catch (e: any) {
+        console.error('Error searching hotspots:', e)
         this.error = e.message ?? 'Unknown error'
       } finally {
         this.isLoading = false
@@ -155,8 +166,10 @@ export const useAnalyticsStore = defineStore('analytics', {
       try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
-        //have to somehow send both the hotspotId and the date range.
-        const response = await axios.get(`http://localhost:8000/hotspots/report/${this.selectedHotspotId}`); //update link
+        // if you later want year filters, add params here
+        const response = await axios.get(
+          `http://localhost:8000/hotspots/report/${this.selectedHotspotId}`
+        );
 
         this.selectedHotspot = response.data;
         console.log("Fetched hotspot detail:", response.data);
@@ -167,6 +180,5 @@ export const useAnalyticsStore = defineStore('analytics', {
         this.isLoading = false
       }
     },
-
   }
 })
