@@ -14,11 +14,11 @@ export const useAnalyticsStore = defineStore('analytics', {
     selectedSpeciesCount: null as number | null,
     selectedCountry: null as string | null,
 
-    // NEW: search/filter text that UI can bind to
-    searchHotspotName: '' as string,      // NEW
-    searchCountry: '' as string,          // NEW
-    searchSubregion1: '' as string,       // NEW
-    searchSubregion2: '' as string,       // NEW
+    // search/filter text that UI can bind to
+    searchHotspotName: '' as string,      
+    searchCountry: '' as string,          
+    searchSubregion1: '' as string,       
+    searchSubregion2: '' as string,       
 
     // --- Analytics Panels / Toggles ---
     yearRange: {
@@ -115,7 +115,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       }
     },
 
-    // NEW: use the /hotspots/search endpoint and update allHotspots
+    // use the /hotspots/search endpoint and update allHotspots
     async searchHotspots(options?: {
       hotspot?: string
       country?: string
