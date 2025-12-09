@@ -6,3 +6,4 @@ __pycache__/
 venv/
 .pytest_cache/
 data/.ebird_session.json
+data/ebird_out
