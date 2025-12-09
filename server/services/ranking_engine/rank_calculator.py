@@ -13,7 +13,7 @@ from services.bird_metadata import enrich_data
 
 ##### config
 # load api key 
-load_dotenv('server/.env')
+load_dotenv()
 EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
 # paths
 INPUT_DIR = 'server/data/ebird_in'
