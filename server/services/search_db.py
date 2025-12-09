@@ -126,10 +126,10 @@ def search(table,field,query,where_clause="",where_params=(),limit=20, hotspot:b
         sql_q = f"SELECT {field} FROM {table}{where_clause} LIMIT 250"
 
         print(sql_q, where_params) #TODO Remove
-        
+
         rows = cursor.execute(sql_q,where_params).fetchall()
 
-        names = [r[1]for r in rows]
+        names = [r[1] for r in rows]
         names_dict = {idx: val for idx, val in enumerate(names)}
 
         #fuzzy matching

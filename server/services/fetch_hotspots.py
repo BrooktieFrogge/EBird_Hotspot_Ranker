@@ -3,6 +3,7 @@ import pandas as pd
 import os,httpx
 from datetime import datetime, timedelta, date
 import asyncio, json
+import sqlite3
 
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 #limit concurrent API calls to prevent exceeding rate limits
@@ -24,41 +25,52 @@ async def detailed_hotspot_data(
     end_month: int | None = None,
     end_week: int | None = None
 ):
-    pass #TODO refactor to use db
-    # ret = await get_rankings(
-    #     hotspotID,
-    #     start_yr,
-    #     end_yr,
-    #     start_month=start_month,
-    #     start_week=start_week,
-    #     end_month=end_month,
-    #     end_week=end_week
-    # )
+    ret = await get_rankings(
+        hotspotID,
+        start_yr,
+        end_yr,
+        start_month=start_month,
+        start_week=start_week,
+        end_month=end_month,
+        end_week=end_week
+    )
 
     # if ret:
     #     ret = ret['data']
     # else:
     #     return None
 
-    # with open('server/data/hotspot-overviews.json','r')as file:
-    #     hotspot_data = json.load(file)
+    try:
+        with sqlite3.connect('server/data/database/locations.db') as sqlConn:
+                cursor = sqlConn.cursor()
+    
+        sql_q = "SELECT ID, NAME, COUNTRY, SUBREGION1, SUBREGION2 FROM 'hotspots' WHERE ID = ?"
 
-    # ranked = None
+        cursor.execute(sql_q, (hotspotID,))
 
-    # for hotspot in hotspot_data:
+        hotspot_data = cursor.fetchone()
 
-    #     if hotspot['id'] == hotspotID:
-    #         ranked = {
-    #         "id": hotspot['id'],
-    #         "name" : hotspot['name'],
-    #         "country" : hotspot['country'],
-    #         "subregion1" :hotspot['subregion1'],
-    #         "subregion2": hotspot['subregion1'],
-    #         "birds":ret
-    #         }            
-    #         break
+        ranked = None
 
-    # return ranked
+        ranked = {
+        "id": hotspot_data[0],
+        "name" : hotspot_data[1],
+        "country" : hotspot_data[2],
+        "subregion1" :hotspot_data[3],
+        "subregion2": hotspot_data[4],
+        "birds":ret
+        }            
+
+        return ranked
+
+    except sqlite3.Error as e:
+        print(f"Database retrieval for detailed hotspot overview failed: {e}")
+        return(None)
+
+    finally:
+        if sqlConn:
+            sqlConn.close()
+            print("SQLite connection closed")
 
 '''
 Returns: subregion 1 name given subregion 1 code.
@@ -120,24 +132,78 @@ Uses ebird api calls to fetch most recent hotspot info for all locations by coun
 Returns: list of dictionaries containing info about each hotspot. Dumps information into a json file.
 '''
 async def get_location_hotspots():
-    pass #TODO refactor to pull from db
-    #loading hotspot specific info
-    # df = pd.read_csv('server/data/countries-Table 1.csv')
-    # country_codes = df['country_code'].to_list()
+    #TODO refactor to pull from db
+    # loading hotspot specific info
+    df = pd.read_csv('server/data/countries-Table 1.csv')
+    country_codes = df['country_code'].to_list()
 
-    # all_results = []
+    all_results = []
 
-    # async with httpx.AsyncClient() as client:
-    #     for country in country_codes:
-    #         if pd.isna(country):
-    #             continue
-    #         print("Fetching:", country,end="\n")
-    #         hotspots = await fetch_country_hotspots(client,country)
-    #         all_results.extend(hotspots)
+    async with httpx.AsyncClient() as client:
+        for country in country_codes:
+            if pd.isna(country):
+                continue
+            print("Fetching:", country,end="\n")
+            hotspots = await fetch_country_hotspots(client,country)
+            all_results.extend(hotspots)
+            
+    try:
+        with sqlite3.connect('server/data/database/locations.db') as sqlConn:
+                cursor = sqlConn.cursor()
+    
+        sql_q = '''INSERT INTO 'hotspots' (ID, NAME, COUNTRY, SUBREGION1, SUBREGION2, SPECIESCOUNT) VALUES (?, ?, ?, ?, ?, ?) 
+        ON CONFLICT(ID) DO UPDATE SET SPECIESCOUNT = excluded.SPECIESCOUNT 
+        WHERE hotspots.SPECIESCOUNT != excluded.SPECIESCOUNT 
+        '''
 
-    # with open('hotspot-overviews.json','w') as f:
-    #     json.dump(all_results,f,indent=4)
+        for hotspot in all_results:
+             cursor.execute(sql_q, (hotspot['id'],hotspot['name'],hotspot['country'],hotspot['subregion1'],hotspot['subregion2'],hotspot['speciesCount']))
 
-    # print(f"Saved {len(all_results)} hotspots.")
+        return {"status" : f"Saved {len(all_results)} hotspots."}
+         
 
-    # return all_results
+    except sqlite3.Error as e:
+        print(f"Database UPDATE failed: {e}")
+        return(None)
+
+    finally:
+        if sqlConn:
+            sqlConn.close()
+            print("SQLite connection closed")
+
+def get_overviews(limit:int = 20, offset:int = 0):
+    try:
+        with sqlite3.connect('server/data/database/locations.db') as sqlConn:
+                cursor = sqlConn.cursor()
+
+        sql_q = "SELECT * FROM 'hotspots' ORDER BY SPECIESCOUNT DESC LIMIT ? OFFSET ?"
+
+        print("here")
+
+        cursor.execute(sql_q, (limit, offset))
+
+        hotspot_data = cursor.fetchall()
+
+        overviews = []
+
+        for hotspot in hotspot_data:
+            overviews.append({
+            "id": hotspot[0],
+            "name" : hotspot[1],
+            "country" : hotspot[2],
+            "subregion1" :hotspot[3],
+            "subregion2": hotspot[4],
+            "speciesCount":hotspot[5]
+            })    
+
+        return overviews
+        
+
+    except sqlite3.Error as e:
+        print(f"Database overviews retrieval failed: {e}")
+        return(None)
+
+    finally:
+        if sqlConn:
+            sqlConn.close()
+            print("SQLite connection closed")
