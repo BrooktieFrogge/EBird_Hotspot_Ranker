@@ -131,8 +131,8 @@ export const useAnalyticsStore = defineStore('analytics', {
       try {
         // simulate API call
         console.log("making a call");
-        const num = 100
-        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots/${num}`); //update link
+         // const num = 100
+        const response = await axios.get(`http://localhost:8000/hotspots/browse-hotspots`); //update link -now a query param
 
         console.log("length", response.data);
         this.allHotspots = response.data;

@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Path, Query
-from services.hotspot_search import search_hotspots
-from services.fetch_hotspots import (detailed_hotspot_data)
+from services.search_db import dynamic_search
+from services.fetch_hotspots import (detailed_hotspot_data,get_location_hotspots,get_overviews)
 from models.hotspot_models import (HotspotOverview,DetailedHotspot)
 from datetime import datetime
 import json
 from  typing import Annotated, List
+
 '''
 Backend router for retrieving eBird hotspot data.
 '''
@@ -13,47 +14,74 @@ router = APIRouter(
     tags=["Hotspots"]
     )
 
-with open('server/data/hotspot-overviews.json','r') as file:
-        data = json.load(file)
-
 '''
-Dynamically search by location name (country, subnational, hotspot name) or exact hotspot id when querying with Id_lookup=True
+Dynamically search by location name (country, subnational, hotspot name)
+based on query parameter mode
 
-Returns:
-- Default: Returns a list of locations that represent possible matches to the query. List contatins dictionary for each location contatining location name and code (for broader regions) or hotspot name and hotspot id
+modes(defaults to None):
+    hotspot: returns hotspot overviews for hotspots that match the query. Works with, without, or with only some location filters applied.
 
-- Id_lookup: Returns the name of the hotspot.
+    If country,subregion1, or subregion2 are specified they should be exact location names -assumes these values are filters that are already applied, only expects raw user input for hotspot name
+
+    country: returns list of country names that match the query (for filtering)  - expects raw user input for country only (disregards other params)
+
+    subregion1: returns list of subregion1 names that match the query (for filtering)  - expects raw user input for subregion1 and takes exact country name as filter  (disregards other params)
+
+    subregion2: returns list of subregion1 names that match the query (for filtering) - expects raw user input for subregion2 and takes exact subregion1 name as filter (disregards other params)
+
 
 - Exception: Raises 404 with message.
 
 '''
-@router.get("/search/location/{query}")
-async def location_search(query: str, Id_lookup: bool | None = None):
-    data = search_hotspots(query,Id_lookup)
+@router.get("/search")
+async def location_search(hotspot:str = '',
+                    country:str = '',
+                    subregion1:str = '',
+                    subregion2:str = '', mode:str = None):
+    
+    data = dynamic_search(hotspot,country,subregion1,subregion2,mode)
+
     if not data:
         raise HTTPException(status_code=404, detail="Location not found.")
     return {"results" : data}
+
+'''
+Will eventually be background script that updates hotspot overview data monthly
+TODO add background scheduler and test refactor
+'''
+# @router.get("/fetch-hotspot-data")
+# async def fetch_hotspot_data():
+#     data = await get_location_hotspots()
+    
+#     if not data:
+#         raise HTTPException(status_code=404, detail="Location not found.")
+#     return data
 
 '''
 Default: returns the first 100 hotspots overviews 
 Custom Query: return the number of hotspots specified by the limit starting from the offset
     limit- adjusts the amount of hotspots returned
     offset- adjusts how many overviews to skip from the start of the data set
+
+   TODO add back to Query ,le=len(data)
+
 '''
-@router.get("/browse-hotspots/{limit}", response_model=List[HotspotOverview])
+@router.get("/browse-hotspots", response_model=List[HotspotOverview])
 async def browse_hotspots(
     limit:Annotated[
-        int, 
-        Path(description="Amount of overviews to return",ge=0,le=100)],
+        int|None, 
+        Query(description="Amount of overviews to return",ge=0,le=100)]=20,
     offset: Annotated[
         int|None,
-          Query(description="Amount of overviews to skip from start of dataset",ge=0,le=len(data))]= 0
+          Query(description="Amount of overviews to skip from start of dataset",ge=0)]= 0
     ):
+
+    data = get_overviews(limit,offset)
 
     if not data:
         raise HTTPException(status_code=404, detail="No Hotspots Found.")
     try:
-        return  data[offset:(offset+limit+1)]
+        return  data
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid Input: {e}")
 
