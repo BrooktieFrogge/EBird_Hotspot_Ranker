@@ -16,12 +16,10 @@ export const useAnalyticsStore = defineStore('analytics', {
 
 
     // --- Analytics Panels / Toggles ---
-    startYear: null as number | null,
-    endYear: null as number | null,
-    startMonth: null as number | null,
-    startWeek: null as number | null,
-    endMonth: null as number | null,
-    endWeek: null as number | null,
+    yearRange: {
+      start: null as number | null,
+      end: null as number | null,
+    },
 
     numTopBirds: 10,
     showLikelihoodCurve: true,
@@ -67,17 +65,10 @@ export const useAnalyticsStore = defineStore('analytics', {
       }
     },
 
-    setYearRange(start: number, end: number) {
-      this.startYear = start;
-      this.endYear = end;
+    setDateRange(start: number, end: number) {
+      this.yearRange.start = start;
+      this.yearRange.end = end;
       this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
-    },
-
-    setTimeFrame(startMonth: number, startWeek: number, endMonth: number, endWeek: number) {
-      this.startMonth = startMonth;
-      this.startWeek = startWeek;
-      this.endMonth = endMonth;
-      this.endWeek = endWeek;
     },
 
     /**
@@ -122,12 +113,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.numTopBirds = 10;
       this.showLikelihoodCurve = true;
       this.showTopBirdPhotos = true;
-      this.startYear = 1900;
-      this.endYear = 2025; //TODO: make this update to this year
-      this.startMonth = 1;
-      this.startWeek = 1;
-      this.endMonth = 4;
-      this.endWeek = 4;
+      this.yearRange = { start: null, end: null };
     },
 
     /**
@@ -161,38 +147,26 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     async fetchHotspotDetail() {
-    if (!this.selectedHotspotId) return
+      if (!this.selectedHotspotId) return
 
-    this.isLoading = true
-    this.error = null
+      this.isLoading = true
+      this.error = null
 
-    // 1. Prepare the query parameters object
-    const params = {
-        start_yr: this.startYear,
-        end_yr: this.endYear,
-        start_month: this.startMonth,
-        start_week: this.startWeek,
-        end_month: this.endMonth,
-        end_week: this.endWeek,
-    };
-
-    // 2. Construct the base URL using the path parameter
-    const url = `http://localhost:8000/hotspots/report/${this.selectedHotspotId}`;
-    
-    try {
+      try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
-        const response = await axios.get(url, { params }); 
+        //have to somehow send both the hotspotId and the date range.
+        const response = await axios.get(`http://localhost:8000/hotspots/report/${this.selectedHotspotId}`); //update link
 
         this.selectedHotspot = response.data;
         console.log("Fetched hotspot detail:", response.data);
 
-    } catch (e: any) {
+      } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
-    } finally {
+      } finally {
         this.isLoading = false
-    }
-},
+      }
+    },
 
   }
 })
