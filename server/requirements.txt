@@ -6,3 +6,4 @@ requests
 rapidfuzz
 pydantic
 playwright
+httpx
