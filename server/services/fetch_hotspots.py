@@ -35,10 +35,10 @@ async def detailed_hotspot_data(
         end_week=end_week
     )
 
-    # if ret:
-    #     ret = ret['data']
-    # else:
-    #     return None
+    if ret:
+        ret = ret['data']
+    else:
+        return None
 
     try:
         with sqlite3.connect('server/data/database/locations.db') as sqlConn:
