@@ -167,33 +167,39 @@ export const useAnalyticsStore = defineStore('analytics', {
 
         this.allHotspots = response.data.results
       } catch (e: any) {
-        console.error('Error searching hotspots:', e)
-        this.error = e.message ?? 'Unknown error'
+        if (axios.isAxiosError(e) && e.response?.status === 404) {
+          console.warn('No hotspots matched search, clearing list.');
+          this.allHotspots = [];
+          this.error = null; // no "error" message for the user, just empty results
+        } else {
+          console.error('Error searching hotspots:', e)
+          this.error = e.message ?? 'Unknown error'
+        }
       } finally {
         this.isLoading = false
       }
     },
 
     async fetchHotspotDetail() {
-    if (!this.selectedHotspotId) return
+      if (!this.selectedHotspotId) return
 
-    this.isLoading = true
-    this.error = null
+      this.isLoading = true
+      this.error = null
 
-    // 1. Prepare the query parameters object
-    const params = {
+      // 1. Prepare the query parameters object
+      const params = {
         start_yr: this.startYear,
         end_yr: this.endYear,
         start_month: this.startMonth,
         start_week: this.startWeek,
         end_month: this.endMonth,
         end_week: this.endWeek,
-    };
+      };
 
-    // 2. Construct the base URL using the path parameter
-    const url = `/api/hotspots/report/${this.selectedHotspotId}`;
-    
-    try {
+      // 2. Construct the base URL using the path parameter
+      const url = `/api/hotspots/report/${this.selectedHotspotId}`;
+      
+      try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
         const response = await axios.get(url, { params }); 
@@ -201,12 +207,12 @@ export const useAnalyticsStore = defineStore('analytics', {
         this.selectedHotspot = response.data;
         console.log("Fetched hotspot detail:", response.data);
 
-    } catch (e: any) {
+      } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
-    } finally {
+      } finally {
         this.isLoading = false
-    }
-},
+      }
+    },
 
   }
 })
