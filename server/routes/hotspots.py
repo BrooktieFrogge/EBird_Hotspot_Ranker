@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Path, Query
 from services.search_db import dynamic_search
-from services.fetch_hotspots import (detailed_hotspot_data,get_location_hotspots,get_overviews)
+from services.fetch_hotspots import (detailed_hotspot_data,get_overviews)
+from services.database_sync import sync_data
 from models.hotspot_models import (HotspotOverview,DetailedHotspot)
 from datetime import datetime
 import json
@@ -49,13 +50,13 @@ async def location_search(hotspot:str = '',
 Will eventually be background script that updates hotspot overview data monthly
 TODO add background scheduler and test refactor
 '''
-# @router.get("/fetch-hotspot-data")
-# async def fetch_hotspot_data():
-#     data = await get_location_hotspots()
+@router.get("/fetch-hotspot-data")
+async def fetch_hotspot_data():
+    data = await sync_data()
     
-#     if not data:
-#         raise HTTPException(status_code=404, detail="Location not found.")
-#     return data
+    if not data:
+        raise HTTPException(status_code=404, detail="Location not found.")
+    return data
 
 '''
 Default: returns the first 100 hotspots overviews 
