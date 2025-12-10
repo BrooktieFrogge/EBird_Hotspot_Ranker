@@ -120,7 +120,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/hotspots/browse-hotspots`
+          `/api/hotspots/browse-hotspots`
         );
         this.allHotspots = response.data;
       } catch (e: any) {
@@ -153,7 +153,7 @@ export const useAnalyticsStore = defineStore('analytics', {
         } = options || {}
 
         const response = await axios.get(
-          'http://localhost:8000/hotspots/search',
+          '/api/hotspots/search',
           {
             params: {
               hotspot,
@@ -191,7 +191,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     };
 
     // 2. Construct the base URL using the path parameter
-    const url = `http://localhost:8000/hotspots/report/${this.selectedHotspotId}`;
+    const url = `/api/hotspots/report/${this.selectedHotspotId}`;
     
     try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
