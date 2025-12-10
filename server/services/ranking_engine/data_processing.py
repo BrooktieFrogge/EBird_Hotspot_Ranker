@@ -9,7 +9,7 @@ import os, httpx
 from playwright.async_api import async_playwright
 
 ### config
-SAVE_FILE = True
+SAVE_FILE = False
 BROWSER = None
 
 ##### helper functions
@@ -112,9 +112,8 @@ async def get_rankings(
                         return result_dict
                 
                     else:
-                        # convert the dict back to df just to show head in logs
-                        df = pd.DataFrame(result_dict['data'])
-                        return {f"[success] | results stored in result_dict (location: {result_dict['location']})": df.head(10)}
+                        print(f"[success] | results stored in memory: result_dict (location: {result_dict['location']})")
+                        return result_dict
                     
                 except Exception as e:
                     return(f"[error] | calculation/formatting failed - {e}")
