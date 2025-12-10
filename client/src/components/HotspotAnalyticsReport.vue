@@ -1,5 +1,5 @@
 <template>
-  <div class="analytics-container">
+  <div class="analytics-container" v-if="birds.length > 1">
     <div class="bird-lists-container">
       <h3 style="text-align: left; padding-left: 20px;"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}</h3>
       <div class="hotspot-header">
@@ -16,7 +16,7 @@
         <div class="table-header">
           <div>Species</div>
           <div>Weighted Rank Factor</div>
-          <div>Ranked Frequency Percentage</div>
+          <div>Ranked Factor Percentage</div>
         </div>
 
         <div
@@ -51,7 +51,7 @@
         <div class="table-header">
           <div>Species</div>
           <div>Weighted Rank Factor</div>
-          <div>Ranked Frequency Percentage</div>
+          <div>Ranked Factor Percentage</div>
         </div>
 
         <div
@@ -85,7 +85,7 @@
       >
         <img
           class="photo"
-          :src="bird.imageUrl || placeholdPic"
+          :src="bird.imageUrl"
           alt=""
         />
         <div class="photo-caption">
@@ -94,6 +94,13 @@
       </div>
     </div>
 
+  </div>
+  <div class="loading-screen" v-else>
+    <img
+        class="loading-photo"
+        :src="loadingImage"
+        alt=""
+      />
   </div>
 </template>
 
@@ -119,7 +126,7 @@ export default defineComponent({
     const analyticsStore = useAnalyticsStore();
     const birds = computed(() => analyticsStore.getTopBirds);
 
-    const placeholdPic = "https://cdn1.byjus.com/wp-content/uploads/2021/03/line-graph.png";
+    const loadingImage = "https://i.pinimg.com/originals/c0/c4/1b/c0c41b77b01b48d9a62b4ae3b79cb654.gif";
 
     const chartData = computed(() => {
     const wtdrfData = birds.value.map((b: any) => b.wtd_rf);
@@ -137,7 +144,7 @@ export default defineComponent({
           pointHoverRadius: 10,
         },
         {
-          label: 'Ranked Frequency Percentage',
+          label: 'Ranked Factor Percentage',
           data: rfpcData,
           backgroundColor: '#29623980',
           borderColor: '#296239',
@@ -152,7 +159,7 @@ export default defineComponent({
     return {
       analyticsStore,
       birds,
-      placeholdPic,
+      loadingImage,
       chartData
     };
   },
@@ -250,4 +257,21 @@ export default defineComponent({
   font-weight: 500;
   text-align: center;
 }
+
+.loading-screen{
+  display: flex;
+  gap: 24px;
+  padding: 40px;
+  height: 100vh;
+  background: white;
+  color: #222;
+  opacity: 100%;
+}
+
+.loading-photo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
 </style>
