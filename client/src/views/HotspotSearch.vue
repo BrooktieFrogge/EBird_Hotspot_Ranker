@@ -18,12 +18,12 @@
       <div class="filters-card">
         <!-- Text search -->
         <div class="filter-group">
-          <label for="search">Search by name or location</label>
+          <label for="search">Search by name</label>
           <input
             id="search"
             type="text"
             v-model="searchQuery"
-            placeholder="Type a hotspot name or location..."
+            placeholder="Type a hotspot name..."
             @keyup.enter="applyFilters"
           />
         </div>
@@ -37,6 +37,7 @@
             v-model="countrySearch"
             placeholder="Search countries..."
             @input="showCountryDropdown = true"
+            @keyup.enter="applyFilters"
           />
 
           <!-- Autocomplete dropdown -->
@@ -64,6 +65,7 @@
             v-model="subregionSearch"
             placeholder="Search subregions..."
             @input="showSubregionDropdown = true"
+            @keyup.enter="applyFilters"
           />
 
           <!-- Autocomplete dropdown -->
@@ -83,7 +85,7 @@
         </div>
 
         <div class="filter-summary">
-          Showing {{ filteredHotspots.length }} of {{ hotspots.length }} hotspots
+          Showing {{ filteredHotspots.length }} hotspots
         </div>
       </div>
     </div>
@@ -109,21 +111,21 @@
 
             <!-- Country -->
             <button
-              v-if="analyticsStore.selectedCountry"
+              v-if="analyticsStore.selectedCountry || countrySearch.trim()"
               class="chip"
               @click="clearCountry"
             >
-              {{ analyticsStore.selectedCountry }}
+              {{ analyticsStore.selectedCountry || countrySearch }}
               <span class="chip-x">×</span>
             </button>
 
             <!-- Subregion -->
             <button
-              v-if="selectedSubregion"
+              v-if="selectedSubregion || subregionSearch.trim()"
               class="chip"
               @click="clearSubregion"
             >
-              {{ selectedSubregion }}
+              {{ selectedSubregion || subregionSearch }}
               <span class="chip-x">×</span>
             </button>
           </div>
@@ -214,8 +216,8 @@ import {
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
 import { BIconHouseFill } from 'bootstrap-icons-vue';
-import { useAnalyticsStore } from "../stores/useAnalyticsStore.ts"
-import type { HotspotOverview } from '../types/index.ts';
+import { useAnalyticsStore } from "../stores/useAnalyticsStore";
+import type { HotspotOverview } from '../types';
 
 export default defineComponent({
   name: 'HotspotSearch',
@@ -228,13 +230,6 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
-
-    // Fetch hotspot list initially (browse endpoint)
-    onMounted(() => {
-      analyticsStore.fetchAllHotspots();
-      document.addEventListener('click', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
-    });
 
     const hotspots = computed(() => analyticsStore.allHotspots);
 
@@ -252,16 +247,33 @@ export default defineComponent({
     // APPLY FILTERS → backend search
     // -------------------------
     const applyFilters = () => {
+      const hotspotFilter = searchQuery.value.trim();
+
+      // Only use selectedCountry if it exists; otherwise use what's typed
+      const countryFilter = (
+        analyticsStore.selectedCountry ?? countrySearch.value
+      ).trim();
+
+      const subregionFilter = (
+        selectedSubregion.value || subregionSearch.value
+      ).trim();
+
+      // Keep store's search fields in sync 
+      analyticsStore.searchHotspotName = hotspotFilter;
+      analyticsStore.searchCountry = countryFilter;
+      analyticsStore.searchSubregion1 = subregionFilter;
+      analyticsStore.searchSubregion2 = '';
+
       analyticsStore.searchHotspots({
-        hotspot: searchQuery.value,
-        country: analyticsStore.selectedCountry ?? '',
-        subregion1: selectedSubregion.value || '',
+        hotspot: hotspotFilter,
+        country: countryFilter,
+        subregion1: subregionFilter,
         mode: 'hotspot',
       });
     };
 
     // -------------------------
-    // AVAILABLE FILTER VALUES
+    // AVAILABLE FILTER VALUES (from current hotspots)
     // -------------------------
     const availableCountries = computed(() => {
       const set = new Set<string>();
@@ -337,28 +349,9 @@ export default defineComponent({
     });
 
     // -------------------------
-    // FILTER HOTSPOTS (client-side)
+    // FILTER HOTSPOTS (backend-driven)
     // -------------------------
-    const filteredHotspots = computed(() => {
-      const q = searchQuery.value.trim().toLowerCase();
-      const country = analyticsStore.selectedCountry;
-      const subregion = selectedSubregion.value;
-
-      return hotspots.value.filter(h => {
-        const matchesSearch =
-          !q ||
-          h.name.toLowerCase().includes(q) ||
-          h.subregion1.toLowerCase().includes(q);
-
-        const matchesCountry =
-          !country || h.country === country;
-
-        const matchesSubregion =
-          !subregion || h.subregion1 === subregion;
-
-        return matchesSearch && matchesCountry && matchesSubregion;
-      });
-    });
+    const filteredHotspots = computed(() => hotspots.value);
 
     // -------------------------
     // APPLIED FILTERS STATE
@@ -367,7 +360,9 @@ export default defineComponent({
       return (
         !!searchQuery.value.trim() ||
         !!analyticsStore.selectedCountry ||
-        !!selectedSubregion.value
+        !!countrySearch.value.trim() ||
+        !!selectedSubregion.value ||
+        !!subregionSearch.value.trim()
       );
     });
 
@@ -414,6 +409,14 @@ export default defineComponent({
         showSubregionDropdown.value = false;
       }
     };
+
+    onMounted(() => {
+      // initial data
+      analyticsStore.fetchAllHotspots();
+
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    });
 
     onBeforeUnmount(() => {
       document.removeEventListener('click', handleClickOutside);
@@ -484,6 +487,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* (same styles you already had, left untouched) */
 .hotspot-search {
   display: flex;
   height: 100vh;
@@ -536,9 +540,9 @@ export default defineComponent({
   justify-content: space-between;
   gap: 10px;
   padding: 10px 16px;
-  border-radius: 18px;             /* rounded background */
+  border-radius: 18px;             
   background: #ffffff;
-  border: 1px solid #0066cc;       /* blue border */
+  border: 1px solid #0066cc;       
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   font-size: 0.95rem;             
 }
@@ -574,7 +578,7 @@ export default defineComponent({
 .clear-filters {
   border: none;
   background: transparent;
-  color: #0066cc; /* same blue as border */
+  color: #0066cc; 
   cursor: pointer;
   padding: 0 4px;
   font-size: 0.9rem;
