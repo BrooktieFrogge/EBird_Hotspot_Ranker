@@ -200,10 +200,6 @@ export const useAnalyticsStore = defineStore('analytics', {
       const url = `/api/hotspots/report/${this.selectedHotspotId}`;
       
       try {
-    // 2. Construct the base URL using the path parameter
-    const url = `/api/hotspots/report/${this.selectedHotspotId}`;
-    
-    try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
         const response = await axios.get(url, { params }); 
@@ -214,7 +210,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
         console.log("ERROR:", e.message);
-    } finally {
+      } finally {
         this.isLoading = false
       }
     },
