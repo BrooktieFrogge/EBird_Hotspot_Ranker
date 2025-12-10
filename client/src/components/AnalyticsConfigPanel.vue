@@ -272,6 +272,7 @@ export default defineComponent({
     const confirmYearRange = () => {
         if (isYearRangeValid.value) {
             analyticsStore.setYearRange(tempStartYear.value, tempEndYear.value);
+            analyticsStore.fetchHotspotDetail();
             console.log(`Confirmed year range: ${tempStartYear.value} to ${tempEndYear.value}`);
         } else {
             console.error("Invalid year range entered.");
@@ -320,6 +321,7 @@ export default defineComponent({
     
     const confirmTimeRange = () => {
         analyticsStore.setTimeFrame(startMonth.value, startWeek.value, endMonth.value, endWeek.value);
+        analyticsStore.fetchHotspotDetail();
         console.log(`Confirmed Time Range: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
     };
 

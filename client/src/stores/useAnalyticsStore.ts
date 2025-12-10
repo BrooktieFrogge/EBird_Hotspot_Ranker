@@ -63,7 +63,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     setYearRange(start: number, end: number) {
       this.startYear = start;
       this.endYear = end;
-      this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
+      this.fetchHotspotDetail(); 
     },
 
     setTimeFrame(startMonth: number, startWeek: number, endMonth: number, endWeek: number) {
@@ -203,6 +203,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
+        console.log("ERROR:", e.message);
     } finally {
         this.isLoading = false
     }
