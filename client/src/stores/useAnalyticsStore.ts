@@ -63,7 +63,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     setYearRange(start: number, end: number) {
       this.startYear = start;
       this.endYear = end;
-      this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
+      this.fetchHotspotDetail(); 
     },
 
     setTimeFrame(startMonth: number, startWeek: number, endMonth: number, endWeek: number) {
@@ -200,6 +200,10 @@ export const useAnalyticsStore = defineStore('analytics', {
       const url = `/api/hotspots/report/${this.selectedHotspotId}`;
       
       try {
+    // 2. Construct the base URL using the path parameter
+    const url = `/api/hotspots/report/${this.selectedHotspotId}`;
+    
+    try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
         const response = await axios.get(url, { params }); 
@@ -209,7 +213,8 @@ export const useAnalyticsStore = defineStore('analytics', {
 
       } catch (e: any) {
         this.error = e.message ?? 'Unknown error'
-      } finally {
+        console.log("ERROR:", e.message);
+    } finally {
         this.isLoading = false
       }
     },
