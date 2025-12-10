@@ -22,7 +22,7 @@ Returns: Normalized string for rapidfuzz matching
 '''
 def normalize(text:str):
      if not text:
-         return None
+         return ''
      lower_c  = text.lower()
      no_accents  = unicodedata.normalize('NFKD', lower_c).encode('ascii','ignore').decode()
      no_punct = re.sub(r'[^\w\s]',' ',no_accents)
@@ -36,13 +36,17 @@ def init_db():
         with sqlite3.connect('server/data/database/locations.db') as sqlConn:
             cursor = sqlConn.cursor()
 
+            sqlConn.create_function('norm',1, normalize)
+
             # query2 = "DROP TABLE countries"
             # query3 = "DROP TABLE subregions1"
-            # query4 = "DROP TABLE subregions2"
+            query4 = "DROP TABLE subregions2"
+            # query5 = "DROP TABLE norm_hotspot_names"
 
             # cursor.execute(query2)
             # cursor.execute(query3)
-            # cursor.execute(query4)
+            cursor.execute(query4)
+            # cursor.execute(query5)
 
             query = '''CREATE TABLE IF NOT EXISTS hotspots( ID TEXT PRIMARY KEY, NAME TEXT, COUNTRY TEXT, SUBREGION1 TEXT,  SUBREGION2 TEXT, SPECIESCOUNT INTEGER )'''
 
@@ -50,23 +54,36 @@ def init_db():
 
             query3 = '''CREATE TABLE IF NOT EXISTS subregions1( subnational1_code TEXT PRIMARY KEY, subnational1_name TEXT,country_name TEXT)'''
 
-            query4 = '''CREATE TABLE IF NOT EXISTS subregions2( subnational2_code TEXT PRIMARY KEY, subnational2_name TEXT,subnational1_name TEXT )'''
+            query4 = '''CREATE TABLE IF NOT EXISTS subregions2( subnational2_code TEXT PRIMARY KEY, subnational2_name TEXT,subnational1_name TEXT, country_name TEXT)'''
+
+            query5 = '''CREATE TABLE IF NOT EXISTS norm_hotspot_names AS SELECT ID, norm(NAME) AS NAME FROM 'hotspots' '''
+
+            query6 = '''CREATE TABLE IF NOT EXISTS norm_country_names AS SELECT country_code, norm(country_name) AS country_name FROM 'countries' '''
+
+            query7 = '''CREATE TABLE IF NOT EXISTS norm_subregion1_names AS SELECT subnational1_code, norm(subnational1_name) AS subnational1_name FROM 'subregions1' '''
+
+            query8 = '''CREATE TABLE IF NOT EXISTS norm_subregion2_names AS SELECT subnational2_code, norm(subnational2_name) AS subnational2_name FROM 'subregions2' '''
 
             cursor.execute(query)
             cursor.execute(query2)
             cursor.execute(query3)
             cursor.execute(query4)
+            cursor.execute(query5)
+            cursor.execute(query6)
+            cursor.execute(query7)
+            cursor.execute(query8)
             
             # #ONLY DONE ONCE: loading loc specific info ===================================
             # countryInfo = pd.read_csv('server/data/countries-Table 1.csv', usecols=['country_code','country_name'])
             # sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv', usecols=[ 'subnational1_code','subnational1_name','country_name'])
-            # sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv', usecols=['subnational2_code','subnational2_name','subnational1_name'])
+            sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv', usecols=['subnational2_code','subnational2_name','subnational1_name','country_name'])
 
             # countryInfo.to_sql('countries', sqlConn, if_exists='append',index=False)
 
             # sub1Info.to_sql('subregions1', sqlConn, if_exists='append',index=False)
 
-            # sub2Info.to_sql('subregions2', sqlConn, if_exists='append',index=False)
+            sub2Info.to_sql('subregions2', sqlConn, if_exists='append',index=False)
+            
             #===================================
             
             sqlConn.commit() 
@@ -79,6 +96,14 @@ def init_db():
             
             df3 = pd.read_sql_query('''SELECT * FROM 'subregions2' ''', sqlConn)
 
+            df4 = pd.read_sql_query('''SELECT * FROM 'norm_hotspot_names' ''', sqlConn)
+
+            df5 = pd.read_sql_query('''SELECT * FROM 'norm_country_names' ''', sqlConn)
+
+            df6 = pd.read_sql_query('''SELECT * FROM 'norm_subregion1_names' ''', sqlConn)
+
+            df7 = pd.read_sql_query('''SELECT * FROM 'norm_subregion2_names' ''', sqlConn)
+
             print(f"Hotspot overview data loaded successfully. Length: {len(df)}, Head: \n {df.sample(20)}")
 
             print(f"Countries data loaded successfully. Length: {len(df1)}, Head: \n {df1.sample(20)}")
@@ -87,6 +112,13 @@ def init_db():
             
             print(f"Subregions2 data loaded successfully. Length: {len(df3)}, Head: \n {df3.sample(20)}")
 
+            print(f"norm_hotspots data loaded successfully. Length: {len(df4)}, Head: \n {df4.sample(20)}")
+
+            print(f"norm_countries data loaded successfully. Length: {len(df5)}, Head: \n {df5.sample(20)}")
+            
+            print(f"norm_sub1 data loaded successfully. Length: {len(df6)}, Head: \n {df6.sample(20)}")
+
+            print(f"norm_sub2 data loaded successfully. Length: {len(df7)}, Head: \n {df7.sample(20)}")
 
     except sqlite3.Error as e:
         print(f"Failed to execute hotspot table creation - {e}")
@@ -96,7 +128,7 @@ def init_db():
             sqlConn.close()
             print("SQLite connection closed")
 
-# init_db()
+#init_db()
             
 #TODO reduce repetitive logic 
 #TODO add handling for accented names like Cañon
@@ -105,20 +137,20 @@ def dynamic_search(hotspot='',country='',subregion1='',subregion2='',mode=None):
 
     #if mode provided 
     if mode == "country" and country:
-        return search_countries(country)
+        return search_countries(normalize(country))
     
     if mode == "subregion1" and subregion1:
-        return search_sub1(subregion1,country)
+        return search_sub1(normalize(subregion1),country)
     
     if mode == "subregion2" and subregion2:
-        return search_sub2(subregion2,subregion1)
+        return search_sub2(normalize(subregion2),country,subregion1)
     
     if mode == "hotspot":
-        return search_hotspots(hotspot,country,subregion1,subregion2)
+        return search_hotspots(normalize(hotspot),country,subregion1,subregion2)
     else:
         return None
    
-def search(table,field,query,where_clause="",where_params=(),limit=20, hotspot:bool = False):
+def search(table,field,query,where_clause="",where_params=(),limit=50, hotspot:bool = False):
     try:
         with sqlite3.connect('server/data/database/locations.db') as sqlConn:
                 cursor = sqlConn.cursor()
@@ -179,15 +211,15 @@ def search_countries(query):
     for t in tokens:
         w_params += ("%" + t + '%',)
 
-    where = (' WHERE country_name LIKE ?' + ' OR ? '*(len(tokens)))
-
+    where = (' WHERE N.country_name LIKE ?' + ' OR ? '*(len(tokens)))
+    
     return search(
-        table='countries',
-        field='country_code, country_name',
+        table='countries AS C, norm_country_names AS N',
+        field='C.country_code, C.country_name',
         where_clause=where,
         where_params=w_params,
         query=query,
-        limit=20
+        limit=50
     )
 
 def search_sub1(query, country):
@@ -206,29 +238,33 @@ def search_sub1(query, country):
     for t in tokens:
         w_params += ("%" + t + '%',) #substring for each token 
 
-    where_clauses.append('subnational1_name LIKE ?' + ' OR ? '*(len(tokens)))
+    where_clauses.append('N.subnational1_name LIKE ?' + ' OR ? '*(len(tokens)))
 
     where += ' AND '.join(where_clauses)
 
     return search(
-        table='subregions1',
-        field='subnational1_code, subnational1_name',
+        table='subregions1 AS S, norm_subregion1_names AS N',
+        field='S.subnational1_code, S.subnational1_name',
         query=query,
         where_clause=where,
         where_params=w_params,
-        limit=20
+        limit=50
     )
     
-def search_sub2(query,sub1):
+def search_sub2(query,country,sub1):
     tokens = []
     where = ' WHERE '
     w_params = ()
     where_clauses = []
 
+    if country:
+        where_clauses.append('country_name = ?')
+        w_params += (country,)
 
     if sub1:
         where_clauses.append('subnational1_name = ?')
         w_params += (sub1,)
+
 
     tokens = [token.strip() for token in normalize(query).split() if token.strip()]
 
@@ -237,17 +273,17 @@ def search_sub2(query,sub1):
     for t in tokens:
         w_params += ("%" + t + '%',) #prefix for each token 
 
-    where_clauses.append('subnational2_name LIKE ?' + ' OR ? '*(len(tokens)))
+    where_clauses.append('N.subnational2_name LIKE ?' + ' OR ? '*(len(tokens)))
 
     where += ' AND '.join(where_clauses)
 
     return search(
-        table='subregions2',
-        field='subnational2_code, subnational2_name',
+        table='subregions2 AS S, norm_subregion2_names AS N',
+        field='S.subnational2_code, S.subnational2_name',
         query=query,
         where_clause=where,
         where_params=w_params,
-        limit=20
+        limit=50
     )
 
 def search_hotspots(query,country,sub1,sub2):
@@ -260,15 +296,15 @@ def search_hotspots(query,country,sub1,sub2):
         where = ''
   
     if sub2:
-        where_clauses.append('SUBREGION2 = ?')
+        where_clauses.append('H.SUBREGION2 = ?')
         w_params += (sub2,)
 
     if sub1:
-        where_clauses.append('SUBREGION1 = ?')
+        where_clauses.append('H.SUBREGION1 = ?')
         w_params += (sub1,)
 
     if country:
-        where_clauses.append('COUNTRY = ?')
+        where_clauses.append('H.COUNTRY = ?')
         w_params += (country,)
     
     if query:
@@ -278,13 +314,13 @@ def search_hotspots(query,country,sub1,sub2):
         for t in tokens:
             w_params += ("%" + t + '%',)#prefix for each token 
 
-        where_clauses.append('NAME LIKE ?' + ' OR ? '*(len(tokens)))
+        where_clauses.append('N.NAME LIKE ?' + ' OR ? '*(len(tokens)))
 
-    where += ' AND '.join(where_clauses)
+    where += ' AND '.join(where_clauses) 
 
     return search(
-        table='hotspots',
-        field='ID, NAME, COUNTRY, SUBREGION1, SUBREGION2, SPECIESCOUNT',
+        table='hotspots AS H, norm_hotspot_names AS N',
+        field='H.ID, H.NAME, H.COUNTRY, H.SUBREGION1, H.SUBREGION2, H.SPECIESCOUNT',
         query=query,
         where_clause=where,
         where_params=w_params,
