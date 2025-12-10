@@ -126,7 +126,8 @@ export default defineComponent({
     const analyticsStore = useAnalyticsStore();
     const birds = computed(() => analyticsStore.getTopBirds);
 
-    const loadingImage = "https://i.pinimg.com/originals/c0/c4/1b/c0c41b77b01b48d9a62b4ae3b79cb654.gif";
+    /*const loadingImage = "https://i.pinimg.com/originals/c0/c4/1b/c0c41b77b01b48d9a62b4ae3b79cb654.gif";*/
+    const loadingImage = "https://cdn.pixabay.com/animation/2024/07/04/20/46/20-46-07-872_512.gif";
 
     const chartData = computed(() => {
     const wtdrfData = birds.value.map((b: any) => b.wtd_rf);
@@ -259,18 +260,21 @@ export default defineComponent({
 }
 
 .loading-screen{
-  display: flex;
+  align-items: center;
+  vertical-align: middle;
   gap: 24px;
-  padding: 40px;
+  padding: 300px;
   height: 100vh;
+  /*background: #18233e;*/
   background: white;
   color: #222;
   opacity: 100%;
 }
 
+
 .loading-photo {
-  width: 100px;
-  height: 100px;
+  width: 300px;
+  height: 300px;
   object-fit: cover;
 }
 
