@@ -8,7 +8,7 @@ import asyncio
 from playwright.async_api import async_playwright
 from dotenv import load_dotenv
 
-load_dotenv('server/.env')
+load_dotenv()
 EBIRD_API_KEY = os.getenv('EBIRD_API_KEY')
 EBIRD_USERNAME = os.getenv('EBIRD_USERNAME')
 EBIRD_PASSWORD = os.getenv('EBIRD_PASSWORD')
