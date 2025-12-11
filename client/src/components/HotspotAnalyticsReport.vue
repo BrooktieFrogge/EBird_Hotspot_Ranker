@@ -67,12 +67,12 @@
           <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2) }}</div>
           <div class="cell">{{ Math.round((10)*bird.rfpc)/(10)}}</div>
           <div class="cell">
-            <div id="remove-bird-button" @click="analyticsStore.deselectBird(bird)">
+            <div id="remove-bird-button" style="color: blue" @click="analyticsStore.deselectBird(bird)">
               <BIconXCircle/>
             </div>
           </div>
           <div class="cell">
-            <div id="add-photo-button" @click="analyticsStore.displayBirdPhoto(bird)" >
+            <div id="add-photo-button" style="color: blue" @click="analyticsStore.displayBirdPhoto(bird)" >
               <BIconCamera/>
             </div>
           </div>
