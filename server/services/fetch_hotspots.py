@@ -35,7 +35,10 @@ async def detailed_hotspot_data(
     )
 
     if ret:
-        ret = ret['data']
+        birds = ret['data']
+        total_sample_size = ret['total_sample_size']
+        sample_sizes_by_week = ret['sample_sizes_by_week']
+
     else:
         return None
 
@@ -57,7 +60,9 @@ async def detailed_hotspot_data(
         "country" : hotspot_data[2],
         "subregion1" :hotspot_data[3],
         "subregion2": hotspot_data[4],
-        "birds":ret
+        "total_sample_size": total_sample_size,
+        "sample_sizes_by_week": sample_sizes_by_week,
+        "birds":birds
         }            
 
         return ranked

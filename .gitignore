@@ -28,8 +28,8 @@ client/pnpm-debug.log*
 client/lerna-debug.log*
 
 # Server
-server/__pycache__/
-server/*.pyc
+server/**/__pycache__/
+server/**/*.pyc
 server/.ipynb_checkpoints/
 server/venv/
 server/.pytest_cache/
