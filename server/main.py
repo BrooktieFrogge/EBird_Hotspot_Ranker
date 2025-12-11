@@ -10,6 +10,7 @@ from apscheduler.triggers.cron import CronTrigger
 from services.database_sync import sync_data
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 load_dotenv()
 
@@ -21,7 +22,11 @@ async def lifespan(app: FastAPI):
         day=(os.getenv("DATA_SYNC_DAY")), 
         hour=(os.getenv("DATA_SYNC_HOUR")))
 
-    scheduler.add_job(sync_data, trigger=trigger )
+    job = scheduler.add_job(sync_data, trigger=trigger )
+
+    if os.getenv("MANUAL_SYNC") == "True":
+        job.modify(next_run_time=datetime.now())
+
 
     scheduler.start()
     print("[Background Data Sync] | Waiting for trigger")
