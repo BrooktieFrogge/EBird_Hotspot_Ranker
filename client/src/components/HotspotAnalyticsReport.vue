@@ -43,35 +43,37 @@
         </div>
       </div>
 
-
-      
-
-
       <!-- CUSTOM SELECTED BIRDS -->
       <div class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
         <h2 class="section-title">Custom Birds</h2>
 
-        <div class="table-header">
+        <div class="table-header-custom">
           <div>Species</div>
-          <div>Weighted Rank Factor</div>
-          <div>Ranked Factor Percentage</div>
+          <div>Rank</div>
+          <div>Wtd. Rank Factor</div>
+          <div>Rank Factor %</div>
         </div>
 
         <div
-          class="table-row"
-          v-for="(bird, i) in analyticsStore.selectedBirds"
+          class="table-row-custom"
+          v-for="(bird, i) in analyticsStore.selectedBirds.sort((a, b) => a.Rank - b.Rank)"
           :key="i"
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
             <span>{{ bird.Species }}</span>
           </div>
-
+          <div class="cell">{{ bird.Rank }}</div>
           <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2) }}</div>
           <div class="cell">{{ Math.round((10)*bird.rfpc)/(10)}}</div>
           <div class="cell">
             <div id="remove-bird-button" @click="analyticsStore.deselectBird(bird)">
               <BIconXCircle/>
+            </div>
+          </div>
+          <div class="cell">
+            <div id="add-photo-button" @click="analyticsStore.displayBirdPhoto(bird)" >
+              <BIconCamera/>
             </div>
           </div>
         </div>
@@ -81,6 +83,8 @@
 
     <!-- RIGHT SECTION: Photos -->
     <div class="photo-column" v-show="analyticsStore.showTopBirdPhotos">
+
+      <h5 style="padding-top: 10px">Top 3 Birds</h5>
       <div
         class="photo-card"
         v-for="(bird, i) in birds.slice(0, 3)"
@@ -95,22 +99,45 @@
           {{ i + 1 }}. {{ bird.Species }}
         </div>
       </div>
+
+      <div v-if="analyticsStore.selectedBirdPhotos.length > 0">
+        <hr />
+        <h5 style="padding-top: 10px">Custom Birds</h5>
+      </div>
+
+      <div
+        class="photo-card"
+        v-for="(bird, i) in analyticsStore.selectedBirdPhotos"
+        :key="i"
+      >
+        <img
+          class="photo"
+          :src="bird.imageUrl"
+          alt=""
+        />
+        <div class="photo-caption">
+          {{ bird.Species }}
+        </div>
+      </div>
+
     </div>
 
   </div>
+
+  <!-- LOADING IMG -->
   <div class="loading-screen" v-else>
     <img
         class="loading-photo"
         :src="loadingImage"
         alt=""
       />
-  </div>
+  </div>  
 </template>
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import { BIconXCircle, BIconPinMapFill } from 'bootstrap-icons-vue';
+import { BIconXCircle, BIconCamera, BIconPinMapFill } from 'bootstrap-icons-vue';
 import { LineChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 
@@ -121,6 +148,7 @@ export default defineComponent({
 
   components: {
     BIconXCircle,
+    BIconCamera,
     BIconPinMapFill,
     LineChart
   },
@@ -213,13 +241,25 @@ export default defineComponent({
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1fr 0.1fr;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  padding: 8px 0;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.table-header-custom,
+.table-row-custom {
+  display: grid;
+  grid-template-columns: 1fr .5fr .8fr .8fr 0.2fr 0.2fr;
   padding: 8px 0;
   border-bottom: 1px solid #e4e4e4;
 }
 
 
 .table-header {
+  font-weight: 600;
+}
+
+.table-header-custom {
   font-weight: 600;
 }
 
