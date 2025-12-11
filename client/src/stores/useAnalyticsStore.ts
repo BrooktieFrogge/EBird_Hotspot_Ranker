@@ -15,14 +15,19 @@ export const useAnalyticsStore = defineStore('analytics', {
     selectedCountry: null as string | null,
 
     // search/filter text that UI can bind to
-    searchHotspotName: '' as string,      
-    searchCountry: '' as string,          
-    searchSubregion1: '' as string,       
-    searchSubregion2: '' as string,       
+    searchHotspotName: '' as string,
+    searchCountry: '' as string,
+    searchSubregion1: '' as string,
+    searchSubregion2: '' as string,
 
-    // suggestions coming from backend search modes
+    // suggestions from backend search (country / subregion1 autocomplete)
     countrySuggestions: [] as string[],
     subregion1Suggestions: [] as string[],
+
+    // pagination for browse-hotspots (for infinite scroll)
+    hotspotsOffset: 0,
+    hotspotsLimit: 20,
+    hotspotsHasMore: true,
 
     // --- Analytics Panels / Toggles ---
     startYear: null as number | null,
@@ -60,14 +65,14 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.selectedHotspotId = id;
       const overview = this.allHotspots.find(h => h.id === id);
       if (overview) {
-        this.selectedHotspot = { ...overview, birds: [] } as any; 
+        this.selectedHotspot = { ...overview, birds: [] } as any;
       }
     },
 
     setYearRange(start: number, end: number) {
       this.startYear = start;
       this.endYear = end;
-      this.fetchHotspotDetail(); 
+      this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
     },
 
     setTimeFrame(startMonth: number, startWeek: number, endMonth: number, endWeek: number) {
@@ -118,15 +123,29 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.selectedHotspot = null;
     },
 
+    /**
+     * Initial browse: first page of hotspots, sorted by speciesCount
+     */
     async fetchAllHotspots() {
       this.isLoading = true
       this.error = null
 
       try {
         const response = await axios.get(
-          `/api/hotspots/browse-hotspots`
+          `/api/hotspots/browse-hotspots`,
+          {
+            params: {
+              limit: this.hotspotsLimit,
+              offset: 0,
+            }
+          }
         );
-        this.allHotspots = response.data;
+        const data = response.data as HotspotOverview[];
+        this.allHotspots = data;
+
+        // reset pagination state
+        this.hotspotsOffset = data.length;
+        this.hotspotsHasMore = data.length === this.hotspotsLimit;
       } catch (e: any) {
         console.log("there was an error");
         console.log(e);
@@ -136,7 +155,42 @@ export const useAnalyticsStore = defineStore('analytics', {
       }
     },
 
-    // use the /hotspots/search endpoint and update allHotspots
+    /**
+     * Load next page for infinite scroll (browse mode)
+     */
+    async loadMoreHotspots() {
+      if (this.isLoading || !this.hotspotsHasMore) return;
+
+      this.isLoading = true;
+      this.error = null;
+
+      try {
+        const response = await axios.get(
+          `/api/hotspots/browse-hotspots`,
+          {
+            params: {
+              limit: this.hotspotsLimit,
+              offset: this.hotspotsOffset,
+            }
+          }
+        );
+
+        const newItems = response.data as HotspotOverview[];
+        this.allHotspots = [...this.allHotspots, ...newItems];
+        this.hotspotsOffset += newItems.length;
+        this.hotspotsHasMore = newItems.length === this.hotspotsLimit;
+      } catch (e: any) {
+        console.error('Error loading more hotspots:', e);
+        this.error = e.message ?? 'Unknown error';
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    /**
+     * use the /hotspots/search endpoint and update allHotspots
+     * mode='hotspot' returns hotspot overviews filtered by hotspot / country / subregion
+     */
     async searchHotspots(options?: {
       hotspot?: string
       country?: string
@@ -170,10 +224,16 @@ export const useAnalyticsStore = defineStore('analytics', {
         )
 
         this.allHotspots = response.data.results
+
+        // when using search endpoint, we currently treat it as a single page
+        this.hotspotsOffset = this.allHotspots.length;
+        this.hotspotsHasMore = false; // no pagination wired for search yet
       } catch (e: any) {
         if (axios.isAxiosError(e) && e.response?.status === 404) {
           console.warn('No hotspots matched search, clearing list.');
           this.allHotspots = [];
+          this.hotspotsOffset = 0;
+          this.hotspotsHasMore = false;
           this.error = null; // no "error" message for the user, just empty results
         } else {
           console.error('Error searching hotspots:', e)
@@ -184,84 +244,97 @@ export const useAnalyticsStore = defineStore('analytics', {
       }
     },
 
-    // use /hotspots/search in mode="country" to get country names for autocomplete
-async searchCountries(query: string) {
-  this.isLoading = true;
-  this.error = null;
-
-  try {
-    const response = await axios.get('/api/hotspots/search', {
-      params: {
-        country: query,
-        mode: 'country',
-        hotspot: '',
-        subregion1: '',
-        subregion2: '',
-      },
-    });
-
-    const raw = response.data.results ?? [];
-
-    // Normalize to plain strings (country names)
-    this.countrySuggestions = raw
-      .map((item: any) =>
-        typeof item === 'string'
-          ? item
-          : item.name || item.country_name || item.COUNTRY_NAME || ''
-      )
-      .filter((name: string) => !!name); // drop empty strings
-
-  } catch (e: any) {
-    if (axios.isAxiosError(e) && e.response?.status === 404) {
-      this.countrySuggestions = [];
+    /**
+     * Backend-powered autocomplete for countries (mode='country')
+     * Normalizes results into plain country name strings.
+     */
+    async searchCountries(query: string) {
+      this.isLoading = true;
       this.error = null;
-    } else {
-      console.error('Error searching countries:', e);
-      this.error = e.message ?? 'Unknown error';
-    }
-  } finally {
-    this.isLoading = false;
-  }
-},
 
-    // use /hotspots/search in mode="subregion1" to get subregion1 names for autocomplete
-async fetchSubregion1Suggestions(country: string, query: string) {
-  this.isLoading = true;
-  this.error = null;
+      try {
+        const response = await axios.get(
+          '/api/hotspots/search',
+          {
+            params: {
+              hotspot: '',
+              country: query,
+              subregion1: '',
+              subregion2: '',
+              mode: 'country',
+            },
+          }
+        );
 
-  try {
-    const response = await axios.get('/api/hotspots/search', {
-      params: {
-        country,
-        subregion1: query,
-        mode: 'subregion1',
-        hotspot: '',
-        subregion2: '',
-      },
-    });
+        const raw = response.data.results ?? [];
 
-    const raw = response.data.results ?? [];
+        this.countrySuggestions = raw
+          .map((item: any) => {
+            if (typeof item === 'string') return item;
+            if (item.name) return item.name;
+            if (item.country_name) return item.country_name;
+            if (item.COUNTRY_NAME) return item.COUNTRY_NAME;
+            return '';
+          })
+          .filter((name: string) => !!name);
+      } catch (e: any) {
+        if (axios.isAxiosError(e) && e.response?.status === 404) {
+          this.countrySuggestions = [];
+          this.error = null;
+        } else {
+          console.error('Error searching countries:', e);
+          this.error = e.message ?? 'Unknown error';
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
-    this.subregion1Suggestions = raw
-      .map((item: any) =>
-        typeof item === 'string'
-          ? item
-          : item.name || item.subregion1 || item.SUBREGION1_NAME || ''
-      )
-      .filter((name: string) => !!name);
-
-  } catch (e: any) {
-    if (axios.isAxiosError(e) && e.response?.status === 404) {
-      this.subregion1Suggestions = [];
+    /**
+     * Backend-powered autocomplete for subregion1 (mode='subregion1')
+     * Requires an exact country filter.
+     */
+    async fetchSubregion1Suggestions(country: string, query: string) {
+      this.isLoading = true;
       this.error = null;
-    } else {
-      console.error('Error searching subregion1:', e);
-      this.error = e.message ?? 'Unknown error';
-    }
-  } finally {
-    this.isLoading = false;
-  }
-},
+
+      try {
+        const response = await axios.get(
+          '/api/hotspots/search',
+          {
+            params: {
+              hotspot: '',
+              country,
+              subregion1: query,
+              subregion2: '',
+              mode: 'subregion1',
+            },
+          }
+        );
+
+        const raw = response.data.results ?? [];
+
+        this.subregion1Suggestions = raw
+          .map((item: any) => {
+            if (typeof item === 'string') return item;
+            if (item.name) return item.name;
+            if (item.subregion1) return item.subregion1;
+            if (item.SUBREGION1_NAME) return item.SUBREGION1_NAME;
+            return '';
+          })
+          .filter((name: string) => !!name);
+      } catch (e: any) {
+        if (axios.isAxiosError(e) && e.response?.status === 404) {
+          this.subregion1Suggestions = [];
+          this.error = null;
+        } else {
+          console.error('Error searching subregion1:', e);
+          this.error = e.message ?? 'Unknown error';
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
     async fetchHotspotDetail() {
       if (!this.selectedHotspotId) return
@@ -281,11 +354,11 @@ async fetchSubregion1Suggestions(country: string, query: string) {
 
       // 2. Construct the base URL using the path parameter
       const url = `/api/hotspots/report/${this.selectedHotspotId}`;
-      
+
       try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
-        const response = await axios.get(url, { params }); 
+        const response = await axios.get(url, { params });
 
         this.selectedHotspot = response.data;
         console.log("Fetched hotspot detail:", response.data);
