@@ -18,12 +18,12 @@
       <div class="filters-card">
         <!-- Text search -->
         <div class="filter-group">
-          <label for="search">Search by name</label>
+          <label for="search">Search by name or location</label>
           <input
             id="search"
             type="text"
             v-model="searchQuery"
-            placeholder="Type a hotspot name..."
+            placeholder="Type a hotspot name or location..."
             @keyup.enter="applyFilters"
           />
         </div>
@@ -36,7 +36,7 @@
             type="text"
             v-model="countrySearch"
             placeholder="Search countries..."
-            @input="showCountryDropdown = true"
+            @input="onCountryInput"
             @keyup.enter="applyFilters"
           />
 
@@ -64,7 +64,7 @@
             type="text"
             v-model="subregionSearch"
             placeholder="Search subregions..."
-            @input="showSubregionDropdown = true"
+            @input="onSubregionInput"
             @keyup.enter="applyFilters"
           />
 
@@ -101,7 +101,8 @@
           <div class="chips">
             <!-- Text search -->
             <button
-              v-if="searchQuery.trim()"
+              v-if="searchQuery.trim()
+              "
               class="chip"
               @click="clearSearch"
             >
@@ -244,21 +245,18 @@ export default defineComponent({
     const showSubregionDropdown = ref(false);
 
     // -------------------------
-    // APPLY FILTERS → backend search
+    // APPLY FILTERS → backend search for hotspot list
     // -------------------------
     const applyFilters = () => {
       const hotspotFilter = searchQuery.value.trim();
 
-      // Only use selectedCountry if it exists; otherwise use what's typed
-      const countryFilter = (
-        analyticsStore.selectedCountry ?? countrySearch.value
-      ).trim();
+      // Country: use exact selected value (from suggestions) if present
+      const countryFilter = analyticsStore.selectedCountry ?? '';
 
-      const subregionFilter = (
-        selectedSubregion.value || subregionSearch.value
-      ).trim();
+      // subregion, use selected value OR what’s typed
+      const subregionFilter = (selectedSubregion.value || subregionSearch.value).trim();
 
-      // Keep store's search fields in sync 
+      // Keep store search fields in sync (optional)
       analyticsStore.searchHotspotName = hotspotFilter;
       analyticsStore.searchCountry = countryFilter;
       analyticsStore.searchSubregion1 = subregionFilter;
@@ -273,7 +271,7 @@ export default defineComponent({
     };
 
     // -------------------------
-    // AVAILABLE FILTER VALUES (from current hotspots)
+    // AVAILABLE FILTER VALUES (fallback from current hotspots)
     // -------------------------
     const availableCountries = computed(() => {
       const set = new Set<string>();
@@ -293,8 +291,12 @@ export default defineComponent({
 
     // -------------------------
     // AUTOCOMPLETE FILTERING
+    // combine backend suggestions + local fallback
     // -------------------------
     const filteredCountries = computed(() => {
+      if (analyticsStore.countrySuggestions?.length > 0) {
+        return analyticsStore.countrySuggestions;
+      }
       if (!countrySearch.value.trim()) return availableCountries.value;
       return availableCountries.value.filter(c =>
         c.toLowerCase().includes(countrySearch.value.toLowerCase())
@@ -302,11 +304,45 @@ export default defineComponent({
     });
 
     const filteredSubregions = computed(() => {
+      if (analyticsStore.subregion1Suggestions?.length > 0) {
+        return analyticsStore.subregion1Suggestions;
+      }
       if (!subregionSearch.value.trim()) return availableSubregions.value;
       return availableSubregions.value.filter(sr =>
         sr.toLowerCase().includes(subregionSearch.value.toLowerCase())
       );
     });
+
+    // -------------------------
+    // INPUT HANDLERS for calling backend autocomplete
+    // -------------------------
+    const onCountryInput = () => {
+      showCountryDropdown.value = true;
+      const q = countrySearch.value.trim();
+      if (q) {
+        analyticsStore.searchCountries(q);
+      } else {
+        analyticsStore.countrySuggestions = [];
+        analyticsStore.selectedCountry = null;
+        applyFilters();
+      }
+    };
+
+    const onSubregionInput = () => {
+      showSubregionDropdown.value = true;
+      const q = subregionSearch.value.trim();
+      if (q && analyticsStore.selectedCountry) {
+        // renamed action to avoid state/action name collision
+        analyticsStore.fetchSubregion1Suggestions(
+          analyticsStore.selectedCountry,
+          q
+        );
+      } else {
+        analyticsStore.subregion1Suggestions = [];
+        selectedSubregion.value = '';
+        applyFilters();
+      }
+    };
 
     // -------------------------
     // SELECTING FILTER VALUES
@@ -319,6 +355,7 @@ export default defineComponent({
       // Reset subregion when country changes
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
 
       applyFilters();
     };
@@ -335,15 +372,19 @@ export default defineComponent({
     // WATCHERS: CLEAR FILTERS WHEN INPUT CLEARED
     // -------------------------
     watch(countrySearch, (val) => {
-      if (!val.trim()) {
+      const v = (val ?? '').toString();
+      if (!v.trim()) {
         analyticsStore.selectedCountry = null;
+        analyticsStore.countrySuggestions = [];
         applyFilters();
       }
     });
 
     watch(subregionSearch, (val) => {
-      if (!val.trim()) {
+      const v = (val ?? '').toString();
+      if (!v.trim()) {
         selectedSubregion.value = '';
+        analyticsStore.subregion1Suggestions = [];
         applyFilters();
       }
     });
@@ -374,12 +415,14 @@ export default defineComponent({
     const clearCountry = () => {
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
+      analyticsStore.countrySuggestions = [];
       applyFilters();
     };
 
     const clearSubregion = () => {
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
       applyFilters();
     };
 
@@ -387,8 +430,10 @@ export default defineComponent({
       searchQuery.value = '';
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
+      analyticsStore.countrySuggestions = [];
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
       applyFilters();
     };
 
@@ -411,7 +456,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // initial data
+      // initial data from browse endpoint
       analyticsStore.fetchAllHotspots();
 
       document.addEventListener('click', handleClickOutside);
@@ -466,6 +511,10 @@ export default defineComponent({
       selectCountry,
       selectSubregion,
 
+      // handlers
+      onCountryInput,
+      onSubregionInput,
+
       // Hotspot display
       filteredHotspots,
       selectHotspotById,
@@ -487,7 +536,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* (same styles you already had, left untouched) */
 .hotspot-search {
   display: flex;
   height: 100vh;
