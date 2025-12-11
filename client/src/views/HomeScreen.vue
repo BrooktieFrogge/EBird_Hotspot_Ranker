@@ -253,7 +253,6 @@ function openDocs() {
   border-radius: 50%;
   object-fit: cover;
  object-position: 80% 50%;
-
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   border: 3px solid #296239;
 }
