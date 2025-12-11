@@ -41,6 +41,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     showLikelihoodCurve: true,
     showTopBirdPhotos: true,
     selectedBirds: [] as Bird[],
+    selectedBirdPhotos: [] as Bird[],
 
     // --- UI-only state ---
     isLoading: false,
@@ -102,7 +103,21 @@ export const useAnalyticsStore = defineStore('analytics', {
     deselectBird(bird: Bird) {
       console.log("deselected bird");
       this.selectedBirds = this.selectedBirds.filter(b => b !== bird);
-      console.log(this.selectedBirds);
+      this.selectedBirdPhotos = this.selectedBirdPhotos.filter(b => b !== bird);
+    },
+
+    displayBirdPhoto(bird: Bird) {
+      console.log("pushed:", bird.Species);
+      const alreadySelected = this.selectedBirdPhotos.some(
+        (p: Bird) => p.Species === bird.Species
+      );
+
+      if (!alreadySelected) {
+        console.log("Adding photo for:", bird.Species);
+        this.selectedBirdPhotos.push(bird);
+      } else {
+        console.warn("Photo for", bird.Species, "is already displayed.");
+      }
     },
 
     resetAnalyticsConfiguration() {
