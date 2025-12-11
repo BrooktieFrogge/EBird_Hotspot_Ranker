@@ -145,7 +145,7 @@ def init_db():
             sqlConn.close()
             print("SQLite connection closed")
 
-init_db()
+#init_db()
             
 #TODO reduce repetitive logic 
 #TODO add doc
