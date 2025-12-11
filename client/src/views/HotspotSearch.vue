@@ -18,12 +18,12 @@
       <div class="filters-card">
         <!-- Text search -->
         <div class="filter-group">
-          <label for="search">Search by name</label>
+          <label for="search">Search by name or location</label>
           <input
             id="search"
             type="text"
             v-model="searchQuery"
-            placeholder="Type a hotspot name..."
+            placeholder="Type a hotspot name or location..."
             @keyup.enter="applyFilters"
           />
         </div>
@@ -36,7 +36,7 @@
             type="text"
             v-model="countrySearch"
             placeholder="Search countries..."
-            @input="showCountryDropdown = true"
+            @input="onCountryInput"
             @keyup.enter="applyFilters"
           />
 
@@ -64,7 +64,7 @@
             type="text"
             v-model="subregionSearch"
             placeholder="Search subregions..."
-            @input="showSubregionDropdown = true"
+            @input="onSubregionInput"
             @keyup.enter="applyFilters"
           />
 
@@ -148,6 +148,9 @@
           :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
           @click="selectHotspotById"
         />
+
+        <!-- Sentinel for infinite scroll -->
+        <div ref="scrollSentinel" style="height: 1px;"></div>
       </div>
     </div>
 
@@ -233,6 +236,10 @@ export default defineComponent({
 
     const hotspots = computed(() => analyticsStore.allHotspots);
 
+    // How many cards to show at once (for infinite scroll in UI)
+    const pageSize = 20;
+    const visibleCount = ref(pageSize);
+
     // Filters
     const searchQuery = ref('');
     const countrySearch = ref('');
@@ -243,27 +250,47 @@ export default defineComponent({
     const showCountryDropdown = ref(false);
     const showSubregionDropdown = ref(false);
 
+    // Infinite scroll sentinel + observer
+    const scrollSentinel = ref<HTMLElement | null>(null);
+    const scrollObserver = ref<IntersectionObserver | null>(null);
+
     // -------------------------
-    // APPLY FILTERS → backend search
+    // APPLY FILTERS → backend search or browse
     // -------------------------
     const applyFilters = () => {
       const hotspotFilter = searchQuery.value.trim();
 
-      // Only use selectedCountry if it exists; otherwise use what's typed
-      const countryFilter = (
-        analyticsStore.selectedCountry ?? countrySearch.value
-      ).trim();
+      // Country: use selected value (from suggestions) if present
+      const countryFilter = analyticsStore.selectedCountry ?? '';
 
-      const subregionFilter = (
-        selectedSubregion.value || subregionSearch.value
-      ).trim();
+      // Subregion: use selected value OR typed text
+      const subregionFilter = (selectedSubregion.value || subregionSearch.value).trim();
 
-      // Keep store's search fields in sync 
+      // Are we actually filtering?
+      const hasAnyFilter =
+        !!hotspotFilter ||
+        !!countryFilter ||
+        !!subregionFilter;
+
+      // Keep store search fields in sync
       analyticsStore.searchHotspotName = hotspotFilter;
       analyticsStore.searchCountry = countryFilter;
       analyticsStore.searchSubregion1 = subregionFilter;
       analyticsStore.searchSubregion2 = '';
 
+      // Whenever filters change, reset how many we show
+      visibleCount.value = pageSize;
+
+      if (!hasAnyFilter) {
+        // 🔄 No filters → browse mode with backend pagination
+        analyticsStore.countrySuggestions = [];
+        analyticsStore.subregion1Suggestions = [];
+        analyticsStore.fetchAllHotspots();
+        return;
+      }
+
+      // 🔍 Filters active → use search endpoint (no backend pagination,
+      // but we'll infinite-scroll through the returned list)
       analyticsStore.searchHotspots({
         hotspot: hotspotFilter,
         country: countryFilter,
@@ -273,7 +300,7 @@ export default defineComponent({
     };
 
     // -------------------------
-    // AVAILABLE FILTER VALUES (from current hotspots)
+    // AVAILABLE FILTER VALUES (fallback from current hotspots)
     // -------------------------
     const availableCountries = computed(() => {
       const set = new Set<string>();
@@ -293,8 +320,12 @@ export default defineComponent({
 
     // -------------------------
     // AUTOCOMPLETE FILTERING
+    // combine backend suggestions + local fallback
     // -------------------------
     const filteredCountries = computed(() => {
+      if (analyticsStore.countrySuggestions?.length > 0) {
+        return analyticsStore.countrySuggestions;
+      }
       if (!countrySearch.value.trim()) return availableCountries.value;
       return availableCountries.value.filter(c =>
         c.toLowerCase().includes(countrySearch.value.toLowerCase())
@@ -302,11 +333,44 @@ export default defineComponent({
     });
 
     const filteredSubregions = computed(() => {
+      if (analyticsStore.subregion1Suggestions?.length > 0) {
+        return analyticsStore.subregion1Suggestions;
+      }
       if (!subregionSearch.value.trim()) return availableSubregions.value;
       return availableSubregions.value.filter(sr =>
         sr.toLowerCase().includes(subregionSearch.value.toLowerCase())
       );
     });
+
+    // -------------------------
+    // INPUT HANDLERS for backend autocomplete
+    // -------------------------
+    const onCountryInput = () => {
+      showCountryDropdown.value = true;
+      const q = countrySearch.value.trim();
+      if (q) {
+        analyticsStore.searchCountries(q);
+      } else {
+        analyticsStore.countrySuggestions = [];
+        analyticsStore.selectedCountry = null;
+        applyFilters();
+      }
+    };
+
+    const onSubregionInput = () => {
+      showSubregionDropdown.value = true;
+      const q = subregionSearch.value.trim();
+      if (q && analyticsStore.selectedCountry) {
+        analyticsStore.fetchSubregion1Suggestions(
+          analyticsStore.selectedCountry,
+          q
+        );
+      } else {
+        analyticsStore.subregion1Suggestions = [];
+        selectedSubregion.value = '';
+        applyFilters();
+      }
+    };
 
     // -------------------------
     // SELECTING FILTER VALUES
@@ -319,6 +383,7 @@ export default defineComponent({
       // Reset subregion when country changes
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
 
       applyFilters();
     };
@@ -335,23 +400,37 @@ export default defineComponent({
     // WATCHERS: CLEAR FILTERS WHEN INPUT CLEARED
     // -------------------------
     watch(countrySearch, (val) => {
-      if (!val.trim()) {
+      const v = (val ?? '').toString();
+      if (!v.trim()) {
         analyticsStore.selectedCountry = null;
+        analyticsStore.countrySuggestions = [];
         applyFilters();
       }
     });
 
     watch(subregionSearch, (val) => {
-      if (!val.trim()) {
+      const v = (val ?? '').toString();
+      if (!v.trim()) {
         selectedSubregion.value = '';
+        analyticsStore.subregion1Suggestions = [];
         applyFilters();
       }
     });
 
+    // If backend result list shrinks (e.g. new filter returns fewer),
+    // keep visibleCount within range
+    watch(hotspots, (newVal) => {
+      if (visibleCount.value > newVal.length) {
+        visibleCount.value = Math.min(newVal.length, pageSize);
+      }
+    });
+
     // -------------------------
-    // FILTER HOTSPOTS (backend-driven)
+    // FILTER HOTSPOTS (UI-side infinite scroll)
     // -------------------------
-    const filteredHotspots = computed(() => hotspots.value);
+    const filteredHotspots = computed(() => {
+      return hotspots.value.slice(0, visibleCount.value);
+    });
 
     // -------------------------
     // APPLIED FILTERS STATE
@@ -374,12 +453,14 @@ export default defineComponent({
     const clearCountry = () => {
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
+      analyticsStore.countrySuggestions = [];
       applyFilters();
     };
 
     const clearSubregion = () => {
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
       applyFilters();
     };
 
@@ -387,8 +468,10 @@ export default defineComponent({
       searchQuery.value = '';
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
+      analyticsStore.countrySuggestions = [];
       selectedSubregion.value = '';
       subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
       applyFilters();
     };
 
@@ -410,15 +493,51 @@ export default defineComponent({
       }
     };
 
+    // -------------------------
+    // INFINITE SCROLL OBSERVER
+    // -------------------------
+    const setupScrollObserver = () => {
+      if (!scrollSentinel.value) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        if (!entry || !entry.isIntersecting) return;
+
+        // Always show more on scroll, up to the number of hotspots we have
+        if (visibleCount.value < hotspots.value.length) {
+          visibleCount.value += pageSize;
+        }
+
+        // In browse mode (no filters), if we've shown everything we currently have
+        // and backend says there is more, request another page.
+        if (
+          !hasActiveFilters.value &&
+          visibleCount.value >= hotspots.value.length &&
+          analyticsStore.hotspotsHasMore
+        ) {
+          analyticsStore.loadMoreHotspots();
+        }
+      });
+
+      observer.observe(scrollSentinel.value);
+      scrollObserver.value = observer;
+    };
+
     onMounted(() => {
-      // initial data
+      // Initial browse load
       analyticsStore.fetchAllHotspots();
 
       document.addEventListener('click', handleClickOutside);
       document.addEventListener('keydown', handleEscape);
+
+      setupScrollObserver();
     });
 
     onBeforeUnmount(() => {
+      if (scrollObserver.value && scrollSentinel.value) {
+        scrollObserver.value.unobserve(scrollSentinel.value);
+        scrollObserver.value.disconnect();
+      }
       document.removeEventListener('click', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     });
@@ -466,6 +585,13 @@ export default defineComponent({
       selectCountry,
       selectSubregion,
 
+      // Handlers
+      onCountryInput,
+      onSubregionInput,
+
+      // Infinite scroll
+      scrollSentinel,
+
       // Hotspot display
       filteredHotspots,
       selectHotspotById,
@@ -487,7 +613,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* (same styles you already had, left untouched) */
 .hotspot-search {
   display: flex;
   height: 100vh;
