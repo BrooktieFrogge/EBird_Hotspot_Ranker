@@ -19,7 +19,7 @@ router = APIRouter(
 Dynamically search by location name (country, subnational, hotspot name)
 based on query parameter mode
 
-modes(defaults to None):
+mode(defaults to hotspot):
     hotspot: returns hotspot overviews for hotspots that match the query. Works with, without, or with only some location filters applied.
 
     If country,subregion1, or subregion2 are specified they should be exact location names -assumes these values are filters that are already applied, only expects raw user input for hotspot name
@@ -38,9 +38,9 @@ modes(defaults to None):
 async def location_search(hotspot:str = '',
                     country:str = '',
                     subregion1:str = '',
-                    subregion2:str = '', mode:str = None):
+                    subregion2:str = '', mode:str = 'hotspot', limit:int = 60):
     
-    data = dynamic_search(hotspot,country,subregion1,subregion2,mode)
+    data = dynamic_search(hotspot,country,subregion1,subregion2,mode, limit)
 
     if not data:
         raise HTTPException(status_code=404, detail="Location not found.")
