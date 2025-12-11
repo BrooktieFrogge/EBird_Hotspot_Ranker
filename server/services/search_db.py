@@ -38,15 +38,18 @@ def init_db():
 
             sqlConn.create_function('norm',1, normalize)
 
-            # query2 = "DROP TABLE norm_subregion1_names"
-            # query3 = "DROP TABLE norm_subregion2_names"
-            # query4 = "DROP TABLE norm_country_names"
-            # query5 = "DROP TABLE norm_hotspot_names"
+            query2 = "DROP TABLE norm_subregion1_names"
+            query3 = "DROP TABLE norm_subregion2_names"
+            query6 = "DROP TABLE subregions2"
+            query4 = "DROP TABLE norm_country_names"
+            query5 = "DROP TABLE norm_hotspot_names"
 
-            # cursor.execute(query2)
-            # cursor.execute(query3)
-            # cursor.execute(query4)
-            # cursor.execute(query5)
+            cursor.execute(query2)
+            cursor.execute(query3)
+            cursor.execute(query4)
+            cursor.execute(query5)
+            cursor.execute(query6)
+
 
             query = '''CREATE TABLE IF NOT EXISTS hotspots( ID TEXT PRIMARY KEY, NAME TEXT, COUNTRY TEXT, SUBREGION1 TEXT,  SUBREGION2 TEXT, SPECIESCOUNT INTEGER )'''
 
@@ -71,8 +74,6 @@ def init_db():
 
             query8 = '''CREATE TABLE IF NOT EXISTS norm_subregion2_names (subnational2_code TEXT PRIMARY KEY, subnational2_name TEXT) '''
 
-            subquery8 = '''INSERT INTO norm_subregion2_names (subnational2_code, subnational2_name) SELECT subnational2_code, norm(subnational2_name) AS subnational2_name FROM 'subregions2'  '''
-
             cursor.execute(query)
             cursor.execute(query2)
             cursor.execute(query3)
@@ -85,20 +86,22 @@ def init_db():
             cursor.execute(subquery5)
             cursor.execute(subquery6)
             cursor.execute(subquery7)
-            cursor.execute(subquery8)
             
             # #ONLY DONE ONCE: loading loc specific info ===================================
             # countryInfo = pd.read_csv('server/data/countries-Table 1.csv', usecols=['country_code','country_name'])
             # sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv', usecols=[ 'subnational1_code','subnational1_name','country_name'])
-            # sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv', usecols=['subnational2_code','subnational2_name','subnational1_name','country_name'])
+            sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv', usecols=['subnational2_code','subnational2_name','subnational1_name','country_name'])
 
             # countryInfo.to_sql('countries', sqlConn, if_exists='append',index=False)
 
             # sub1Info.to_sql('subregions1', sqlConn, if_exists='append',index=False)
 
-            # sub2Info.to_sql('subregions2', sqlConn, if_exists='append',index=False)
+            sub2Info.to_sql('subregions2', sqlConn, if_exists='append',index=False)
             
             #===================================
+            subquery8 = '''INSERT INTO norm_subregion2_names (subnational2_code, subnational2_name) SELECT subnational2_code, norm(subnational2_name) AS subnational2_name FROM 'subregions2'  '''
+
+            cursor.execute(subquery8)
             
             sqlConn.commit() 
 
@@ -118,13 +121,13 @@ def init_db():
 
             df7 = pd.read_sql_query('''SELECT * FROM 'norm_subregion2_names' ''', sqlConn)
 
-            print(f"Hotspot overview data loaded successfully. Length: {len(df)}, Head: \n {df.sample(20)}")
+            print(f"Hotspot overview data loaded successfully. Length: {len(df)}, Head: \n {df.head}")
 
             print(f"Countries data loaded successfully. Length: {len(df1)}, Head: \n {df1.sample(20)}")
             
             print(f"Subregions1 data loaded successfully. Length: {len(df2)}, Head: \n {df2.sample(20)}")
             
-            print(f"Subregions2 data loaded successfully. Length: {len(df3)}, Head: \n {df3.sample(20)}")
+            print(f"Subregions2 data loaded successfully. Length: {len(df3)}, Head: \n {df3.head}")
 
             print(f"norm_hotspots data loaded successfully. Length: {len(df4)}, Head: \n {df4.sample(20)}")
 
@@ -132,7 +135,7 @@ def init_db():
             
             print(f"norm_sub1 data loaded successfully. Length: {len(df6)}, Head: \n {df6.sample(20)}")
 
-            print(f"norm_sub2 data loaded successfully. Length: {len(df7)}, Head: \n {df7.sample(20)}")
+            print(f"norm_sub2 data loaded successfully. Length: {len(df7)}, Head: \n {df7.head}")
 
     except sqlite3.Error as e:
         print(f"Failed to execute hotspot table creation - {e}")
@@ -142,7 +145,7 @@ def init_db():
             sqlConn.close()
             print("SQLite connection closed")
 
-# init_db()
+init_db()
             
 #TODO reduce repetitive logic 
 #TODO add doc
