@@ -20,6 +20,10 @@ export const useAnalyticsStore = defineStore('analytics', {
     searchSubregion1: '' as string,       
     searchSubregion2: '' as string,       
 
+    // suggestions coming from backend search modes
+    countrySuggestions: [] as string[],
+    subregion1Suggestions: [] as string[],
+
     // --- Analytics Panels / Toggles ---
     startYear: null as number | null,
     endYear: null as number | null,
@@ -179,6 +183,85 @@ export const useAnalyticsStore = defineStore('analytics', {
         this.isLoading = false
       }
     },
+
+    // use /hotspots/search in mode="country" to get country names for autocomplete
+async searchCountries(query: string) {
+  this.isLoading = true;
+  this.error = null;
+
+  try {
+    const response = await axios.get('/api/hotspots/search', {
+      params: {
+        country: query,
+        mode: 'country',
+        hotspot: '',
+        subregion1: '',
+        subregion2: '',
+      },
+    });
+
+    const raw = response.data.results ?? [];
+
+    // Normalize to plain strings (country names)
+    this.countrySuggestions = raw
+      .map((item: any) =>
+        typeof item === 'string'
+          ? item
+          : item.name || item.country_name || item.COUNTRY_NAME || ''
+      )
+      .filter((name: string) => !!name); // drop empty strings
+
+  } catch (e: any) {
+    if (axios.isAxiosError(e) && e.response?.status === 404) {
+      this.countrySuggestions = [];
+      this.error = null;
+    } else {
+      console.error('Error searching countries:', e);
+      this.error = e.message ?? 'Unknown error';
+    }
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+    // use /hotspots/search in mode="subregion1" to get subregion1 names for autocomplete
+async fetchSubregion1Suggestions(country: string, query: string) {
+  this.isLoading = true;
+  this.error = null;
+
+  try {
+    const response = await axios.get('/api/hotspots/search', {
+      params: {
+        country,
+        subregion1: query,
+        mode: 'subregion1',
+        hotspot: '',
+        subregion2: '',
+      },
+    });
+
+    const raw = response.data.results ?? [];
+
+    this.subregion1Suggestions = raw
+      .map((item: any) =>
+        typeof item === 'string'
+          ? item
+          : item.name || item.subregion1 || item.SUBREGION1_NAME || ''
+      )
+      .filter((name: string) => !!name);
+
+  } catch (e: any) {
+    if (axios.isAxiosError(e) && e.response?.status === 404) {
+      this.subregion1Suggestions = [];
+      this.error = null;
+    } else {
+      console.error('Error searching subregion1:', e);
+      this.error = e.message ?? 'Unknown error';
+    }
+  } finally {
+    this.isLoading = false;
+  }
+},
 
     async fetchHotspotDetail() {
       if (!this.selectedHotspotId) return
