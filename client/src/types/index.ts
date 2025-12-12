@@ -15,7 +15,9 @@ export interface DetailedHotspot {
   country: string;
   subregion1: string;
   subregion2: string;
-  birds: Bird[]; // list of bird species with data
+  total_sample_size: number;
+  sample_sizes_by_week: Record<string, number>;
+  birds: Bird[];
   isSaved?: boolean;
 }
 
