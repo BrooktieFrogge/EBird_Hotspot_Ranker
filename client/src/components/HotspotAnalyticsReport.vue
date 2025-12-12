@@ -1,7 +1,11 @@
 <template>
   <div class="analytics-container" v-if="birds.length > 1">
     <div class="bird-lists-container">
-      <!-- <h3 style="text-align: left; padding-left: 20px;"> {{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}</h3> -->
+
+
+      <!--------------------------->
+      <!--- HOTSPOT NAME/HEADER --->
+      <!--------------------------->
       <div class="hotspot-header">
         <span style="padding-bottom: 8px"><BIconPinMapFill style="margin-right: 15px;"/></span> 
         <h4>{{ analyticsStore.selectedHotspot?.name ?? 'No Hotspot Selected' }}: {{ analyticsStore.selectedHotspot?.country ?? ''}}, {{ analyticsStore.selectedHotspot?.subregion1 ?? ''}}</h4>
@@ -9,7 +13,9 @@
 
       <hr />
 
-      <!-- LIKELIHOOD GRAPH-->
+      <!--------------------------->
+      <!----- LIKELIHOOD GRAPH ---->
+      <!--------------------------->
       <h5>Observation Likelihood</h5>
       <div id="linechart" style="width:95%; height:60%; padding:10px" v-show="(analyticsStore.showLikelihoodCurve && (analyticsStore.selectedHotspot != null) && ('birds' in analyticsStore.selectedHotspot) && (analyticsStore.selectedHotspot.birds.length > 0))">
         <LineChart 
@@ -18,7 +24,10 @@
         />
       </div>
       
-      <!-- TOP BIRDS -->
+
+      <!--------------------------->
+      <!-------- TOP BIRDS -------->
+      <!--------------------------->
       <div class="bird-table">
         <h2 class="section-title">Top {{ analyticsStore.numTopBirds }} Birds</h2>
 
@@ -43,7 +52,10 @@
         </div>
       </div>
 
+
+      <!--------------------------->
       <!-- CUSTOM SELECTED BIRDS -->
+      <!--------------------------->
       <div class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
         <h2 class="section-title">Custom Birds</h2>
 
@@ -81,25 +93,32 @@
 
     </div>
 
-    <!-- RIGHT SECTION: Photos -->
-    <div class="photo-column" v-show="analyticsStore.showTopBirdPhotos">
 
-      <h5 style="padding-top: 10px">Top 3 Birds</h5>
-      <div
-        class="photo-card"
-        v-for="(bird, i) in birds.slice(0, 3)"
-        :key="i"
-      >
-        <img
-          class="photo"
-          :src="bird.imageUrl"
-          alt=""
-        />
-        <div class="photo-caption">
-          {{ i + 1 }}. {{ bird.Species }}
+    <!--------------------------->
+    <!-- RIGHT SECTION: Photos -->
+    <!--------------------------->
+
+    <!-- Top Three Birds -->
+    <div class="photo-column">
+      <div v-show="analyticsStore.showTopBirdPhotos">
+        <h5 style="padding-top: 10px">Top 3 Birds</h5>
+        <div
+          class="photo-card"
+          v-for="(bird, i) in birds.slice(0, 3)"
+          :key="i"
+        >
+          <img
+            class="photo"
+            :src="bird.imageUrl"
+            alt=""
+          />
+          <div class="photo-caption">
+            {{ i + 1 }}. {{ bird.Species }}
+          </div>
         </div>
       </div>
 
+      <!-- Custom Selected Birds -->
       <div v-if="analyticsStore.selectedBirdPhotos.length > 0">
         <hr />
         <h5 style="padding-top: 10px">Custom Birds</h5>
@@ -124,7 +143,10 @@
 
   </div>
 
-  <!-- LOADING IMG -->
+
+  <!---------------------------->
+  <!-- DEFAULT: Loading Image -->
+  <!---------------------------->
   <div class="loading-screen" v-else>
     <img
         class="loading-photo"
@@ -132,7 +154,10 @@
         alt=""
       />
   </div>  
+  
 </template>
+
+
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
@@ -157,35 +182,35 @@ export default defineComponent({
     const analyticsStore = useAnalyticsStore();
     const birds = computed(() => analyticsStore.getTopBirds);
 
-    /*const loadingImage = "https://i.pinimg.com/originals/c0/c4/1b/c0c41b77b01b48d9a62b4ae3b79cb654.gif";*/
     const loadingImage = "https://cdn.pixabay.com/animation/2024/07/04/20/46/20-46-07-872_512.gif"; 
 
+    // Data for the Likelihood Graph
     const chartData = computed(() => {
-    const wtdrfData = birds.value.map((b: any) => b.wtd_rf);
-    const rfpcData = birds.value.map((b: any) => b.rfpc / 100);
+      const wtdrfData = birds.value.map((b: any) => b.wtd_rf);
+      const rfpcData = birds.value.map((b: any) => b.rfpc / 100);
 
-    return {
-      labels: birds.value.map((b: any) => b.Species),
-      datasets: [
-        {
-          label: 'Weighted Rank Factor',
-          data: wtdrfData,
-          backgroundColor: '#45799980',
-          borderColor: '#457999',
-          pointRadius: 6,
-          pointHoverRadius: 10,
-        },
-        {
-          label: 'Ranked Factor Percentage',
-          data: rfpcData,
-          backgroundColor: '#29623980',
-          borderColor: '#296239',
-          pointRadius: 6,
-          pointHoverRadius: 10,
-        },
-      ],
-    };
-  });
+      return {
+        labels: birds.value.map((b: any) => b.Species),
+        datasets: [
+          {
+            label: 'Weighted Rank Factor',
+            data: wtdrfData,
+            backgroundColor: '#45799980',
+            borderColor: '#457999',
+            pointRadius: 6,
+            pointHoverRadius: 10,
+          },
+          {
+            label: 'Ranked Factor Percentage',
+            data: rfpcData,
+            backgroundColor: '#29623980',
+            borderColor: '#296239',
+            pointRadius: 6,
+            pointHoverRadius: 10,
+          },
+        ],
+      };
+    });
 
 
     return {
