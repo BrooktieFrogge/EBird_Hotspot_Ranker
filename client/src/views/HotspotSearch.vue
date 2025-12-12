@@ -91,7 +91,6 @@
     </div>
     <!-- END LEFT PANEL -->
 
-
     <!-- MIDDLE PANEL: Hotspot Cards -->
     <div class="results">
 
@@ -149,7 +148,7 @@
           @click="selectHotspotById"
         />
 
-        <!-- Sentinel for infinite scroll -->
+        <!-- infinite scroll -->
         <div ref="scrollSentinel" style="height: 1px;"></div>
       </div>
     </div>
@@ -255,7 +254,7 @@ export default defineComponent({
     const scrollObserver = ref<IntersectionObserver | null>(null);
 
     // -------------------------
-    // APPLY FILTERS → backend search or browse
+    // APPLY FILTERS backend search or browse
     // -------------------------
     const applyFilters = () => {
       const hotspotFilter = searchQuery.value.trim();
@@ -282,14 +281,14 @@ export default defineComponent({
       visibleCount.value = pageSize;
 
       if (!hasAnyFilter) {
-        // 🔄 No filters → browse mode with backend pagination
+        //  No filters browse mode
         analyticsStore.countrySuggestions = [];
         analyticsStore.subregion1Suggestions = [];
         analyticsStore.fetchAllHotspots();
         return;
       }
 
-      // 🔍 Filters active → use search endpoint (no backend pagination,
+      // Filters active --> use search endpoint (no backend pagination,
       // but we'll infinite-scroll through the returned list)
       analyticsStore.searchHotspots({
         hotspot: hotspotFilter,
@@ -417,7 +416,7 @@ export default defineComponent({
       }
     });
 
-    // If backend result list shrinks (e.g. new filter returns fewer),
+    // If backend result list shrinks (new filter returns fewer),
     // keep visibleCount within range
     watch(hotspots, (newVal) => {
       if (visibleCount.value > newVal.length) {
@@ -508,7 +507,7 @@ export default defineComponent({
           visibleCount.value += pageSize;
         }
 
-        // In browse mode (no filters), if we've shown everything we currently have
+        // In browse mode if we've shown everything we currently have
         // and backend says there is more, request another page.
         if (
           !hasActiveFilters.value &&
