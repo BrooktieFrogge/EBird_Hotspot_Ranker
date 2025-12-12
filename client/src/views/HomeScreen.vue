@@ -3,24 +3,22 @@
     <div class="page-shell">
       <!-- PAGE TITLE BAR -->
       <header class="title-bar">
-        <h1>ebird Hotspot Overview</h1>
+        <div class="title-content">
+          <img class="header-logo" :src="logo" alt="FeatherWeight Logo" />
+        </div>
       </header>
 
       <!-- TOP NAV / MENU -->
       <nav class="top-nav">
         <div class="nav-left">
-          <button class="nav-item nav-item-active">
-            Home
-          </button>
+          <button class="nav-item nav-item-active">Home</button>
           <button class="nav-item" @click="goToHotspotSearch">
             Hotspot Search
           </button>
         </div>
 
         <div class="nav-right">
-          <button class="nav-item" @click="openDocs">
-            Documentation
-          </button>
+          <button class="nav-item" @click="openDocs">Documentation</button>
         </div>
       </nav>
 
@@ -30,83 +28,148 @@
           <h2 class="section-heading">Welcome!</h2>
 
           <p class="lead">
-            This is where steve will write something! This is where steve will write something
-            This is where steve will write something! This is where steve will write something
-            This is where steve will write something! This is where steve will write something here! 
-            This is where steve will write something! This is where steve will write something!
-            This is where steve will write something
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
+          <!-- RIGHT-SIDE IMAGE -->
+          <aside class="image-panel">
+            <figure>
+              <img
+                :src="birdImage"
+                alt="Bird illustration"
+                class="square-image"
+              />
+              <figcaption>© Luis Alberto Salagaje Muela</figcaption>
+            </figure>
+          </aside>
+
+          <p class="lead">
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
+          <p class="lead">
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
+
+          <p class="standout">
+            Q: At the Copalinga Lodge (Ecuador), what is the likelihood of
+            seeing the rare, reclusive Gray Tinamou?! Is it a “sure-bet”, or
+            not, to see the stunning Green-and-gold Tanager?
+          </p>
+
+          <!-- LEFT-SIDE IMAGE -->
+          <aside class="left-image-panel">
+            <figure>
+              <img
+                :src="birdImage2"
+                alt="Bird illustration"
+                class="square-image"
+              />
+              <figcaption>© Brandon Nidiffer</figcaption>
+            </figure>
+          </aside>
+
+          <p>
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
+
+          <p class="lead">
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
+
+          <p class="lead">
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
           </p>
 
           <p>
-            This is where steve will write something! This is where steve will write something
-            This is where steve will write something! This is where steve will write something
-            This is where steve will write something! This is where steve will write something here! 
-            This is where steve will write something! This is where steve will write something!
-            This is where steve will write something
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
           </p>
 
+          <h3 class="section-subheading">Notes from steve:</h3>
           <p>
-            This is where steve will write something! This is where steve will write something
-            This is where steve will write something! This is where steve will write something
-            This is where steve will write something! This is where steve will write something here! 
-            This is where steve will write something! This is where steve will write something!
-            This is where steve will write something
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
           </p>
-
-          <h3 class="section-subheading">
-            Notes from steve:
-          </h3>
-          <ol class="feature-list">
-            <li>
-              This is where steve will write something! This is where steve will write something
-            </li>
-            <li>
-              This is where steve will write something! This is where steve will write something
-            </li>
-            <li>
-              This is where steve will write something! This is where steve will write something
-            </li>
-            <li>
-              This is where steve will write something! This is where steve will write something
-            </li>
-            <li>
-             This is where steve will write something! This is where steve will write something
-            </li>
-          </ol>
+          <p>
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
+          <p>
+            This is where steve will write something! This is where steve will
+            write something This is where steve will write something! This is
+            where steve will write something This is where steve will write
+            something! This is where steve will write something here! This is
+            where steve will write something! This is where steve will write
+            something! This is where steve will write something
+          </p>
 
           <p class="footer-note">
-            All of this text is just placeholder content. We will soon replace this with real text lol
+            All of this text is just placeholder content. We will soon replace
+            this with real text lol
           </p>
         </section>
-
-        <!-- RIGHT-SIDE IMAGE -->
-        <aside class="image-panel">
-          <img
-            :src="birdImage"
-            alt="Bird illustration"
-            class="circle-image"
-          />
-        </aside>
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import birdImage from '../assets/bird.jpeg'  
+import { useRouter } from "vue-router";
+import birdImage from "../assets/bird.jpg";
+import birdImage2 from "../assets/bird2.jpg";
+import logo from "../assets/logo.jpg";
 
-const router = useRouter()
+const router = useRouter();
 
 function goToHotspotSearch() {
-  router.push('/hotspot-search')
+  router.push("/hotspot-search");
 }
 
 function openDocs() {
-  console.log('Docs placeholder')
+  console.log("Docs placeholder");
 }
 </script>
-
 
 <style>
 /* ---- App Colors ---- */
@@ -128,7 +191,7 @@ function openDocs() {
 /* Outer blue margins similar to the ECM page */
 .homescreen-container {
   min-height: 100vh;
-  background: #457999; 
+  background: white;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -137,35 +200,57 @@ function openDocs() {
 
 /* White central panel */
 .page-shell {
-  width: min(1500px, 100% - 48px);
-  min-height: 90vh;
+  width: 100vh);
+  height: 100vh;
   background: white;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.page-shell::-webkit-scrollbar {
+  display: none;
 }
 
 /* Title bar */
 .title-bar {
-  padding: 32px 40px 24px;
+  background-color: white;
+  padding: 25px 40px 29x;
   text-align: center;
   border-bottom: 1px solid var(--color-border);
 }
 
 .title-bar h1 {
   margin: 0;
-  font-family: 'Georgia', serif;
+  font-family: "Monospace", monaco;
   font-size: 32px;
   letter-spacing: 0.03em;
 }
 
+.title-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.header-logo {
+  margin: 20px 0 0 0;
+  width: auto;
+  height: 125px;
+  border-radius: 5px;
+}
+
 /* Top blue strip */
 .top-nav {
+  position: sticky;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #296239;
-  padding: 0 40px;
+  background: white;
+  padding: 10px 40px;
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.35);
 }
 
 .nav-left,
@@ -177,40 +262,44 @@ function openDocs() {
 .nav-item {
   border: none;
   background: transparent;
-  color: #e5e7eb;
+  color: black;
   padding: 12px 16px;
   font-size: 14px;
   cursor: pointer;
   border-radius: 4px;
-  font-weight: 500;
+  font-weight: lighter;
+  font-size: 16px;
+  font-family: "Sans-serif", verdana;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .nav-item:hover {
-  background: #374151;
+  background: #e5e7eb;
 }
 
 .nav-item-active {
-  background: #296239;
+  background: #e5e7eb;
   border-bottom: 3px solid #f3f4f6;
   border-radius: 0;
 }
 
 .main-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  //grid-template-columns: 2fr 1fr;
   gap: 32px;
   padding: 32px 40px 40px;
 }
 
 .content {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   color: black;
 }
 
 .section-heading {
-  font-family: 'Georgia', serif;
-  font-size: 26px;
+  font-family: "Sans-serif", verdana;
+  font-weight: lighter;
+  font-size: 28px;
   margin: 0 0 16px;
 }
 
@@ -224,37 +313,66 @@ function openDocs() {
   font-size: 18px;
   margin-top: 24px;
   margin-bottom: 12px;
+  color: #f9fafb;
 }
 
 .feature-list {
   padding-left: 20px;
   margin: 0 0 16px;
   line-height: 1.6;
+  align-items: center;
+  flex-direction: column;
+  color: #f9fafb;
 }
 
 .footer-note {
   font-size: 14px;
-  color: var(--color-muted);
+  color: #f9fafb;
   margin-top: 16px;
 }
 
 /* Right-side image panel */
 .image-panel {
   display: flex;
-  justify-content: center;
+  justify-content: right;
+  align-items: flex-start;
+  float: right;
+  margin: 0 10px 20px 40px;
+}
+
+/* Left-side image panel */
+.left-image-panel {
+  float: left;
+  margin: 0 60px 20px 10px;
+  display: flex;
+  justify-content: left;
   align-items: flex-start;
 }
 
-/* Circular bird image */
-.circle-image {
+.standout {
+  font-family: "Sans-serif", verdana;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0 0 16px;
+  color: #b31b1b;
+}
+
+/* Square bird image */
+.square-image {
   margin-top: 20px;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
+  width: 350px;
+  height: 350px;
   object-fit: cover;
- object-position: 80% 50%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  border: 3px solid #296239;
+  object-position: 80% 50%;
+  box-shadow: 0px 5px 40px rgba(0, 0, 0, 0.35);
+}
+
+.split-h {
+  background-color: #1a1a1a;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Responsive tweaks */
