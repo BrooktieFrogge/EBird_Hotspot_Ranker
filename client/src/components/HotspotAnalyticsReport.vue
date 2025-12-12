@@ -33,8 +33,8 @@
 
         <div class="table-header">
           <div>Species</div>
-          <div>Weighted Rank Factor</div>
-          <div>Ranked Factor Percentage</div>
+          <div>List Likelihood</div>
+          <div>List Likelihood (normalized to {{ birds[0]?.Species }})</div>
         </div>
 
         <div
@@ -62,8 +62,8 @@
         <div class="table-header-custom">
           <div>Species</div>
           <div>Rank</div>
-          <div>Wtd. Rank Factor</div>
-          <div>Rank Factor %</div>
+          <div>List Likelihood</div>
+          <div>List Likelihood (normalized to {{ birds[0]?.Species }})</div>
         </div>
 
         <div
@@ -193,7 +193,7 @@ export default defineComponent({
         labels: birds.value.map((b: any) => b.Species),
         datasets: [
           {
-            label: 'Weighted Rank Factor',
+            label: 'List Likelihood',
             data: wtdrfData,
             backgroundColor: '#45799980',
             borderColor: '#457999',
@@ -201,7 +201,7 @@ export default defineComponent({
             pointHoverRadius: 10,
           },
           {
-            label: 'Ranked Factor Percentage',
+            label: 'List Likelihood (normalized to top bird)',
             data: rfpcData,
             backgroundColor: '#29623980',
             borderColor: '#296239',
