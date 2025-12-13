@@ -1,5 +1,5 @@
 # playwright base image for headless browser installing
-FROM mcr.microsoft.com/playwright/python:v1.57.0-jammy
+FROM mcr.microsoft.com/playwright/python:v1.56.0-jammy
 # set work dir
 WORKDIR /app
 
