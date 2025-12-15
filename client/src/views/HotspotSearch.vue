@@ -137,17 +137,17 @@
 
       <div class="cards-container">
         <HotspotCard
-          v-for="hotspot in filteredHotspots"
-          :key="hotspot.id"
-          :id="hotspot.id"
-          :name="hotspot.name"
-          :country="hotspot.country"
-          :subregion1="hotspot.subregion1"
-          :species-count="hotspot.speciesCount"
-          :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
-          @click="selectHotspotById"
-        />
-
+        v-for="hotspot in filteredHotspots"
+        :key="hotspot.id"
+        :id="hotspot.id"
+        :name="hotspot.name"
+        :country="hotspot.country"
+        :subregion1="hotspot.subregion1"
+        :subregion2="hotspot.subregion2"
+        :species-count="hotspot.speciesCount"
+        :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
+        @click="selectHotspotById"
+      />
         <!-- infinite scroll -->
         <div ref="scrollSentinel" style="height: 1px;"></div>
       </div>
