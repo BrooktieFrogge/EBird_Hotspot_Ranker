@@ -21,7 +21,7 @@
             id="search"
             type="text"
             v-model="searchQuery"
-            placeholder="Type a hotspot name or location..."
+            placeholder="Type a hotspot name..."
             @keyup.enter="applyFilters"
           />
         </div>
