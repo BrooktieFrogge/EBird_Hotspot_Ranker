@@ -20,7 +20,9 @@
 
     <div class="row">
   <span class="label">Subregion 2:</span>
-  <span class="value">{{ subregion2 || '—' }}</span>
+  <span class="value">
+  {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
+</span>
 </div>
 
     <div class="row">
