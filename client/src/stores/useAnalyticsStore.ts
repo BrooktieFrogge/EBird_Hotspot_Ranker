@@ -122,6 +122,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     resetAnalyticsConfiguration() {
       this.selectedBirds = [];
+      this.selectedBirdPhotos = [];
       this.numTopBirds = 10;
       this.showLikelihoodCurve = true;
       this.showTopBirdPhotos = true;
