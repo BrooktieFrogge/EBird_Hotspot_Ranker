@@ -7,14 +7,27 @@
     <h3>{{ name }}</h3>
     <div class="title-line"></div>
 
-    <!-- Country / Subregion1  -->
+    <!-- Country / Subregions -->
     <div class="row">
       <span class="label">Country:</span>
       <span class="value">{{ country }}</span>
     </div>
+
     <div class="row">
       <span class="label">Subregion 1:</span>
       <span class="value">{{ subregion1 }}</span>
+    </div>
+
+    <div class="row">
+  <span class="label">Subregion 2:</span>
+  <span class="value">
+  {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
+</span>
+</div>
+
+    <div class="row">
+      <span class="label">Species Count:</span>
+      <span class="value">{{ speciesCount }}</span>
     </div>
 
     <!-- Saved indicator -->
@@ -47,6 +60,18 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    // subregion2 
+    subregion2: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    // species count
+    speciesCount: {
+      type: Number,
+      required: true,
+    },
+
     colorClass: {
       type: String,
       required: false,
@@ -87,7 +112,7 @@ export default defineComponent({
   position: relative;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   box-sizing: border-box;
-  flex: 0 0 calc(33.333% - 16px); 
+  flex: 0 0 calc(33.333% - 16px);
 }
 
 h3 {
@@ -115,7 +140,7 @@ h3 {
 .label {
   min-width: 110px;
   color: #797979;
-  font-weight: 700; /* bold Country */
+  font-weight: 700; /* bold labels */
 }
 
 .hotspot-card.selected {
