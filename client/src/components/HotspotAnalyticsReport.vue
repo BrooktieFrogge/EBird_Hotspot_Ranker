@@ -56,7 +56,7 @@
       <!--------------------------->
       <!-- CUSTOM SELECTED BIRDS -->
       <!--------------------------->
-      <div class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
+      <div id="custom-birds" class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
         <h2 class="section-title">Custom Birds</h2>
 
         <div class="table-header-custom">
@@ -160,7 +160,7 @@
 
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import { BIconXCircle, BIconCamera, BIconPinMapFill } from 'bootstrap-icons-vue';
 import { LineChart } from 'vue-chart-3';
@@ -212,6 +212,13 @@ export default defineComponent({
       };
     });
 
+    watch(analyticsStore.selectedBirds, () => {
+      const element = document.getElementById("custom-birds");
+      element?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
 
     return {
       analyticsStore,
