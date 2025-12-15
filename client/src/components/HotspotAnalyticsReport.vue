@@ -214,10 +214,10 @@ export default defineComponent({
 
     watch(analyticsStore.selectedBirds, () => {
       const element = document.getElementById("custom-birds");
-      element?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+      console.log("CALLED")
+      setTimeout(() => {
+        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
     });
 
     return {
