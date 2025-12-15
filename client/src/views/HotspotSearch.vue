@@ -3,6 +3,7 @@
 
     <!-- LEFT PANEL -->
     <div class="filters">
+      <!-- Buttons container -->
       <div class="buttons-container">
         <div id="home-button" @click="redirectToHomeScreen">
           <div class="back-button-wrapper">
@@ -13,15 +14,16 @@
 
       <h1 class="panel-title">Browse Hotspots</h1>
 
+      <!-- Floating filters card -->
       <div class="filters-card">
         <!-- Text search -->
         <div class="filter-group">
-          <label for="search">Search by name</label>
+          <label for="search">Search by name or location</label>
           <input
             id="search"
             type="text"
             v-model="searchQuery"
-            placeholder="Type a hotspot name..."
+            placeholder="Type a hotspot name or location..."
             @keyup.enter="applyFilters"
           />
         </div>
@@ -29,6 +31,7 @@
         <!-- Country Autocomplete -->
         <div class="filter-group autocomplete">
           <label>Country</label>
+
           <input
             type="text"
             v-model="countrySearch"
@@ -37,6 +40,7 @@
             @keyup.enter="applyFilters"
           />
 
+          <!-- Autocomplete dropdown -->
           <div
             v-if="showCountryDropdown && filteredCountries.length > 0"
             class="dropdown"
@@ -52,17 +56,19 @@
           </div>
         </div>
 
-        <!-- Subregion Autocomplete -->
+        <!-- Subregion 1 Autocomplete -->
         <div class="filter-group autocomplete">
-          <label>Subregion</label>
+          <label>Region</label>
+
           <input
             type="text"
             v-model="subregionSearch"
-            placeholder="Search subregions..."
+            placeholder="Search regions..."
             @input="onSubregionInput"
             @keyup.enter="applyFilters"
           />
 
+          <!-- Autocomplete dropdown -->
           <div
             v-if="showSubregionDropdown && filteredSubregions.length > 0"
             class="dropdown"
@@ -78,6 +84,33 @@
           </div>
         </div>
 
+        <!-- Subregion 2 Autocomplete -->
+        <div class="filter-group autocomplete">
+          <label>Local Region</label>
+
+          <input
+            type="text"
+            v-model="subregion2Search"
+            placeholder="Search local region..."
+            @input="onSubregion2Input"
+            @keyup.enter="applyFilters"
+          />
+
+          <div
+            v-if="showSubregion2Dropdown && filteredSubregions2.length > 0"
+            class="dropdown"
+          >
+            <div
+              class="dropdown-item"
+              v-for="sr2 in filteredSubregions2"
+              :key="sr2"
+              @click="selectSubregion2(sr2)"
+            >
+              {{ sr2 }}
+            </div>
+          </div>
+        </div>
+
         <div class="filter-summary">
           Showing {{ filteredHotspots.length }} hotspots
         </div>
@@ -85,8 +118,60 @@
     </div>
     <!-- END LEFT PANEL -->
 
-    <!-- MIDDLE PANEL -->
+    <!-- MIDDLE PANEL: Hotspot Cards -->
     <div class="results">
+
+      <!-- Applied filters bar ABOVE cards -->
+      <div v-if="hasActiveFilters" class="results-filters">
+        <div class="active-filters">
+          <div class="chips">
+            <!-- Text search -->
+            <button
+              v-if="searchQuery.trim()"
+              class="chip"
+              @click="clearSearch"
+            >
+              {{ searchQuery }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Country -->
+            <button
+              v-if="analyticsStore.selectedCountry || countrySearch.trim()"
+              class="chip"
+              @click="clearCountry"
+            >
+              {{ analyticsStore.selectedCountry || countrySearch }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Subregion 1 -->
+            <button
+              v-if="selectedSubregion || subregionSearch.trim()"
+              class="chip"
+              @click="clearSubregion"
+            >
+              {{ selectedSubregion || subregionSearch }}
+              <span class="chip-x">×</span>
+            </button>
+
+            <!-- Subregion 2 -->
+            <button
+              v-if="selectedSubregion2 || subregion2Search.trim()"
+              class="chip"
+              @click="clearSubregion2"
+            >
+              {{ selectedSubregion2 || subregion2Search }}
+              <span class="chip-x">×</span>
+            </button>
+          </div>
+
+          <button class="clear-filters" @click="clearAllFilters">
+            Delete all
+          </button>
+        </div>
+      </div>
+
       <div class="cards-container">
         <HotspotCard
           v-for="hotspot in filteredHotspots"
@@ -100,6 +185,7 @@
           :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
           @click="selectHotspotById"
         />
+        <!-- infinite scroll -->
         <div ref="scrollSentinel" style="height: 1px;"></div>
       </div>
     </div>
@@ -124,20 +210,20 @@
         </div>
 
         <div class="summary-row">
-          <span class="summary-label">Subregion 1:</span>
+          <span class="summary-label">Region:</span>
           <span class="summary-value">
             {{ analyticsStore.selectedHotspot.subregion1 }}
           </span>
         </div>
 
         <div class="summary-row">
-          <span class="summary-label">Subregion 2:</span>
+          <span class="summary-label">Local Region:</span>
           <span class="summary-value">
             {{ analyticsStore.selectedHotspot.subregion2 || '—' }}
           </span>
         </div>
 
-        <!-- Species Count with color dot -->
+        <!-- Species Count -->
         <div class="summary-row">
           <span class="summary-label">Species Count:</span>
 
@@ -218,8 +304,14 @@ export default defineComponent({
     const subregionSearch = ref('');
     const selectedSubregion = ref('');
 
+    //  Subregion 2 filter state
+    const subregion2Search = ref('');
+    const selectedSubregion2 = ref('');
+
+    // Dropdown visibility
     const showCountryDropdown = ref(false);
     const showSubregionDropdown = ref(false);
+    const showSubregion2Dropdown = ref(false); // ✅ NEW
 
     // -------------------------
     // SCROLL OBSERVER
@@ -250,12 +342,10 @@ export default defineComponent({
     const selectedSpeciesCount = computed<number | null>(() => {
       const selected: any = analyticsStore.selectedHotspot;
 
-      // Preferred: already on selectedHotspot
       if (typeof selected?.speciesCount === 'number') {
         return selected.speciesCount;
       }
 
-      // Fallback: find from overview list
       const id = analyticsStore.selectedHotspotId;
       if (!id) return null;
 
@@ -270,24 +360,33 @@ export default defineComponent({
     // -------------------------
     const applyFilters = () => {
       const hotspotFilter = searchQuery.value.trim();
+
       const countryFilter = analyticsStore.selectedCountry ?? '';
-      const subregionFilter = (selectedSubregion.value || subregionSearch.value).trim();
+
+      const subregion1Filter = (selectedSubregion.value || subregionSearch.value).trim();
+
+      //  subregion2 filter
+      const subregion2Filter = (selectedSubregion2.value || subregion2Search.value).trim();
 
       const hasAnyFilter =
         !!hotspotFilter ||
         !!countryFilter ||
-        !!subregionFilter;
+        !!subregion1Filter ||
+        !!subregion2Filter;
 
+      // Keep store search fields in sync
       analyticsStore.searchHotspotName = hotspotFilter;
       analyticsStore.searchCountry = countryFilter;
-      analyticsStore.searchSubregion1 = subregionFilter;
-      analyticsStore.searchSubregion2 = '';
+      analyticsStore.searchSubregion1 = subregion1Filter;
+      analyticsStore.searchSubregion2 = subregion2Filter;
 
       visibleCount.value = pageSize;
 
       if (!hasAnyFilter) {
         analyticsStore.countrySuggestions = [];
         analyticsStore.subregion1Suggestions = [];
+        // best-effort clear, if you add it to store:
+        (analyticsStore as any).subregion2Suggestions = [];
         analyticsStore.fetchAllHotspots();
         return;
       }
@@ -295,13 +394,14 @@ export default defineComponent({
       analyticsStore.searchHotspots({
         hotspot: hotspotFilter,
         country: countryFilter,
-        subregion1: subregionFilter,
+        subregion1: subregion1Filter,
+        subregion2: subregion2Filter,
         mode: 'hotspot',
       });
     };
 
     // -------------------------
-    // AVAILABLE FILTER VALUES
+    // AVAILABLE FILTER VALUES (fallback from current hotspots)
     // -------------------------
     const availableCountries = computed(() => {
       const set = new Set<string>();
@@ -316,6 +416,28 @@ export default defineComponent({
           if (h.subregion1) set.add(h.subregion1);
         }
       });
+      return Array.from(set).sort();
+    });
+
+    // Available Subregion 2 values (local fallback)
+    const availableSubregions2 = computed(() => {
+      const set = new Set<string>();
+
+      const sr1Filter = (selectedSubregion.value || subregionSearch.value).trim();
+
+      hotspots.value.forEach(h => {
+        // If subregion1 is selected/typed, only show matching sr2 values
+        if (
+          sr1Filter &&
+          h.subregion1?.toLowerCase() !== sr1Filter.toLowerCase()
+        ) return;
+
+        const sr2 = (h.subregion2 ?? '').toString().trim();
+        if (sr2 && sr2.toLowerCase() !== 'none' && sr2.toLowerCase() !== 'null') {
+          set.add(sr2);
+        }
+      });
+
       return Array.from(set).sort();
     });
 
@@ -339,6 +461,18 @@ export default defineComponent({
       if (!subregionSearch.value.trim()) return availableSubregions.value;
       return availableSubregions.value.filter(sr =>
         sr.toLowerCase().includes(subregionSearch.value.toLowerCase())
+      );
+    });
+
+    //  filtered Subregion 2 suggestions (backend-first, fallback to local)
+    const filteredSubregions2 = computed(() => {
+      const backend = (analyticsStore as any).subregion2Suggestions as string[] | undefined;
+      if (backend && backend.length > 0) return backend;
+
+      if (!subregion2Search.value.trim()) return availableSubregions2.value;
+
+      return availableSubregions2.value.filter(sr2 =>
+        sr2.toLowerCase().includes(subregion2Search.value.toLowerCase())
       );
     });
 
@@ -374,6 +508,28 @@ export default defineComponent({
       }
     };
 
+    //  Subregion 2 input handler
+    const onSubregion2Input = () => {
+      showSubregion2Dropdown.value = true;
+      const q = subregion2Search.value.trim();
+
+      const sr1Filter = (selectedSubregion.value || subregionSearch.value).trim();
+
+      if (q) {
+        // If you added the store action, use it:
+        if (typeof (analyticsStore as any).fetchSubregion2Suggestions === 'function') {
+          (analyticsStore as any).fetchSubregion2Suggestions(sr1Filter, q);
+        } else {
+          // Otherwise we rely on local fallback list only
+          // (filteredSubregions2 will still work)
+        }
+      } else {
+        (analyticsStore as any).subregion2Suggestions = [];
+        selectedSubregion2.value = '';
+        applyFilters();
+      }
+    };
+
     // -------------------------
     // SELECT FILTER VALUES
     // -------------------------
@@ -382,9 +538,15 @@ export default defineComponent({
       countrySearch.value = country;
       showCountryDropdown.value = false;
 
+      // Reset subregions when country changes
       selectedSubregion.value = '';
       subregionSearch.value = '';
       analyticsStore.subregion1Suggestions = [];
+
+      // Reset subregion2 too
+      selectedSubregion2.value = '';
+      subregion2Search.value = '';
+      (analyticsStore as any).subregion2Suggestions = [];
 
       applyFilters();
     };
@@ -393,6 +555,20 @@ export default defineComponent({
       selectedSubregion.value = subregion;
       subregionSearch.value = subregion;
       showSubregionDropdown.value = false;
+
+      // Reset subregion2 when subregion1 changes
+      selectedSubregion2.value = '';
+      subregion2Search.value = '';
+      (analyticsStore as any).subregion2Suggestions = [];
+
+      applyFilters();
+    };
+
+    // select subregion2
+    const selectSubregion2 = (sr2: string) => {
+      selectedSubregion2.value = sr2;
+      subregion2Search.value = sr2;
+      showSubregion2Dropdown.value = false;
 
       applyFilters();
     };
@@ -412,6 +588,15 @@ export default defineComponent({
       if (!val.trim()) {
         selectedSubregion.value = '';
         analyticsStore.subregion1Suggestions = [];
+        applyFilters();
+      }
+    });
+
+    //  watcher for subregion2 input cleared
+    watch(subregion2Search, (val) => {
+      if (!val.trim()) {
+        selectedSubregion2.value = '';
+        (analyticsStore as any).subregion2Suggestions = [];
         applyFilters();
       }
     });
@@ -437,7 +622,9 @@ export default defineComponent({
       !!analyticsStore.selectedCountry ||
       !!countrySearch.value.trim() ||
       !!selectedSubregion.value ||
-      !!subregionSearch.value.trim()
+      !!subregionSearch.value.trim() ||
+      !!selectedSubregion2.value ||
+      !!subregion2Search.value.trim()
     ));
 
     // -------------------------
@@ -452,6 +639,16 @@ export default defineComponent({
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
       analyticsStore.countrySuggestions = [];
+
+      // also clear subregion filters
+      selectedSubregion.value = '';
+      subregionSearch.value = '';
+      analyticsStore.subregion1Suggestions = [];
+
+      selectedSubregion2.value = '';
+      subregion2Search.value = '';
+      (analyticsStore as any).subregion2Suggestions = [];
+
       applyFilters();
     };
 
@@ -459,17 +656,38 @@ export default defineComponent({
       selectedSubregion.value = '';
       subregionSearch.value = '';
       analyticsStore.subregion1Suggestions = [];
+
+      // clear subregion2 too
+      selectedSubregion2.value = '';
+      subregion2Search.value = '';
+      (analyticsStore as any).subregion2Suggestions = [];
+
+      applyFilters();
+    };
+
+    //  clear subregion2 only
+    const clearSubregion2 = () => {
+      selectedSubregion2.value = '';
+      subregion2Search.value = '';
+      (analyticsStore as any).subregion2Suggestions = [];
       applyFilters();
     };
 
     const clearAllFilters = () => {
       searchQuery.value = '';
+
       analyticsStore.selectedCountry = null;
       countrySearch.value = '';
       analyticsStore.countrySuggestions = [];
+
       selectedSubregion.value = '';
       subregionSearch.value = '';
       analyticsStore.subregion1Suggestions = [];
+
+      selectedSubregion2.value = '';
+      subregion2Search.value = '';
+      (analyticsStore as any).subregion2Suggestions = [];
+
       applyFilters();
     };
 
@@ -481,6 +699,7 @@ export default defineComponent({
       if (!target.closest('.autocomplete')) {
         showCountryDropdown.value = false;
         showSubregionDropdown.value = false;
+        showSubregion2Dropdown.value = false;
       }
     };
 
@@ -488,6 +707,7 @@ export default defineComponent({
       if (event.key === 'Escape') {
         showCountryDropdown.value = false;
         showSubregionDropdown.value = false;
+        showSubregion2Dropdown.value = false; 
       }
     };
 
@@ -559,41 +779,62 @@ export default defineComponent({
       hotspots,
       analyticsStore,
 
+      // filter state
       searchQuery,
       countrySearch,
       subregionSearch,
       selectedSubregion,
 
+      // subregion2 filter state
+      subregion2Search,
+      selectedSubregion2,
+
+      // dropdown state
       showCountryDropdown,
       showSubregionDropdown,
+      showSubregion2Dropdown,
 
+      // available values
       availableCountries,
       availableSubregions,
+      availableSubregions2,
+
+      // filtered dropdown lists
       filteredCountries,
       filteredSubregions,
+      filteredSubregions2,
 
-      filteredHotspots,
-      hasActiveFilters,
-
-      scrollSentinel,
-
+      // handlers
       onCountryInput,
       onSubregionInput,
+      onSubregion2Input,
 
+      // selectors
       selectCountry,
       selectSubregion,
+      selectSubregion2,
 
+      // clear controls
       clearSearch,
       clearCountry,
       clearSubregion,
+      clearSubregion2,
       clearAllFilters,
+
+      // active state + apply
+      hasActiveFilters,
       applyFilters,
 
+      // infinite scroll
+      scrollSentinel,
+      filteredHotspots,
+
+      // selection
       selectHotspotById,
       goToSelectedHotspotDetail,
       redirectToHomeScreen,
 
-      
+      // right panel species count
       selectedSpeciesCount,
       getSpeciesCountColor,
     };
