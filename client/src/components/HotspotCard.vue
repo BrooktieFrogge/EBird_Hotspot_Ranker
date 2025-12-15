@@ -1,47 +1,72 @@
 <template>
   <div
-    :class="['hotspot-card', { 'selected': isSelected }]"
+    :class="['hotspot-card', { selected: isSelected }]"
     @click="handleClick"
   >
     <!-- Title -->
     <h3>{{ name }}</h3>
     <div class="title-line"></div>
 
-    <!-- Country / Subregions -->
+    <!-- Country -->
     <div class="row">
-      <span class="label">Country:</span>
+      <span class="label">
+        <BIconGlobe class="icon" />
+        Country:
+      </span>
       <span class="value">{{ country }}</span>
     </div>
 
+    <!-- Subregion 1 -->
     <div class="row">
-      <span class="label">Subregion 1:</span>
+      <span class="label">
+        <BIconGeoAlt class="icon" />
+        Subregion 1:
+      </span>
       <span class="value">{{ subregion1 }}</span>
     </div>
 
+    <!-- Subregion 2 -->
     <div class="row">
-  <span class="label">Subregion 2:</span>
-  <span class="value">
-  {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
-</span>
-</div>
-
-    <div class="row">
-      <span class="label">Species Count:</span>
-      <span class="value">{{ speciesCount }}</span>
+      <span class="label">
+        <BIconGeoFill class="icon" />
+        Subregion 2:
+      </span>
+      <span class="value">
+        {{ (!subregion2 || subregion2 === 'None') ? ' —' : subregion2 }}
+      </span>
     </div>
 
-    <!-- Saved indicator -->
-    <div class="saved-indicator" v-if="isSaved">
-      ★ Saved
+    <!-- Species Count -->
+    <div class="row">
+      <span class="label">
+        <BIconPin class="icon" />
+        Species Count:
+      </span>
+      <span class="value">{{ speciesCount }}</span>
     </div>
   </div>
 </template>
 
+
 <script lang="ts">
+import {
+  BIconGeoAlt,
+  BIconGeoFill,
+  BIconGlobe,
+  BIconPin,
+
+} from 'bootstrap-icons-vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'HotspotCard',
+
+  components: {
+    BIconGlobe,
+    BIconGeoAlt,
+    BIconGeoFill,
+    BIconPin
+  },
 
   props: {
     id: {
@@ -60,18 +85,15 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    // subregion2 
     subregion2: {
       type: String,
       required: false,
       default: '',
     },
-    // species count
     speciesCount: {
       type: Number,
       required: true,
     },
-
     colorClass: {
       type: String,
       required: false,
@@ -93,7 +115,6 @@ export default defineComponent({
 
   methods: {
     handleClick() {
-      // tell the parent which hotspot was clicked
       this.$emit('click', this.id);
     },
   },
@@ -115,6 +136,10 @@ export default defineComponent({
   flex: 0 0 calc(33.333% - 16px);
 }
 
+.hotspot-card.selected {
+  box-shadow: 0 0 5px 4px #457999;
+}
+
 h3 {
   margin: 0 0 6px 0;
   font-size: 1.1em;
@@ -130,40 +155,41 @@ h3 {
   margin-bottom: 6px;
 }
 
+/* rows */
 .row {
   display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 0.85em;
   margin-bottom: 4px;
   color: #797979;
 }
 
+/* label with icon inline */
 .label {
-  min-width: 110px;
+  display: left;
+  align-items: left;
+  gap: 6px;
+  min-width: 130px;
+  font-weight: 700;
   color: #797979;
-  font-weight: 700; /* bold labels */
 }
 
-.hotspot-card.selected {
-  box-shadow: 0 0 5px 4px #457999;
+/* icon inline fix */
+.icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  
 }
 
+/* ensures svg aligns perfectly */
+.icon :deep(svg) {
+  display: block;
+}
+
+/* value */
 .value {
   flex: 1;
-}
-
-.color-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 6px;
-}
-
-.saved-indicator {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 0.8em;
-  color: #ffd700;
 }
 </style>

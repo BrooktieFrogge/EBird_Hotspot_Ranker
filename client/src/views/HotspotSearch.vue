@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <h1 class="panel-title">Hotspot Browser</h1>
+      <h1 class="panel-title">Browse Hotspots</h1>
 
       <!-- Floating filters card -->
       <div class="filters-card">
@@ -180,12 +180,6 @@
           </span>
         </div>
 
-        <div class="summary-row">
-          <span class="summary-label">Saved:</span>
-          <span class="summary-value">
-            {{ analyticsStore.selectedHotspot.isSaved ? "Yes" : "No" }}
-          </span>
-        </div>
       </div>
 
       <div class="summary-body" v-else>
@@ -198,7 +192,7 @@
           @click="goToSelectedHotspotDetail"
           :disabled="!analyticsStore.selectedHotspot"
         >
-          Go to hotspot detail
+          Get Report
         </button>
       </div>
     </div>
