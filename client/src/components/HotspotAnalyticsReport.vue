@@ -1,5 +1,5 @@
 <template>
-  <div class="analytics-container" v-if="birds.length > 1">
+  <div class="analytics-container" v-if="birds.length > 1 && analyticsStore.isLoading == false">
     <div class="bird-lists-container">
 
 
@@ -44,7 +44,7 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.Species }}</span>
+             <span> <a :href="bird.speciesUrl" target="_blank">{{ bird.Species }}</a> </span>
           </div>
 
           <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2)}}</div>
@@ -56,7 +56,7 @@
       <!--------------------------->
       <!-- CUSTOM SELECTED BIRDS -->
       <!--------------------------->
-      <div class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
+      <div id="custom-birds" class="bird-table" v-show="(analyticsStore.selectedBirds.length > 0)">
         <h2 class="section-title">Custom Birds</h2>
 
         <div class="table-header-custom">
@@ -73,7 +73,7 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.Species }}</span>
+            <span> <a :href="bird.speciesUrl" target="_blank">{{ bird.Species }}</a> </span>
           </div>
           <div class="cell">{{ bird.Rank }}</div>
           <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2) }}</div>
@@ -160,7 +160,7 @@
 
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import { BIconXCircle, BIconCamera, BIconPinMapFill } from 'bootstrap-icons-vue';
 import { LineChart } from 'vue-chart-3';
@@ -212,6 +212,13 @@ export default defineComponent({
       };
     });
 
+    watch(analyticsStore.selectedBirds, () => {
+      const element = document.getElementById("custom-birds");
+      console.log("CALLED")
+      setTimeout(() => {
+        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
+    });
 
     return {
       analyticsStore,
@@ -297,6 +304,7 @@ export default defineComponent({
 .index {
   color: #888;
   width: 20px;
+  margin-right: 10px;
 }
 
 .cell {

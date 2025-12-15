@@ -58,7 +58,7 @@
       <!--- Confirmation --->
       <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
         <v-btn
-          color="primary"
+          color="#296239"
           @click="confirmYearRange"
           :disabled="!isYearRangeValid"
           size="small"
@@ -150,13 +150,15 @@
       <!--- Confirmation --->
       <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
         <v-btn
-          color="primary"
+          color="#296239"
           @click="confirmTimeRange"
           size="small"
         >
           Confirm Time
         </v-btn>
       </div>
+
+      <DataDistributionGraph/>
 
     </div>
     
@@ -271,6 +273,8 @@ import {
 } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import type { Bird } from '../types';
+import DataDistributionGraph from '../components/DataDistributionGraph.vue'
+
 
 /**
  * A panel for configurating the analytics report. 
@@ -283,7 +287,8 @@ export default defineComponent({
   components: {
     BIconHouseFill,
     BIconArrowLeft,
-    BIconArrowDown
+    BIconArrowDown,
+    DataDistributionGraph
   },
 
   setup() {
@@ -312,7 +317,6 @@ export default defineComponent({
             analyticsStore.setYearRange(tempStartYear.value, tempEndYear.value);
             analyticsStore.fetchHotspotDetail();
             console.log(`Confirmed year range: ${tempStartYear.value} to ${tempEndYear.value}`);
-            location.reload()
         } else {
             console.error("Invalid year range entered.");
         }
@@ -444,7 +448,6 @@ export default defineComponent({
         analyticsStore.setTimeFrame(startMonth.value, startWeek.value, endMonth.value, endWeek.value);
         analyticsStore.fetchHotspotDetail();
         console.log(`Confirmed Time Range: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
-        location.reload()
     };
 
 
@@ -597,14 +600,14 @@ export default defineComponent({
 
 .week-bar {
     width: 60%;
-    background-color: #64b5f6; 
+    background-color: #72A2C0; 
     border-radius: 3px 3px 0 0;
     transition: background-color 0.15s ease, height 0.3s ease;
 }
 
 .week-bar-selected {
-    background-color: #1565c0; 
-    box-shadow: 0 0 5px rgba(21, 101, 192, 0.5);
+    background-color: #457999; 
+    box-shadow: 0 0 5px rgba(38, 67, 84, 0.5);
 }
 
 .week-bar-label {
