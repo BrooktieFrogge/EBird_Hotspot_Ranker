@@ -46,7 +46,7 @@ async def detailed_hotspot_data(
         with sqlite3.connect('server/data/database/locations.db') as sqlConn:
                 cursor = sqlConn.cursor()
     
-        sql_q = "SELECT ID, NAME, COUNTRY, SUBREGION1, SUBREGION2 FROM 'hotspots' WHERE ID = ?"
+        sql_q = "SELECT h.id, h.name, c.country_name, s1.subnational1_name, s2.subnational2_name, h.species_count, h.norm_name FROM 'hotspots' AS h LEFT JOIN 'countries' AS c ON h.country_code = c.country_code LEFT JOIN 'subregions1' AS s1 ON h.subnational1_code = s1.subnational1_code LEFT JOIN 'subregions2' AS s2 ON h.subnational2_code = s2.subnational2_code  WHERE h.id = ?"
 
         cursor.execute(sql_q, (hotspotID,))
 
@@ -81,9 +81,7 @@ def get_overviews(limit:int = 20, offset:int = 0):
         with sqlite3.connect('server/data/database/locations.db') as sqlConn:
                 cursor = sqlConn.cursor()
 
-        sql_q = "SELECT * FROM 'hotspots' ORDER BY SPECIESCOUNT DESC LIMIT ? OFFSET ?"
-
-        print("here")
+        sql_q = "SELECT h.id, h.name, c.country_name, s1.subnational1_name, s2.subnational2_name, h.species_count, h.norm_name FROM 'hotspots' AS h LEFT JOIN 'countries' AS c ON h.country_code = c.country_code LEFT JOIN 'subregions1' AS s1 ON h.subnational1_code = s1.subnational1_code LEFT JOIN 'subregions2' AS s2 ON h.subnational2_code = s2.subnational2_code ORDER BY h.species_count DESC LIMIT ? OFFSET ?"
 
         cursor.execute(sql_q, (limit, offset))
 
