@@ -16,7 +16,7 @@
       <div class="filters-card">
         <!-- Text search -->
         <div class="filter-group">
-          <label for="search">Search by name or location</label>
+          <label for="search">Search by name</label>
           <input
             id="search"
             type="text"
