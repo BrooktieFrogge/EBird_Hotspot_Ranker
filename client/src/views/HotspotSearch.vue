@@ -357,19 +357,20 @@ export default defineComponent({
     };
 
     const onSubregionInput = () => {
-      showSubregionDropdown.value = true;
-      const q = subregionSearch.value.trim();
-      if (q && analyticsStore.selectedCountry) {
-        analyticsStore.fetchSubregion1Suggestions(
-          analyticsStore.selectedCountry,
-          q
-        );
-      } else {
-        analyticsStore.subregion1Suggestions = [];
-        selectedSubregion.value = '';
-        applyFilters();
-      }
-    };
+  showSubregionDropdown.value = true;
+  const q = subregionSearch.value.trim();
+
+  if (q) {
+    analyticsStore.fetchSubregion1Suggestions(
+      analyticsStore.selectedCountry ?? '', //  allow country to be emopty
+      q
+    );
+  } else {
+    analyticsStore.subregion1Suggestions = [];
+    selectedSubregion.value = '';
+    applyFilters();
+  }
+};
 
     // -------------------------
     // SELECTING FILTER VALUES
