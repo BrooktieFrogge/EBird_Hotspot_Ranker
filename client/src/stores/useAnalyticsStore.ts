@@ -73,7 +73,6 @@ export const useAnalyticsStore = defineStore('analytics', {
     setYearRange(start: number, end: number) {
       this.startYear = start;
       this.endYear = end;
-      this.fetchHotspotDetail(); // TODO: Maybe make a new api call using date ranges
     },
 
     setTimeFrame(startMonth: number, startWeek: number, endMonth: number, endWeek: number) {

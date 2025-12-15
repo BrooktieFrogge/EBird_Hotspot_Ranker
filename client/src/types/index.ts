@@ -4,7 +4,7 @@ export interface Bird {
   wtd_rf: number,
   rfpc: number,
   birdCode?: string,
-  speciesUrl?: string,
+  speciesUrl: string,
   imageUrl?: string
 }
 

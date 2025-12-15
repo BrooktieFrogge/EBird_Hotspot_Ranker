@@ -158,6 +158,8 @@
         </v-btn>
       </div>
 
+      <!-- <DataDistributionGraph/> -->
+
     </div>
     
     <!--------------------------->
@@ -271,6 +273,8 @@ import {
 } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import type { Bird } from '../types';
+import DataDistributionGraph from '../components/DataDistributionGraph.vue'
+
 
 /**
  * A panel for configurating the analytics report. 
@@ -283,7 +287,8 @@ export default defineComponent({
   components: {
     BIconHouseFill,
     BIconArrowLeft,
-    BIconArrowDown
+    BIconArrowDown,
+    DataDistributionGraph
   },
 
   setup() {
@@ -312,7 +317,6 @@ export default defineComponent({
             analyticsStore.setYearRange(tempStartYear.value, tempEndYear.value);
             analyticsStore.fetchHotspotDetail();
             console.log(`Confirmed year range: ${tempStartYear.value} to ${tempEndYear.value}`);
-            location.reload()
         } else {
             console.error("Invalid year range entered.");
         }
@@ -444,7 +448,6 @@ export default defineComponent({
         analyticsStore.setTimeFrame(startMonth.value, startWeek.value, endMonth.value, endWeek.value);
         analyticsStore.fetchHotspotDetail();
         console.log(`Confirmed Time Range: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
-        location.reload()
     };
 
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="analytics-container" v-if="birds.length > 1">
+  <div class="analytics-container" v-if="birds.length > 1 && analyticsStore.isLoading == false">
     <div class="bird-lists-container">
 
 
@@ -44,7 +44,7 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.Species }}</span>
+             <span> <a :href="bird.speciesUrl" target="_blank">{{ bird.Species }}</a> </span>
           </div>
 
           <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2)}}</div>
@@ -73,7 +73,7 @@
         >
           <div class="species-cell">
             <span class="index">{{ i + 1 }}.</span>
-            <span>{{ bird.Species }}</span>
+            <span> <a :href="bird.speciesUrl" target="_blank">{{ bird.Species }}</a> </span>
           </div>
           <div class="cell">{{ bird.Rank }}</div>
           <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2) }}</div>
@@ -297,6 +297,7 @@ export default defineComponent({
 .index {
   color: #888;
   width: 20px;
+  margin-right: 10px;
 }
 
 .cell {
