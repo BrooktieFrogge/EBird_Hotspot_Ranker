@@ -65,7 +65,7 @@ export default defineComponent({
             scales: {
                 x: {
                     ticks: {
-                        callback: function(val: number, index: number) {
+                        callback: function(index: number) {
                             // Display month label only on the first week (index 0, 4, 8, etc.)
                             if (index % 4 === 0) {
                                 const monthIndex = Math.floor(index / 4);
