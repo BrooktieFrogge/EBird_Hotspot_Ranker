@@ -311,46 +311,44 @@ export const useAnalyticsStore = defineStore('analytics', {
      * Requires an exact country filter.
      */
     async fetchSubregion1Suggestions(country: string, query: string) {
-      this.isLoading = true;
+  this.isLoading = true;
+  this.error = null;
+
+  try {
+    const response = await axios.get('/api/hotspots/search', {
+      params: {
+        hotspot: '',
+        country: country ?? '',      // <-- allow empty
+        subregion1: query,
+        subregion2: '',
+        mode: 'subregion1',
+      },
+    });
+
+    const raw = response.data.results ?? [];
+
+    this.subregion1Suggestions = raw
+      .map((item: any) => {
+        if (typeof item === 'string') return item;
+        if (item.name) return item.name;
+        if (item.subregion1) return item.subregion1;
+        if (item.SUBREGION1_NAME) return item.SUBREGION1_NAME;
+        return '';
+      })
+      .filter((name: string) => !!name);
+  } catch (e: any) {
+    if (axios.isAxiosError(e) && e.response?.status === 404) {
+      this.subregion1Suggestions = [];
       this.error = null;
+    } else {
+      console.error('Error searching subregion1:', e);
+      this.error = e.message ?? 'Unknown error';
+    }
+  } finally {
+    this.isLoading = false;
+  }
+},
 
-      try {
-        const response = await axios.get(
-          '/api/hotspots/search',
-          {
-            params: {
-              hotspot: '',
-              country,
-              subregion1: query,
-              subregion2: '',
-              mode: 'subregion1',
-            },
-          }
-        );
-
-        const raw = response.data.results ?? [];
-
-        this.subregion1Suggestions = raw
-          .map((item: any) => {
-            if (typeof item === 'string') return item;
-            if (item.name) return item.name;
-            if (item.subregion1) return item.subregion1;
-            if (item.SUBREGION1_NAME) return item.SUBREGION1_NAME;
-            return '';
-          })
-          .filter((name: string) => !!name);
-      } catch (e: any) {
-        if (axios.isAxiosError(e) && e.response?.status === 404) {
-          this.subregion1Suggestions = [];
-          this.error = null;
-        } else {
-          console.error('Error searching subregion1:', e);
-          this.error = e.message ?? 'Unknown error';
-        }
-      } finally {
-        this.isLoading = false;
-      }
-    },
 
     async fetchHotspotDetail() {
       if (!this.selectedHotspotId) return
