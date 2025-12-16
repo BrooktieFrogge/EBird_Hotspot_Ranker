@@ -9,7 +9,7 @@ import os, httpx
 from playwright.async_api import async_playwright
 
 ### config
-SAVE_FILE = True
+SAVE_FILE = False
 BROWSER = None
 
 ##### helper functions
@@ -82,7 +82,21 @@ async def get_rankings(
 
     # using async context manager
     async with async_playwright() as p:
-        BROWSER = await p.chromium.launch(headless=HEADLESS)
+        # super memory saving @https://pptr.dev/troubleshooting @https://playwright.dev/docs/ci
+        BROWSER = await p.chromium.launch(
+            headless=HEADLESS,
+            args=[
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--no-sandbox',
+                '--disable-extensions',
+                '--disable-background-networking',
+                '--disable-sync',
+                '--disable-translate',
+                '--no-first-run',
+                '--disable-features=site-per-process',
+            ]
+        )
 
         # await the session check
         await ensure_session(BROWSER)
@@ -112,9 +126,8 @@ async def get_rankings(
                         return result_dict
                 
                     else:
-                        # convert the dict back to df just to show head in logs
-                        df = pd.DataFrame(result_dict['data'])
-                        return {f"[success] | results stored in result_dict (location: {result_dict['location']})": df.head(10)}
+                        print(f"[success] | results stored in memory: result_dict (location: {result_dict['location']})")
+                        return result_dict
                     
                 except Exception as e:
                     return(f"[error] | calculation/formatting failed - {e}")

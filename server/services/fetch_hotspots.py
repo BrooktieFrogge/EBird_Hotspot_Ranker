@@ -1,13 +1,20 @@
 from services.ranking_engine.data_processing import  get_rankings
 import pandas as pd
-import os,httpx
-from datetime import datetime, timedelta, date
-import asyncio, json
+import os
+import asyncio
 import sqlite3
+from cachetools import TTLCache
 
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 #limit concurrent API calls to prevent exceeding rate limits
 SEMAPHORE = asyncio.Semaphore(5)
+
+# cache hotspot rankings for 5 minutes to speed up pdf gen
+HOTSPOT_CACHE = TTLCache(maxsize=50, ttl=300)
+
+def get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week):
+    """Generate a unique cache key based on all filter parameters"""
+    return f"{hotspotID}:{start_yr}:{end_yr}:{start_month}:{start_week}:{end_month}:{end_week}"
 
 '''
 Provides detailed hotspot overview with optional month/week filtering.
@@ -25,6 +32,14 @@ async def detailed_hotspot_data(
     end_month: int | None = None,
     end_week: int | None = None
 ):
+    # check cache first
+    cache_key = get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week)
+    if cache_key in HOTSPOT_CACHE:
+        print(f"[cache] | HIT for {hotspotID} - using cached data")
+        return HOTSPOT_CACHE[cache_key]
+    
+    print(f"[cache] | MISS for {hotspotID} - fetching from eBird")
+    
     ret = await get_rankings(
         hotspotID,
         start_yr,
@@ -36,7 +51,10 @@ async def detailed_hotspot_data(
     )
 
     if ret:
-        ret = ret['data']
+        birds = ret['data']
+        total_sample_size = ret['total_sample_size']
+        sample_sizes_by_week = ret['sample_sizes_by_week']
+
     else:
         return None
 
@@ -58,112 +76,19 @@ async def detailed_hotspot_data(
         "country" : hotspot_data[2],
         "subregion1" :hotspot_data[3],
         "subregion2": hotspot_data[4],
-        "birds":ret
-        }            
+        "total_sample_size": total_sample_size,
+        "sample_sizes_by_week": sample_sizes_by_week,
+        "birds":birds
+        }
+        
+        # store in cache for pdf gen
+        HOTSPOT_CACHE[cache_key] = ranked
+        print(f"[cache] | stored {hotspotID} in cache (expires in 5 min)")
 
         return ranked
 
     except sqlite3.Error as e:
         print(f"Database retrieval for detailed hotspot overview failed: {e}")
-        return(None)
-
-    finally:
-        if sqlConn:
-            sqlConn.close()
-            print("SQLite connection closed")
-
-'''
-Returns: subregion 1 name given subregion 1 code.
-'''
-def get_subregion1(sub_code):
-    sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv')
-
-    row = sub1Info.loc[sub1Info['subnational1_code'] == sub_code]
-    if row.empty:
-        return "None"
-    return row.iloc[0]['subnational1_name']
-
-'''
-Returns: subregion 2 name given subregion 2 code.
-'''
-def get_subregion2(sub_code):
-    sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv')
-
-    row = sub2Info.loc[sub2Info['subnational2_code'] == sub_code]
-
-    if row.empty:
-        return "None"
-    return row.iloc[0]['subnational2_name']
-    
-'''
-Fetches all hotspot overview info for a country.
-
-Returns:  list of dicts with filtered hotspots data
-'''
-async def fetch_country_hotspots(client,country_code):
-    url =f"https://api.ebird.org/v2/ref/hotspot/{country_code}?fmt=json"
-
-    try:
-        res = await client.get(url,headers=HEADERS,timeout=20)
-        res.raise_for_status()
-
-        await asyncio.sleep(0.25)
-        
-        data = res.json()
-
-        filtered = [{
-            "id": h['locId'],
-            "name": h['locName'],
-            "country": h['countryCode'],
-            "subregion1":  get_subregion1(h['subnational1Code']) if 'subnational1Code' in h else None,
-            "subregion2":  get_subregion2(h['subnational2Code']) if 'subnational2Code' in h else None,
-            "speciesCount": h['numSpeciesAllTime'] if 'numSpeciesAllTime' in h else 0
-        } for h in data] #list of hotspots in country
-
-    except Exception as e:
-        print(f"exception {e}")
-        return None
-
-    return filtered
-
-'''
-Uses ebird api calls to fetch most recent hotspot info for all locations by country
-
-Returns: list of dictionaries containing info about each hotspot. Dumps information into a json file.
-'''
-async def get_location_hotspots():
-    #TODO refactor to pull from db
-    # loading hotspot specific info
-    df = pd.read_csv('server/data/countries-Table 1.csv')
-    country_codes = df['country_code'].to_list()
-
-    all_results = []
-
-    async with httpx.AsyncClient() as client:
-        for country in country_codes:
-            if pd.isna(country):
-                continue
-            print("Fetching:", country,end="\n")
-            hotspots = await fetch_country_hotspots(client,country)
-            all_results.extend(hotspots)
-            
-    try:
-        with sqlite3.connect('server/data/database/locations.db') as sqlConn:
-                cursor = sqlConn.cursor()
-    
-        sql_q = '''INSERT INTO 'hotspots' (ID, NAME, COUNTRY, SUBREGION1, SUBREGION2, SPECIESCOUNT) VALUES (?, ?, ?, ?, ?, ?) 
-        ON CONFLICT(ID) DO UPDATE SET SPECIESCOUNT = excluded.SPECIESCOUNT 
-        WHERE hotspots.SPECIESCOUNT != excluded.SPECIESCOUNT 
-        '''
-
-        for hotspot in all_results:
-             cursor.execute(sql_q, (hotspot['id'],hotspot['name'],hotspot['country'],hotspot['subregion1'],hotspot['subregion2'],hotspot['speciesCount']))
-
-        return {"status" : f"Saved {len(all_results)} hotspots."}
-         
-
-    except sqlite3.Error as e:
-        print(f"Database UPDATE failed: {e}")
         return(None)
 
     finally:

@@ -1,6 +1,9 @@
 <template>
   <div class="analytics-config-panel" @scroll="checkScrollPosition" ref="panel">
     
+    <!--------------------------->
+    <!---- HOME/BACK BUTTONS ---->
+    <!--------------------------->
     <div class="buttons-container">
       <div id="back-button" @click="redirectToHotspotSearch">
         <div class="button-wrapper">
@@ -15,6 +18,10 @@
       </div>
     </div>
 
+
+    <!--------------------------->
+    <!----- YEAR SELECTION ------>
+    <!--------------------------->
     <div class="config-section">
       <h4>Select Year Range</h4>
 
@@ -48,9 +55,10 @@
         ></v-text-field>
       </div>
       
+      <!--- Confirmation --->
       <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
         <v-btn
-          color="primary"
+          color="#296239"
           @click="confirmYearRange"
           :disabled="!isYearRangeValid"
           size="small"
@@ -60,9 +68,14 @@
       </div>
     </div>
 
+
+    <!--------------------------->
+    <!----- TIME SELECTION ------>
+    <!--------------------------->
     <div class="config-section">
       <h4>Select Time Frame</h4>
       
+      <!--- FIRST MONTH/WEEK --->
       <div style="border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
         <h5 style="margin-bottom: 8px;">Start Time</h5>
         
@@ -77,16 +90,17 @@
         ></v-select>
 
         <div style="margin-top: 10px;">
-          <h5 style="margin-bottom: 5px;">Start Week (Data Density)</h5>
+          <h5 style="margin-bottom: 5px;">Checklists per Week</h5>
           
-          <div style="display: flex; gap: 4px; align-items: flex-end; height: 80px; padding: 5px 0;">
+          <div style="display: flex; gap: 4px; align-items: flex-end; height: 100%; padding: 5px 0;">
             <div
-              v-for="week in weeksInMonth"
+              v-for="week in weeksInStartMonth"
               :key="'start-week-' + week.value"
               class="week-bar-container"
               :style="{ height: week.height, cursor: 'pointer' }"
               @click="selectStartWeek(week.value)"
             >
+              <div class="week-bar-label">{{ week.density }}</div>
               <div
                 :class="['week-bar', { 'week-bar-selected': startWeek === week.value }]"
                 :style="{ height: '100%' }"
@@ -97,6 +111,7 @@
         </div>
       </div>
 
+      <!--- ENDING MONTH/WEEK --->
       <div style="border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px;">
         <h5 style="margin-bottom: 8px;">End Time</h5>
         
@@ -111,16 +126,17 @@
         ></v-select>
 
         <div style="margin-top: 10px;">
-          <h5 style="margin-bottom: 5px;">End Week (Data Density)</h5>
+          <h5 style="margin-bottom: 5px;">Checklists per Week</h5>
           
-          <div style="display: flex; gap: 4px; align-items: flex-end; height: 80px; padding: 5px 0;">
+          <div style="display: flex; gap: 4px; align-items: flex-end; height: 100%; padding: 5px 0;">
             <div
-              v-for="week in weeksInMonth"
+              v-for="week in weeksInEndMonth"
               :key="'end-week-' + week.value"
               class="week-bar-container"
               :style="{ height: week.height, cursor: 'pointer' }"
               @click="selectEndWeek(week.value)"
             >
+              <div class="week-bar-label">{{ week.density }}</div>
               <div
                 :class="['week-bar', { 'week-bar-selected': endWeek === week.value }]"
                 :style="{ height: '100%' }"
@@ -131,9 +147,10 @@
         </div>
       </div>
 
+      <!--- Confirmation --->
       <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
         <v-btn
-          color="primary"
+          color="#296239"
           @click="confirmTimeRange"
           size="small"
         >
@@ -141,8 +158,13 @@
         </v-btn>
       </div>
 
+      <DataDistributionGraph/>
+
     </div>
     
+    <!--------------------------->
+    <!--- PICK # OF TOP BIRDS --->
+    <!--------------------------->
     <div class="config-section" style="margin-left: 10px">
       <div style="display: flex; align-items: center; gap: 8px; width: 250px;">
         <span>Show top</span>
@@ -158,6 +180,10 @@
       </div>
     </div>
 
+
+    <!--------------------------->
+    <!------ GRAPH TOGGLE ------->
+    <!--------------------------->
     <div class="config-section">
       <v-switch
         color="primary"
@@ -169,6 +195,10 @@
       ></v-switch>
     </div>
 
+
+    <!--------------------------->
+    <!------ PHOTO TOGGLE ------->
+    <!--------------------------->
     <div class="config-section">
       <v-switch
         color="primary"
@@ -180,6 +210,10 @@
       ></v-switch>
     </div>
 
+
+    <!--------------------------->
+    <!------ CUSTOM BIRDS ------->
+    <!--------------------------->
     <div class="config-section">
 
       <v-text-field
@@ -208,14 +242,21 @@
       </div>
     </div>
 
+
+    <!--------------------------->
+    <!------ UPLOAD AS ... ------>
+    <!--------------------------->
     <div class="buttons-container" style="justify-content: left; margin-top: 150px;">
-      <div id="upload-button">
-        <div class="button-wrapper" style="width: 150px; height: 50px; color: black">
-          Export
+      <div id="upload-button" @click="exportReport">
+        <div class="button-wrapper" style="width: 150px; height: 50px; color: black; cursor: pointer;">
+          <span v-if="!isExporting">Export PDF</span>
+          <span v-else>Generating...</span>
         </div>
       </div>
     </div>
     
+
+    <!---- Scroll Indicator ----->
     <div v-if="showScrollIndicator" class="scroll-indicator">
       <BIconArrowDown />
     </div>
@@ -233,6 +274,8 @@ import {
 } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import type { Bird } from '../types';
+import DataDistributionGraph from '../components/DataDistributionGraph.vue'
+
 
 /**
  * A panel for configurating the analytics report. 
@@ -245,7 +288,8 @@ export default defineComponent({
   components: {
     BIconHouseFill,
     BIconArrowLeft,
-    BIconArrowDown
+    BIconArrowDown,
+    DataDistributionGraph
   },
 
   setup() {
@@ -272,6 +316,7 @@ export default defineComponent({
     const confirmYearRange = () => {
         if (isYearRangeValid.value) {
             analyticsStore.setYearRange(tempStartYear.value, tempEndYear.value);
+            analyticsStore.fetchHotspotDetail();
             console.log(`Confirmed year range: ${tempStartYear.value} to ${tempEndYear.value}`);
         } else {
             console.error("Invalid year range entered.");
@@ -294,18 +339,100 @@ export default defineComponent({
     const startWeek = ref(1);
     const endWeek = ref(4); 
 
-    const weekDataDensity = [
-        { label: 'Wk 1', value: 1, density: 80 }, 
-        { label: 'Wk 2', value: 2, density: 40 }, 
-        { label: 'Wk 3', value: 3, density: 65 }, 
-        { label: 'Wk 4', value: 4, density: 30 }, 
-    ];
+    const startWeekDataDensity = computed(() => {
+      // find selected month title
+      const selectedMonthOption = monthOptions.find(m => m.value === startMonth.value);
+      console.log("selected month: ", selectedMonthOption?.title)
+      console.log(analyticsStore.selectedHotspot?.sample_sizes_by_week)
 
-    const weeksInMonth = computed(() => {
-        return weekDataDensity.map(week => ({
-            ...week,
-            height: `${week.density * 0.8}px`
-        }));
+      // base case
+      if (!selectedMonthOption || !analyticsStore.selectedHotspot?.sample_sizes_by_week) {
+          return [];
+      }
+
+      // Get three-letter abbreviation
+      const monthAbbrev = selectedMonthOption.title.substring(0, 3);
+      const densityData = analyticsStore.selectedHotspot.sample_sizes_by_week;
+
+      // populate list + loop through weeks in month
+      const result: { label: string, value: number, density: number }[] = [];
+      for (let i = 1; i <= 4; i++) {
+          const wkIndex = `${monthAbbrev}_w${i}`;
+          const density = densityData[wkIndex] ?? 0;
+          result.push({
+              label: `Wk ${i}`,
+              value: i,
+              density: density
+          });
+      }
+      return result;
+    });
+
+    const MAX_BAR_HEIGHT_PX = 100;
+
+    //For formatting, keeps the bars below a max height and computed relative to max data
+    const maxDensity = computed(() => {
+        const densityData = analyticsStore.selectedHotspot?.sample_sizes_by_week;
+
+        if (!densityData || Object.keys(densityData).length === 0) {
+            return 1;
+        }
+        const values = Object.values(densityData) as number[];
+
+        return Math.max(...values, 1); 
+    });
+
+    const endWeekDataDensity = computed(() => {
+      // find selected month title
+      const selectedMonthOption = monthOptions.find(m => m.value === endMonth.value);
+      console.log("selected month: ", selectedMonthOption?.title)
+      console.log(analyticsStore.selectedHotspot?.sample_sizes_by_week)
+
+      if (!selectedMonthOption || !analyticsStore.selectedHotspot?.sample_sizes_by_week) {
+          return [];
+      }
+
+      // Get three-letter abbreviation
+      const monthAbbrev = selectedMonthOption.title.substring(0, 3);
+      const densityData = analyticsStore.selectedHotspot.sample_sizes_by_week;
+
+      // populate list + loop through weeks in month
+      const result: { label: string, value: number, density: number }[] = [];
+      for (let i = 1; i <= 4; i++) {
+          const wkIndex = `${monthAbbrev}_w${i}`;
+          const density = densityData[wkIndex] ?? 0;
+          result.push({
+              label: `Wk ${i}`,
+              value: i,
+              density: density
+          });
+      }
+      return result;
+    });
+
+
+    const weeksInStartMonth = computed(() => {
+      const maxD = maxDensity.value;
+      return startWeekDataDensity.value.map(week => {
+        const scaledHeight = (week.density / maxD) * MAX_BAR_HEIGHT_PX;
+            
+        return {
+          ...week,
+          height: `${Math.max(5, scaledHeight) + 43}px`
+        };
+      });
+    });
+
+    const weeksInEndMonth = computed(() => {
+      const maxD = maxDensity.value;
+      return endWeekDataDensity.value.map(week => {
+        const scaledHeight = (week.density / maxD) * MAX_BAR_HEIGHT_PX;
+            
+        return {
+          ...week,
+          height: `${Math.max(5, scaledHeight) + 43}px` 
+        };
+      });
     });
 
     const selectStartWeek = (weekNumber: number) => {
@@ -320,6 +447,7 @@ export default defineComponent({
     
     const confirmTimeRange = () => {
         analyticsStore.setTimeFrame(startMonth.value, startWeek.value, endMonth.value, endWeek.value);
+        analyticsStore.fetchHotspotDetail();
         console.log(`Confirmed Time Range: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
     };
 
@@ -383,6 +511,55 @@ export default defineComponent({
         analyticsStore.toggleTopPhotos();
     };
 
+    // Export Report as PDF
+    const isExporting = ref(false);
+
+    const exportReport = async () => {
+      if (!analyticsStore.selectedHotspotId || isExporting.value) return;
+      
+      isExporting.value = true;
+      
+      try {
+        // Build URL for PDF endpoint with current config
+        const params = new URLSearchParams({
+          num_top_birds: analyticsStore.numTopBirds.toString(),
+          show_graph: analyticsStore.showLikelihoodCurve.toString(),
+          show_photos: analyticsStore.showTopBirdPhotos.toString(),
+        });
+        
+        if (analyticsStore.startYear) params.append('start_yr', analyticsStore.startYear.toString());
+        if (analyticsStore.endYear) params.append('end_yr', analyticsStore.endYear.toString());
+        if (analyticsStore.startMonth) params.append('start_month', analyticsStore.startMonth.toString());
+        if (analyticsStore.startWeek) params.append('start_week', analyticsStore.startWeek.toString());
+        if (analyticsStore.endMonth) params.append('end_month', analyticsStore.endMonth.toString());
+        if (analyticsStore.endWeek) params.append('end_week', analyticsStore.endWeek.toString());
+        
+        // Pass custom bird ranks only (much shorter than full objects)
+        if (analyticsStore.selectedBirds.length > 0) {
+          const ranks = analyticsStore.selectedBirds.map(b => b.Rank);
+          params.append('custom_ranks', ranks.join(','));
+        }
+        if (analyticsStore.selectedBirdPhotos.length > 0) {
+          const photoRanks = analyticsStore.selectedBirdPhotos.map(b => b.Rank);
+          params.append('photo_ranks', photoRanks.join(','));
+        }
+        
+        // Pass the current date from client (correct timezone)
+        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        params.append('gen_date', today);
+        
+        const pdfUrl = `/api/hotspots/report/${analyticsStore.selectedHotspotId}/pdf?${params.toString()}`;
+        
+        // Open PDF in new tab - browser will show print dialog or PDF viewer
+        window.open(pdfUrl, '_blank');
+      } catch (error) {
+        console.error('Export failed:', error);
+        alert('Failed to generate PDF. Please try again.');
+      } finally {
+        isExporting.value = false;
+      }
+    };
+
     return {
       redirectToHomeScreen,
       redirectToHotspotSearch,
@@ -395,7 +572,8 @@ export default defineComponent({
       monthOptions,
       startMonth,
       endMonth,
-      weeksInMonth,
+      weeksInStartMonth,
+      weeksInEndMonth,
       startWeek,
       endWeek,
       selectStartWeek,
@@ -415,7 +593,9 @@ export default defineComponent({
       handleGraphToggle,
       showTopPhotos,
       handlePhotosToggle,
-      analyticsStore
+      analyticsStore,
+      exportReport,
+      isExporting
     };
   },
 });
@@ -460,7 +640,7 @@ export default defineComponent({
     justify-content: flex-end;
     align-items: center;
     width: 25%;
-    max-height: 80px; 
+    /*max-height: 120px; */
     transition: background-color 0.15s ease;
     border-radius: 4px;
     padding-top: 2px;
@@ -472,14 +652,14 @@ export default defineComponent({
 
 .week-bar {
     width: 60%;
-    background-color: #64b5f6; 
+    background-color: #72A2C0; 
     border-radius: 3px 3px 0 0;
     transition: background-color 0.15s ease, height 0.3s ease;
 }
 
 .week-bar-selected {
-    background-color: #1565c0; 
-    box-shadow: 0 0 5px rgba(21, 101, 192, 0.5);
+    background-color: #457999; 
+    box-shadow: 0 0 5px rgba(38, 67, 84, 0.5);
 }
 
 .week-bar-label {

@@ -1,0 +1,25 @@
+
+services:
+  client:
+    build: ./client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+  server:
+    build: ./server
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    environment:
+      - CLIENT_URL=http://client:80
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
