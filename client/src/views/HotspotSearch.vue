@@ -290,7 +290,7 @@ export default defineComponent({
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
 
-    // ✅ UI state store (persists across route changes)
+    // UI state store (persists across route changes)
     const uiStore = useHotspotSearchUIStore();
     const {
       searchQuery,
