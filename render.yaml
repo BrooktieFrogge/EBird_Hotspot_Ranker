@@ -1,0 +1,39 @@
+services:
+  # Backend API Server
+  - type: web
+    name: featherweight-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: EBIRD_API_KEY
+        sync: false
+      - key: EBIRD_USERNAME
+        sync: false
+      - key: EBIRD_PASSWORD
+        sync: false
+      - key: SESSION_FILE
+        value: server/data/.ebird_session.json
+      - key: DATA_SYNC_DAY
+        value: "1"
+      - key: DATA_SYNC_HOUR
+        value: "2"
+      - key: MANUAL_SYNC
+        value: "False"
+
+  # Frontend (via nginx Docker)
+  - type: web
+    name: featherweight-client
+    runtime: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    plan: free
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          name: featherweight-api
+          type: web
+          property: hostport
+
