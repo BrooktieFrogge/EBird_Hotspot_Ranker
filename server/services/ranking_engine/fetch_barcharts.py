@@ -54,9 +54,9 @@ async def ensure_session(BROWSER):
     try:
         context = await BROWSER.new_context()
         page = await context.new_page()
-        await page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
+        await page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US', timeout=60000)  # 60s for slow cloud
 
-        await page.wait_for_selector('input[name="username"]', timeout=30000)
+        await page.wait_for_selector('input[name="username"]', timeout=60000)  # 60s for cold starts
 
         ## automated login
         print("[playwright] | typing .env username...")

@@ -66,7 +66,6 @@ async def generate_pdf(
                 '--disable-dev-shm-usage',  # use /tmp instead of /dev/shm
                 '--disable-gpu',
                 '--no-sandbox',
-                '--single-process',  # run in single process to save memory, bit slower tho
                 '--disable-extensions',
                 '--disable-background-networking',
                 '--disable-sync',
@@ -91,15 +90,15 @@ async def generate_pdf(
             
             # nav to printable report
             print(f"[pdf_export] | Navigating to page...")
-            await page.goto(full_url, timeout=30000, wait_until='domcontentloaded')
+            await page.goto(full_url, timeout=90000, wait_until='domcontentloaded')  # 90s for cloud loads
             
             # wait for bird table to appear
             try:
-                await page.wait_for_selector('.bird-table-section', timeout=20000)
+                await page.wait_for_selector('.bird-table-section', timeout=60000)  # 60s for cold starts
                 print(f"[pdf_export] | Data loaded")
             except:
-                print("[pdf_export] | Table not found, waiting...")
-                await asyncio.sleep(3)
+                print("[pdf_export] | Table not found, waiting longer...")
+                await asyncio.sleep(10)  # 10s fallback for really slow loads
             
             # wait for render
             await asyncio.sleep(1)

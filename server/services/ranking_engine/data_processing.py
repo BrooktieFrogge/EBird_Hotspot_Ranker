@@ -89,7 +89,6 @@ async def get_rankings(
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
                 '--no-sandbox',
-                '--single-process',
                 '--disable-extensions',
                 '--disable-background-networking',
                 '--disable-sync',
