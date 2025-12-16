@@ -2,10 +2,14 @@ from fastapi import APIRouter, HTTPException, Path, Query
 from services.search_db import dynamic_search
 from services.fetch_hotspots import (detailed_hotspot_data,get_overviews)
 from services.database_sync import sync_data
-from models.hotspot_models import (HotspotOverview,DetailedHotspot)
+from services.database_sync import sync_data
+from models.hotspot_models import HotspotOverview
+from models.ranking_models import DetailedHotspot
+from models.request_models import HotspotSearchRequest, HotspotBrowseRequest, RankingFilterRequest
 from datetime import datetime
 import json
 from  typing import Annotated, List
+from fastapi import APIRouter, HTTPException, Path, Query, Depends
 
 '''
 Backend router for retrieving eBird hotspot data.
@@ -35,12 +39,9 @@ mode(defaults to hotspot):
 
 '''
 @router.get("/search")
-async def location_search(hotspot:str = '',
-                    country:str = '',
-                    subregion1:str = '',
-                    subregion2:str = '', mode:str = 'hotspot', limit:int = 60):
+async def location_search(request: HotspotSearchRequest = Depends()):
     
-    data = dynamic_search(hotspot,country,subregion1,subregion2,mode, limit)
+    data = dynamic_search(request.hotspot, request.country, request.subregion1, request.subregion2, request.mode, request.limit)
 
     if not data:
         raise HTTPException(status_code=404, detail="Location not found.")
@@ -69,15 +70,10 @@ Custom Query: return the number of hotspots specified by the limit starting from
 '''
 @router.get("/browse-hotspots", response_model=List[HotspotOverview])
 async def browse_hotspots(
-    limit:Annotated[
-        int|None, 
-        Query(description="Amount of overviews to return",ge=0,le=100)]=20,
-    offset: Annotated[
-        int|None,
-          Query(description="Amount of overviews to skip from start of dataset",ge=0)]= 0
+    request: HotspotBrowseRequest = Depends()
     ):
 
-    data = get_overviews(limit,offset)
+    data = get_overviews(request.limit, request.offset)
 
     if not data:
         raise HTTPException(status_code=404, detail="No Hotspots Found.")
@@ -95,28 +91,22 @@ Returns:
 @router.get("/report/{hotspotId}", response_model=DetailedHotspot)
 async def get_detailed_hotspot_data(
     hotspotId: str,
-    start_yr: int | None = Query(None, description="Start year for data range"),
-    end_yr: int | None = Query(None, description="End year for data range"),
-    start_month: int | None = Query(None, ge=1, le=12, description="Start month (1-12)"),
-    start_week: int | None = Query(None, ge=1, le=4, description="Start week within start_month (1-4)"),
-    end_month: int | None = Query(None, ge=1, le=12, description="End month (1-12)"),
-    end_week: int | None = Query(None, ge=1, le=4, description="End week within end_month (1-4)"),
+    filters: RankingFilterRequest = Depends()
 ):
     print(f"Received request for hotspotID: {hotspotId}")
-    if end_yr or start_yr:
-        if not end_yr or not start_yr:
-            raise HTTPException(status_code=400, detail="Invalid Year Input")
-        if end_yr < start_yr or end_yr > datetime.now().year:
-            raise HTTPException(status_code=400, detail="Invalid Year Input")
+    try:
+        filters.validate_years()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
         
     data = await detailed_hotspot_data(
         hotspotId,
-        start_yr,
-        end_yr,
-        start_month=start_month,
-        start_week=start_week,
-        end_month=end_month,
-        end_week=end_week
+        filters.start_yr,
+        filters.end_yr,
+        start_month=filters.start_month,
+        start_week=filters.start_week,
+        end_month=filters.end_month,
+        end_week=filters.end_week
     )
     if not data:
         raise HTTPException(status_code=404, detail="No Information Found.")
