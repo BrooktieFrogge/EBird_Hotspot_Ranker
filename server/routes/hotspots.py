@@ -1,13 +1,17 @@
 from fastapi import APIRouter, HTTPException, Path, Query
+from fastapi.responses import StreamingResponse
 from services.search_db import dynamic_search
 from services.fetch_hotspots import (detailed_hotspot_data,get_overviews)
 from services.database_sync import sync_data
 from services.database_sync import sync_data
+from services.pdf_export import generate_pdf
 from models.hotspot_models import HotspotOverview
 from models.ranking_models import DetailedHotspot
 from models.request_models import HotspotSearchRequest, HotspotBrowseRequest, RankingFilterRequest
 from datetime import datetime
 import json
+import os
+import io
 from  typing import Annotated, List
 from fastapi import APIRouter, HTTPException, Path, Query, Depends
 
@@ -112,4 +116,51 @@ async def get_detailed_hotspot_data(
         raise HTTPException(status_code=404, detail="No Information Found.")
     return data
 
+
+'''
+generates a pdf of the hotspot report using playwright.
+opens the printable report view and captures it as pdf.
+'''
+@router.get("/report/{hotspotId}/pdf")
+async def get_report_pdf(
+    hotspotId: str,
+    filters: RankingFilterRequest = Depends(),
+    num_top_birds: int = Query(10, ge=1, le=500),
+    show_graph: bool = Query(True),
+    show_photos: bool = Query(True),
+    custom_ranks: str = Query(None),
+    photo_ranks: str = Query(None),
+    gen_date: str = Query(None),
+):
+    # get the client URL from environment, default to localhost
+    client_url = os.getenv("CLIENT_URL", "http://localhost:5173")
+    
+    try:
+        pdf_bytes = await generate_pdf(
+            client_url=client_url,
+            hotspot_id=hotspotId,
+            num_top_birds=num_top_birds,
+            show_graph=show_graph,
+            show_photos=show_photos,
+            start_year=filters.start_yr,
+            end_year=filters.end_yr,
+            start_month=filters.start_month,
+            start_week=filters.start_week,
+            end_month=filters.end_month,
+            end_week=filters.end_week,
+            custom_ranks=custom_ranks,
+            photo_ranks=photo_ranks,
+            gen_date=gen_date,
+        )
+        
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename=hotspot_report_{hotspotId}.pdf"
+            }
+        )
+    except Exception as e:
+        print(f"[error] | PDF generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
 

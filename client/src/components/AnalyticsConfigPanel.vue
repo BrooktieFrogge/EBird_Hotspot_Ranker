@@ -247,9 +247,10 @@
     <!------ UPLOAD AS ... ------>
     <!--------------------------->
     <div class="buttons-container" style="justify-content: left; margin-top: 150px;">
-      <div id="upload-button">
-        <div class="button-wrapper" style="width: 150px; height: 50px; color: black">
-          Export
+      <div id="upload-button" @click="exportReport">
+        <div class="button-wrapper" style="width: 150px; height: 50px; color: black; cursor: pointer;">
+          <span v-if="!isExporting">Export PDF</span>
+          <span v-else>Generating...</span>
         </div>
       </div>
     </div>
@@ -510,6 +511,55 @@ export default defineComponent({
         analyticsStore.toggleTopPhotos();
     };
 
+    // Export Report as PDF
+    const isExporting = ref(false);
+
+    const exportReport = async () => {
+      if (!analyticsStore.selectedHotspotId || isExporting.value) return;
+      
+      isExporting.value = true;
+      
+      try {
+        // Build URL for PDF endpoint with current config
+        const params = new URLSearchParams({
+          num_top_birds: analyticsStore.numTopBirds.toString(),
+          show_graph: analyticsStore.showLikelihoodCurve.toString(),
+          show_photos: analyticsStore.showTopBirdPhotos.toString(),
+        });
+        
+        if (analyticsStore.startYear) params.append('start_yr', analyticsStore.startYear.toString());
+        if (analyticsStore.endYear) params.append('end_yr', analyticsStore.endYear.toString());
+        if (analyticsStore.startMonth) params.append('start_month', analyticsStore.startMonth.toString());
+        if (analyticsStore.startWeek) params.append('start_week', analyticsStore.startWeek.toString());
+        if (analyticsStore.endMonth) params.append('end_month', analyticsStore.endMonth.toString());
+        if (analyticsStore.endWeek) params.append('end_week', analyticsStore.endWeek.toString());
+        
+        // Pass custom bird ranks only (much shorter than full objects)
+        if (analyticsStore.selectedBirds.length > 0) {
+          const ranks = analyticsStore.selectedBirds.map(b => b.Rank);
+          params.append('custom_ranks', ranks.join(','));
+        }
+        if (analyticsStore.selectedBirdPhotos.length > 0) {
+          const photoRanks = analyticsStore.selectedBirdPhotos.map(b => b.Rank);
+          params.append('photo_ranks', photoRanks.join(','));
+        }
+        
+        // Pass the current date from client (correct timezone)
+        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        params.append('gen_date', today);
+        
+        const pdfUrl = `/api/hotspots/report/${analyticsStore.selectedHotspotId}/pdf?${params.toString()}`;
+        
+        // Open PDF in new tab - browser will show print dialog or PDF viewer
+        window.open(pdfUrl, '_blank');
+      } catch (error) {
+        console.error('Export failed:', error);
+        alert('Failed to generate PDF. Please try again.');
+      } finally {
+        isExporting.value = false;
+      }
+    };
+
     return {
       redirectToHomeScreen,
       redirectToHotspotSearch,
@@ -543,7 +593,9 @@ export default defineComponent({
       handleGraphToggle,
       showTopPhotos,
       handlePhotosToggle,
-      analyticsStore
+      analyticsStore,
+      exportReport,
+      isExporting
     };
   },
 });

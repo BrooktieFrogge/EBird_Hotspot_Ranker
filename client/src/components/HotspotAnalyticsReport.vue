@@ -307,6 +307,16 @@ export default defineComponent({
   margin-right: 10px;
 }
 
+.species-cell a {
+  color: #457999;
+  text-decoration: none;
+}
+
+.species-cell a:hover {
+  text-decoration: underline;
+  color: #296239;
+}
+
 .cell {
   text-align: center;
 }
