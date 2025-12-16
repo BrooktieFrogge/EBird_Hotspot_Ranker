@@ -1,13 +1,15 @@
 services:
-  # Backend API Server
+  # backend api server
   - type: web
     name: featherweight-server
     runtime: docker
+    # build docker image
     dockerfilePath: ./server/Dockerfile
     dockerContext: ./server
     plan: free
     healthCheckPath: /
     envVars:
+      # set on render dashboard
       - key: EBIRD_API_KEY
         sync: false
       - key: EBIRD_USERNAME
@@ -23,15 +25,16 @@ services:
       - key: MANUAL_SYNC
         value: "False"
 
-  # Frontend (via nginx Docker)
+  # frontend
   - type: web
     name: ebird-featherweight
     runtime: docker
+    # build docker image
     dockerfilePath: ./client/Dockerfile
     dockerContext: ./client
     plan: free
     envVars:
-      # have to set on render dashboard
+      # set on render dashboard
       - key: BACKEND_HOST
         sync: false
 
