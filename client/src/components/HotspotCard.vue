@@ -39,7 +39,7 @@
     <!-- Species Count + Color Dot -->
     <div class="row">
       <span class="label">
-        <BIconPin class="icon" />
+       <i class="bi bi-feather"></i>
         Species Count:
       </span>
 
@@ -62,10 +62,12 @@ import {
   BIconGeoAlt,
   BIconGeoFill,
   BIconGlobe,
-  BIconPin,
+
 
 } from 'bootstrap-icons-vue';
 import { defineComponent } from 'vue';
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 function getSpeciesCountColor(speciesCount: number): string {
   if (speciesCount >= 600) return '#eb463c';   // 600+
@@ -88,7 +90,6 @@ export default defineComponent({
     BIconGlobe,
     BIconGeoAlt,
     BIconGeoFill,
-    BIconPin
   },
 
   

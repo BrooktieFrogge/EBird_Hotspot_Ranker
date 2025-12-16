@@ -16,6 +16,15 @@
 
       <!-- Floating filters card -->
       <div class="filters-card">
+
+        <!-- Filters heading row -->
+        <div class="row">
+          <span class="label">
+            <BIconFilter class="icon" />
+            <strong>Filters</strong>
+          </span>
+        </div>
+
         <!-- Text search -->
         <div class="filter-group">
           <label for="search">Search by name or location</label>
@@ -58,12 +67,12 @@
 
         <!-- Subregion 1 Autocomplete -->
         <div class="filter-group autocomplete">
-          <label>Region</label>
+          <label>States/Provinces</label>
 
           <input
             type="text"
             v-model="subregionSearch"
-            placeholder="Search regions..."
+            placeholder="Search states or provinces..."
             @input="onSubregionInput"
             @keyup.enter="applyFilters"
           />
@@ -86,12 +95,12 @@
 
         <!-- Subregion 2 Autocomplete -->
         <div class="filter-group autocomplete">
-          <label>Local Region</label>
+          <label>Counties/ Districts</label>
 
           <input
             type="text"
             v-model="subregion2Search"
-            placeholder="Search local region..."
+            placeholder="Search counties or districts..."
             @input="onSubregion2Input"
             @keyup.enter="applyFilters"
           />
@@ -182,8 +191,8 @@
           :subregion1="hotspot.subregion1"
           :subregion2="hotspot.subregion2"
           :species-count="hotspot.speciesCount"
-          :is-selected="analyticsStore.selectedHotspot?.id === hotspot.id"
-          @click="selectHotspotById"
+          :is-selected="analyticsStore.selectedHotspotId === hotspot.id"
+          @click="selectHotspotById(hotspot.id)"
         />
         <!-- infinite scroll -->
         <div ref="scrollSentinel" style="height: 1px;"></div>
@@ -261,6 +270,7 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import {
   defineComponent,
@@ -270,10 +280,12 @@ import {
   onMounted,
   onBeforeUnmount,
 } from 'vue';
+import { storeToRefs } from "pinia";
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
-import { BIconHouseFill } from 'bootstrap-icons-vue';
+import { BIconHouseFill, BIconFilter } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from "../stores/useAnalyticsStore";
+import { useHotspotSearchUIStore } from "../stores/useHotspotSearchUIStore";
 import type { HotspotOverview } from '../types';
 
 export default defineComponent({
@@ -282,11 +294,24 @@ export default defineComponent({
   components: {
     HotspotCard,
     BIconHouseFill,
+    BIconFilter,
   },
 
   setup() {
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
+
+    // UI state store (persists across route changes)
+    const uiStore = useHotspotSearchUIStore();
+    const {
+      searchQuery,
+      countrySearch,
+      subregionSearch,
+      selectedSubregion,
+      subregion2Search,
+      selectedSubregion2,
+      selectedHotspotId,
+    } = storeToRefs(uiStore);
 
     const hotspots = computed(() => analyticsStore.allHotspots);
 
@@ -296,22 +321,10 @@ export default defineComponent({
     const pageSize = 20;
     const visibleCount = ref(pageSize);
 
-    // -------------------------
-    // FILTER STATE
-    // -------------------------
-    const searchQuery = ref('');
-    const countrySearch = ref('');
-    const subregionSearch = ref('');
-    const selectedSubregion = ref('');
-
-    //  Subregion 2 filter state
-    const subregion2Search = ref('');
-    const selectedSubregion2 = ref('');
-
     // Dropdown visibility
     const showCountryDropdown = ref(false);
     const showSubregionDropdown = ref(false);
-    const showSubregion2Dropdown = ref(false); // ✅ NEW
+    const showSubregion2Dropdown = ref(false);
 
     // -------------------------
     // SCROLL OBSERVER
@@ -360,12 +373,8 @@ export default defineComponent({
     // -------------------------
     const applyFilters = () => {
       const hotspotFilter = searchQuery.value.trim();
-
       const countryFilter = analyticsStore.selectedCountry ?? '';
-
       const subregion1Filter = (selectedSubregion.value || subregionSearch.value).trim();
-
-      //  subregion2 filter
       const subregion2Filter = (selectedSubregion2.value || subregion2Search.value).trim();
 
       const hasAnyFilter =
@@ -382,10 +391,12 @@ export default defineComponent({
 
       visibleCount.value = pageSize;
 
+      // persist UI state whenever filters are applied
+      uiStore.persist();
+
       if (!hasAnyFilter) {
         analyticsStore.countrySuggestions = [];
         analyticsStore.subregion1Suggestions = [];
-        // best-effort clear, if you add it to store:
         (analyticsStore as any).subregion2Suggestions = [];
         analyticsStore.fetchAllHotspots();
         return;
@@ -419,18 +430,12 @@ export default defineComponent({
       return Array.from(set).sort();
     });
 
-    // Available Subregion 2 values (local fallback)
     const availableSubregions2 = computed(() => {
       const set = new Set<string>();
-
       const sr1Filter = (selectedSubregion.value || subregionSearch.value).trim();
 
       hotspots.value.forEach(h => {
-        // If subregion1 is selected/typed, only show matching sr2 values
-        if (
-          sr1Filter &&
-          h.subregion1?.toLowerCase() !== sr1Filter.toLowerCase()
-        ) return;
+        if (sr1Filter && h.subregion1?.toLowerCase() !== sr1Filter.toLowerCase()) return;
 
         const sr2 = (h.subregion2 ?? '').toString().trim();
         if (sr2 && sr2.toLowerCase() !== 'none' && sr2.toLowerCase() !== 'null') {
@@ -464,7 +469,6 @@ export default defineComponent({
       );
     });
 
-    //  filtered Subregion 2 suggestions (backend-first, fallback to local)
     const filteredSubregions2 = computed(() => {
       const backend = (analyticsStore as any).subregion2Suggestions as string[] | undefined;
       if (backend && backend.length > 0) return backend;
@@ -508,20 +512,14 @@ export default defineComponent({
       }
     };
 
-    //  Subregion 2 input handler
     const onSubregion2Input = () => {
       showSubregion2Dropdown.value = true;
       const q = subregion2Search.value.trim();
-
       const sr1Filter = (selectedSubregion.value || subregionSearch.value).trim();
 
       if (q) {
-        // If you added the store action, use it:
         if (typeof (analyticsStore as any).fetchSubregion2Suggestions === 'function') {
           (analyticsStore as any).fetchSubregion2Suggestions(sr1Filter, q);
-        } else {
-          // Otherwise we rely on local fallback list only
-          // (filteredSubregions2 will still work)
         }
       } else {
         (analyticsStore as any).subregion2Suggestions = [];
@@ -538,12 +536,10 @@ export default defineComponent({
       countrySearch.value = country;
       showCountryDropdown.value = false;
 
-      // Reset subregions when country changes
       selectedSubregion.value = '';
       subregionSearch.value = '';
       analyticsStore.subregion1Suggestions = [];
 
-      // Reset subregion2 too
       selectedSubregion2.value = '';
       subregion2Search.value = '';
       (analyticsStore as any).subregion2Suggestions = [];
@@ -556,7 +552,6 @@ export default defineComponent({
       subregionSearch.value = subregion;
       showSubregionDropdown.value = false;
 
-      // Reset subregion2 when subregion1 changes
       selectedSubregion2.value = '';
       subregion2Search.value = '';
       (analyticsStore as any).subregion2Suggestions = [];
@@ -564,7 +559,6 @@ export default defineComponent({
       applyFilters();
     };
 
-    // select subregion2
     const selectSubregion2 = (sr2: string) => {
       selectedSubregion2.value = sr2;
       subregion2Search.value = sr2;
@@ -581,6 +575,8 @@ export default defineComponent({
         analyticsStore.selectedCountry = null;
         analyticsStore.countrySuggestions = [];
         applyFilters();
+      } else {
+        uiStore.persist();
       }
     });
 
@@ -589,17 +585,22 @@ export default defineComponent({
         selectedSubregion.value = '';
         analyticsStore.subregion1Suggestions = [];
         applyFilters();
+      } else {
+        uiStore.persist();
       }
     });
 
-    //  watcher for subregion2 input cleared
     watch(subregion2Search, (val) => {
       if (!val.trim()) {
         selectedSubregion2.value = '';
         (analyticsStore as any).subregion2Suggestions = [];
         applyFilters();
+      } else {
+        uiStore.persist();
       }
     });
+
+    watch(searchQuery, () => uiStore.persist());
 
     watch(hotspots, (newVal) => {
       if (visibleCount.value > newVal.length) {
@@ -640,7 +641,6 @@ export default defineComponent({
       countrySearch.value = '';
       analyticsStore.countrySuggestions = [];
 
-      // also clear subregion filters
       selectedSubregion.value = '';
       subregionSearch.value = '';
       analyticsStore.subregion1Suggestions = [];
@@ -657,7 +657,6 @@ export default defineComponent({
       subregionSearch.value = '';
       analyticsStore.subregion1Suggestions = [];
 
-      // clear subregion2 too
       selectedSubregion2.value = '';
       subregion2Search.value = '';
       (analyticsStore as any).subregion2Suggestions = [];
@@ -665,7 +664,6 @@ export default defineComponent({
       applyFilters();
     };
 
-    //  clear subregion2 only
     const clearSubregion2 = () => {
       selectedSubregion2.value = '';
       subregion2Search.value = '';
@@ -707,7 +705,7 @@ export default defineComponent({
       if (event.key === 'Escape') {
         showCountryDropdown.value = false;
         showSubregionDropdown.value = false;
-        showSubregion2Dropdown.value = false; 
+        showSubregion2Dropdown.value = false;
       }
     };
 
@@ -737,8 +735,46 @@ export default defineComponent({
       scrollObserver.value = observer;
     };
 
+    // -------------------------
+    // HOTSPOT SELECTION (persisted)
+    // -------------------------
+    const selectHotspotById = (id: HotspotOverview['id']) => {
+      analyticsStore.setHotspot(id);
+      uiStore.setSelectedHotspotId(String(id));
+    };
+
+    const goToSelectedHotspotDetail = () => {
+      const selected = analyticsStore.selectedHotspot;
+      if (!selected) return;
+
+      uiStore.setSelectedHotspotId(String(selected.id));
+
+      router.push({
+        name: "HotspotDetail",
+        params: { id: selected.id },
+      });
+    };
+
+    const redirectToHomeScreen = () => {
+      // persist state before leaving
+      uiStore.persist();
+      router.push({ name: "HomeScreen" });
+    };
+
+    // -------------------------
+    // LIFECYCLE
+    // -------------------------
     onMounted(() => {
       analyticsStore.fetchAllHotspots();
+
+      // re-apply filters when returning to this page
+      // (important: ensures results match persisted filters)
+      // also restores selected card in analytics store
+      if (selectedHotspotId.value) {
+        analyticsStore.setHotspot(selectedHotspotId.value as any);
+      }
+      applyFilters();
+
       document.addEventListener('click', handleClickOutside);
       document.addEventListener('keydown', handleEscape);
       setupScrollObserver();
@@ -751,26 +787,10 @@ export default defineComponent({
       }
       document.removeEventListener('click', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
+
+      // persist on unmount too
+      uiStore.persist();
     });
-
-    // -------------------------
-    // HOTSPOT SELECTION
-    // -------------------------
-    const selectHotspotById = (id: HotspotOverview['id']) => {
-      analyticsStore.setHotspot(id);
-    };
-
-    const goToSelectedHotspotDetail = () => {
-      if (!analyticsStore.selectedHotspot) return;
-      router.push({
-        name: "HotspotDetail",
-        params: { id: analyticsStore.selectedHotspot.id },
-      });
-    };
-
-    const redirectToHomeScreen = () => {
-      router.push({ name: "HomeScreen" });
-    };
 
     // -------------------------
     // RETURN TO TEMPLATE
@@ -779,13 +799,11 @@ export default defineComponent({
       hotspots,
       analyticsStore,
 
-      // filter state
+      // persisted filter state
       searchQuery,
       countrySearch,
       subregionSearch,
       selectedSubregion,
-
-      // subregion2 filter state
       subregion2Search,
       selectedSubregion2,
 
@@ -842,7 +860,6 @@ export default defineComponent({
 });
 </script>
 
-
 <style scoped>
 .hotspot-search {
   display: flex;
@@ -858,7 +875,7 @@ export default defineComponent({
   width: 280px;
   padding: 16px;
   box-sizing: border-box;
-  background: #f9f9f9;     
+  background: #F2F2F2;     
   overflow-y: auto; 
 }
 
@@ -881,7 +898,7 @@ export default defineComponent({
   flex: 1.5;
   padding: 20px;
   box-sizing: border-box;
-  background: #f9f9f9;
+  background: #F2F2F2;
   overflow-y: auto;
 }
 
@@ -974,8 +991,6 @@ export default defineComponent({
   align-items: center;
   width: 100%;
   height: 60px;
-  border-top: 1px solid #ffffffc9;
-  border-bottom: 1px solid #ffffffc9;
   padding-top: 20px;
   padding-inline: 40px;
   padding-bottom: 20px;
@@ -1045,7 +1060,7 @@ export default defineComponent({
   width: 320px;
   box-sizing: border-box;
   padding: 16px;
-  background: #f9f9f9;
+  background: #F2F2F2;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1111,7 +1126,46 @@ export default defineComponent({
 }
 
 .detail-button:not(:disabled):hover {
-  background: #000;
-  color: #fff;
+   background-color: #d2d2d2;
 }
+
+.filter-heading {
+  display: left;
+  align-items: left;
+ 
+ 
+}
+
+.filter-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.filter-heading-text {
+  font-size: 1rem;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+  margin-bottom: 8px;
+}
+
+.label {
+  display: inline-flex;        
+  align-items: center;         
+  justify-content: flex-start; 
+  gap: 4px;                   
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;                   
+  padding: 0;
+}
+
+.icon {
+  display: inline-block;
+  margin: 5px;                   
+  padding: 0;
+}
+
 </style>
