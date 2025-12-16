@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 
+// states we want to track
 export type HotspotSearchUIState = {
   // text search
   searchQuery: string;
@@ -19,7 +20,7 @@ export type HotspotSearchUIState = {
   selectedHotspotId: string | null;
 };
 
-const STORAGE_KEY = "hotspotSearchUIState_v1";
+const STORAGE_KEY = "hotspotSearchUIState_v1"; // key used to save info in local storage 
 
 export const useHotspotSearchUIStore = defineStore("hotspotSearchUI", {
   state: (): HotspotSearchUIState => {
@@ -44,6 +45,7 @@ export const useHotspotSearchUIStore = defineStore("hotspotSearchUI", {
     };
   },
 
+  // helper methonds that update the state
   actions: {
     /** Persist current UI state to localStorage */
     persist() {
