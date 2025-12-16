@@ -31,9 +31,7 @@ services:
     dockerContext: ./client
     plan: free
     envVars:
+      # have to set on render dashboard
       - key: BACKEND_HOST
-        fromService:
-          name: featherweight-api
-          type: web
-          property: host
+        sync: false
 
