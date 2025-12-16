@@ -59,13 +59,31 @@ async def generate_pdf(
     print(f"[pdf_export] | Generating PDF from: {full_url[:120]}...")
     
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        # super memory saving @https://pptr.dev/troubleshooting @https://playwright.dev/docs/ci
+        browser = await p.chromium.launch(
+            headless=True,
+            args=[
+                '--disable-dev-shm-usage',  # use /tmp instead of /dev/shm
+                '--disable-gpu',
+                '--no-sandbox',
+                '--single-process',  # run in single process to save memory, bit slower tho
+                '--disable-extensions',
+                '--disable-background-networking',
+                '--disable-sync',
+                '--disable-translate',
+                '--no-first-run',
+                '--disable-features=site-per-process',  # reduces memory
+                '--js-flags=--max-old-space-size=256',  # limit JS heap to 256MB because render constraints to 512MB
+                '--renderer-process-limit=1',  # limit renderer processes
+                '--disable-software-rasterizer',
+            ]
+        )
         
         try:
             # create context - tall viewport to capture all content
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                viewport={'width': 850, 'height': 11000},
+                viewport={'width': 850, 'height': 4000},  # reduced height to save memory
                 bypass_csp=True,
             )
             

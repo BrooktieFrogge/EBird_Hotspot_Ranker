@@ -82,7 +82,22 @@ async def get_rankings(
 
     # using async context manager
     async with async_playwright() as p:
-        BROWSER = await p.chromium.launch(headless=HEADLESS)
+        # super memory saving @https://pptr.dev/troubleshooting @https://playwright.dev/docs/ci
+        BROWSER = await p.chromium.launch(
+            headless=HEADLESS,
+            args=[
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--no-sandbox',
+                '--single-process',
+                '--disable-extensions',
+                '--disable-background-networking',
+                '--disable-sync',
+                '--disable-translate',
+                '--no-first-run',
+                '--disable-features=site-per-process',
+            ]
+        )
 
         # await the session check
         await ensure_session(BROWSER)
