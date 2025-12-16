@@ -27,4 +27,4 @@ ENV BACKEND_HOST=server:8000
 # for render: need to add https://
 # for local: we use http://server:8000
 # this script handles both cases
-CMD ["/bin/sh", "-c", "if echo $BACKEND_HOST | grep -q 'onrender.com'; then export BACKEND_URL=https://$BACKEND_HOST; else export BACKEND_URL=http://$BACKEND_HOST; fi && envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "if echo $BACKEND_HOST | grep -q 'onrender.com'; then export BACKEND_URL=https://$BACKEND_HOST; else export BACKEND_URL=http://$BACKEND_HOST; fi && envsubst '${BACKEND_URL} ${BACKEND_HOST}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
