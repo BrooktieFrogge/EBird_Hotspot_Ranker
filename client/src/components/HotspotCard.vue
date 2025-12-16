@@ -202,7 +202,7 @@ h3 {
   color: #797979;
 }
 
-/* icon inline fix */
+/* icon inline  */
 .icon {
   width: 14px;
   height: 14px;
@@ -210,7 +210,7 @@ h3 {
   
 }
 
-/* ensures svg aligns perfectly */
+/* aligns perfectly */
 .icon :deep(svg) {
   display: block;
 }
