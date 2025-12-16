@@ -10,7 +10,7 @@ import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 
 Chart.register(...registerables);
 
-// Define the full set of detailed labels
+// full set of detailed labels
 const detailedLabels = [
     "January 1", "January 2", "January 3", "January 4", 
     "February 1", "February 2", "February 3", "February 4", 
@@ -26,7 +26,7 @@ const detailedLabels = [
     "December 1", "December 2", "December 3", "December 4"
 ];
 
-// Define the simplified month labels for the X-axis display
+// month labels for x-axis
 const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 
@@ -80,6 +80,10 @@ export default defineComponent({
                 },
                 y: {
                     beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: "Checklists"
+                    }
                 }
             },
             plugins: {
