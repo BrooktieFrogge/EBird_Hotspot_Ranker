@@ -16,6 +16,15 @@
 
       <!-- Floating filters card -->
       <div class="filters-card">
+
+        <!-- Filters heading row -->
+        <div class="row">
+          <span class="label">
+            <BIconFilter class="icon" />
+            <strong>Filters</strong>
+          </span>
+        </div>
+
         <!-- Text search -->
         <div class="filter-group">
           <label for="search">Search by name or location</label>
@@ -63,7 +72,7 @@
           <input
             type="text"
             v-model="subregionSearch"
-            placeholder="Search states or provinces ..."
+            placeholder="Search states or provinces..."
             @input="onSubregionInput"
             @keyup.enter="applyFilters"
           />
@@ -86,7 +95,7 @@
 
         <!-- Subregion 2 Autocomplete -->
         <div class="filter-group autocomplete">
-          <label>Counties/ Districts </label>
+          <label>Counties/ Districts</label>
 
           <input
             type="text"
@@ -261,6 +270,7 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import {
   defineComponent,
@@ -273,7 +283,7 @@ import {
 import { storeToRefs } from "pinia";
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
-import { BIconHouseFill } from 'bootstrap-icons-vue';
+import { BIconHouseFill, BIconFilter } from 'bootstrap-icons-vue';
 import { useAnalyticsStore } from "../stores/useAnalyticsStore";
 import { useHotspotSearchUIStore } from "../stores/useHotspotSearchUIStore";
 import type { HotspotOverview } from '../types';
@@ -284,6 +294,7 @@ export default defineComponent({
   components: {
     HotspotCard,
     BIconHouseFill,
+    BIconFilter,
   },
 
   setup() {
@@ -864,7 +875,7 @@ export default defineComponent({
   width: 280px;
   padding: 16px;
   box-sizing: border-box;
-  background: #f9f9f9;     
+  background: #F2F2F2;     
   overflow-y: auto; 
 }
 
@@ -887,7 +898,7 @@ export default defineComponent({
   flex: 1.5;
   padding: 20px;
   box-sizing: border-box;
-  background: #f9f9f9;
+  background: #F2F2F2;
   overflow-y: auto;
 }
 
@@ -980,8 +991,6 @@ export default defineComponent({
   align-items: center;
   width: 100%;
   height: 60px;
-  border-top: 1px solid #ffffffc9;
-  border-bottom: 1px solid #ffffffc9;
   padding-top: 20px;
   padding-inline: 40px;
   padding-bottom: 20px;
@@ -1051,7 +1060,7 @@ export default defineComponent({
   width: 320px;
   box-sizing: border-box;
   padding: 16px;
-  background: #f9f9f9;
+  background: #F2F2F2;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1117,7 +1126,46 @@ export default defineComponent({
 }
 
 .detail-button:not(:disabled):hover {
-  background: #000;
-  color: #fff;
+   background-color: #d2d2d2;
 }
+
+.filter-heading {
+  display: left;
+  align-items: left;
+ 
+ 
+}
+
+.filter-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.filter-heading-text {
+  font-size: 1rem;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+  margin-bottom: 8px;
+}
+
+.label {
+  display: inline-flex;        
+  align-items: center;         
+  justify-content: flex-start; 
+  gap: 4px;                   
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;                   
+  padding: 0;
+}
+
+.icon {
+  display: inline-block;
+  margin: 5px;                   
+  padding: 0;
+}
+
 </style>
