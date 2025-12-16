@@ -22,7 +22,9 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 # copy static nginx for local docker-compose use
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-# Default backend URL for local docker-compose (overridden by Render env var)
-ENV BACKEND_URL=http://server:8000
-# Use envsubst to substitute environment variable, then start nginx
-CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# default backend host for local docker-compose 
+ENV BACKEND_HOST=server:8000
+# for render: need to add https://
+# for local: we use http://server:8000
+# this script handles both cases
+CMD ["/bin/sh", "-c", "if echo $BACKEND_HOST | grep -q 'onrender.com'; then export BACKEND_URL=https://$BACKEND_HOST; else export BACKEND_URL=http://$BACKEND_HOST; fi && envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

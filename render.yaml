@@ -31,9 +31,9 @@ services:
     dockerContext: ./client
     plan: free
     envVars:
-      - key: BACKEND_URL
+      - key: BACKEND_HOST
         fromService:
           name: featherweight-api
           type: web
-          property: hostport
+          property: host
 
