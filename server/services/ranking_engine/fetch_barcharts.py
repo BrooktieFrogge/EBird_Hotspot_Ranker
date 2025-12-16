@@ -56,24 +56,24 @@ async def ensure_session(BROWSER):
         page = await context.new_page()
         await page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US')
 
-        await page.wait_for_selector('input[name="username"]', timeout=5000)
+        await page.wait_for_selector('input[name="username"]', timeout=30000)
 
         ## automated login
         print("[playwright] | typing .env username...")
         await page.click('input[name="username"]') 
         await page.fill('input[name="username"]', EBIRD_USERNAME)
-        await asyncio.sleep(1) 
+        await asyncio.sleep(2)  # longer wait for cloud environments
 
         await page.keyboard.press("Tab")
 
         print("[playwright] | typing .env password...")
         await page.fill('input[name="password"]', EBIRD_PASSWORD)
-        await asyncio.sleep(1) 
+        await asyncio.sleep(2)  # longer wait for cloud environments
 
         await page.keyboard.press("Enter")
 
         print("[playwright] | submitted. redirecting...")
-        await asyncio.sleep(3) # wait for redirect
+        await asyncio.sleep(5) # longer wait for redirect on cloud
 
         # save the cookies
         await context.storage_state(path=SESSION_FILE)
