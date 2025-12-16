@@ -58,12 +58,12 @@
 
         <!-- Subregion 1 Autocomplete -->
         <div class="filter-group autocomplete">
-          <label>Region</label>
+          <label>States/Provinces</label>
 
           <input
             type="text"
             v-model="subregionSearch"
-            placeholder="Search regions..."
+            placeholder="Search states or provinces ..."
             @input="onSubregionInput"
             @keyup.enter="applyFilters"
           />
@@ -86,12 +86,12 @@
 
         <!-- Subregion 2 Autocomplete -->
         <div class="filter-group autocomplete">
-          <label>Local Region</label>
+          <label>Counties/ Districts </label>
 
           <input
             type="text"
             v-model="subregion2Search"
-            placeholder="Search local region..."
+            placeholder="Search counties or districts..."
             @input="onSubregion2Input"
             @keyup.enter="applyFilters"
           />
