@@ -31,7 +31,7 @@ async def fetch_country_hotspots(client,country_code):
         } for h in data] #list of hotspots in country
 
     except Exception as e:
-        print(f"exception {e}")
+        print(f" [Database Sync] | Exception : {e}")
         return None
 
     return filtered
@@ -54,7 +54,7 @@ async def sync_data():
         for country in country_codes:
             if pd.isna(country):
                 continue
-            print("Fetching:", country,end="\n")
+            print(" [Database Sync] | Fetching:", country,end="\n")
             hotspots = await fetch_country_hotspots(client,country)
             all_results.extend(hotspots)
             
@@ -87,11 +87,11 @@ async def sync_data():
         #validate update
         df = pd.read_sql_query('''SELECT * FROM 'hotspots' ''', sqlConn)
 
-        print(f" OLD Hotspot overview data. Length: {len(df)}, Head: \n {df.head}")
+        print(f"[Database Sync] |  Old Hotspot overview data. Length: {len(df)}, Head: \n {df.head}")
 
         df2 = pd.read_sql_query('''SELECT * FROM 'new_hotspots' ''', sqlConn)
 
-        print(f"NEW Hotspot overview data. Length: {len(df2)}, Head: \n {df2.head}")
+        print(f"[Database Sync] | New Hotspot overview data. Length: {len(df2)}, Head: \n {df2.head}")
 
         old_count = cursor.execute("SELECT COUNT(*) FROM 'hotspots' ").fetchone()[0]
 
@@ -106,7 +106,7 @@ async def sync_data():
         cursor.execute("DROP TABLE 'old_hotspots' ")
         
 
-        print("[Background Data Sync] | Database sync finished")
+        print("[Database Sync] | Database was successfuly updated! Sync Complete.")
 
         #only commit if everything succedes
         sqlConn.commit()
@@ -114,12 +114,12 @@ async def sync_data():
          
 
     except sqlite3.Error as e:
-        print(f"Database UPDATE failed: {e}")
+        print(f" [Database Sync] | Database UPDATE failed: {e}")
         sqlConn.rollback() # return database to state before update
         return(None)
 
     finally:
         if sqlConn:
             sqlConn.close()
-            print("SQLite connection closed")
+            print(" [Database Sync] | SQLite connection closed")
 

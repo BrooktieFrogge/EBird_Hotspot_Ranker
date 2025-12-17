@@ -48,6 +48,8 @@
            <div class="intro-section">
               <div class="intro-section-imgs">
                 <div class="intro-item">
+                  <p class="standout">
+                    <b>Question:</b> At the Copalinga Lodge (Ecuador), what is the likelihood of seeing the rare, reclusive Gray Tinamou?!</p>
                   <figure>
                     <img
                       :src="birdImage2"
@@ -58,11 +60,11 @@
                     <figcaption class="captions">© Brandon Nidiffer</figcaption>
                   </figure>
               
-                  <p class="standout">
-                    <b>Question:</b> At the Copalinga Lodge (Ecuador), what is the likelihood of seeing the rare, reclusive Gray Tinamou?!</p>
                 </div>
 
                 <div class="intro-item">
+                  <p class="standout">
+                    <b>Question:</b> Is it a “sure-bet”, or not, to see the stunning Green-and-gold Tanager? </p>
                   <figure>
                     <img
                       :src="birdImage"
@@ -73,11 +75,13 @@
                     <figcaption  class="captions">© Luis Alberto Salagaje Muela</figcaption>
                   </figure>
 
-                  <p class="standout">
-                    <b>Question:</b> Is it a “sure-bet”, or not, to see the stunning Green-and-gold Tanager? </p>
                 </div>
               
                 <div class="intro-item">
+                   <p class="standout">
+                      <b>Question:</b> For any eBird Hotspot, what are the top 40-50 most likely bird species that you might spot at the time you will be there??
+                    </p>
+
                   <figure>
                     <img
                       :src="eBirdStill"
@@ -90,15 +94,10 @@
                     <a href="https://ebird.org/hotspots" style="color:black"> eBird Explore Hotspots</a></figcaption>
 
                   </figure>
-                  <p class="standout">
-                      <b>Question:</b> For any eBird Hotspot, what are the top 40-50 most likely bird species that you might spot at the time you will be there??
-                    </p>
+                 
                 </div>
 
               </div>
-            </div>
-
-            <div class="gradient-section">
               <div class ="gs-info">
                   <p class="med-text"> The eBird hotspot ranker lets you estimate the likelihood of seeing bird species with hotspot data during the same interval of weeks compiled over multiple years. Using real-time reports from the eBird hotspot data at the Cornell Ornithology Laboratory, you can:</p>
 
@@ -112,9 +111,9 @@
 
                   <p class="med-text">Please continue to the <b>eBird Hotspot List Likelihood Page</b>, and learn <b>How To Use</b>, or see webpage Documentation.</p>
               </div>
-
             </div>
 
+        
             <div class="about-section" id="about">
               <div class="about-section-content">
                 <h2 class="section-heading">About FeatherWeight</h2>
@@ -126,7 +125,7 @@
                     "
                     />
                     <figcaption  class="captions">
-                      © insert official caption here</figcaption>
+                      ©John Clough</figcaption>
 
                   </figure>
 
@@ -144,7 +143,7 @@
                     "
                     />
                     <figcaption  class="captions">
-                      © insert official caption here</figcaption>
+                      ©Andrés Posada</figcaption>
 
                   </figure>
 
@@ -228,7 +227,7 @@
                     <img
                       :src="graph"
                       alt="Relative likelihood graph"
-                      class="rect-image"/>
+                      class="rect-image graph"/>
 
                   </figure>
 
@@ -239,8 +238,12 @@
             </div>
             <div class="footer-section">
               <div class="footer-section-content">
-                <h2 class="section-heading-2">Image Credits</h2>
-                <h2 class="section-heading-2">Project Acknowledgements</h2>
+                <h2 class="footer-heading">Image Credits</h2>
+          
+                 <p class="footer"><a href="https://media.ebird.org/" style="color:black"> Sources: "https://media.ebird.org/"</a> </p>
+                <p class="footer">Cover Photo:  © Fernando Saravia</p>
+          
+                <h2 class="footer-heading">Project Acknowledgements</h2>
 
                 <p class="footer">
                   Collaborators from Colorado College developing this version of Hotspot Featherweight are Dr. Steve Getty and Computer Science students Brooktie Frogge, Erin Liedeker, Jevon Lipsey, Zahara Love. The team acknowledges the work by Cornell Lab of Ornithology to develop eBird and enable users access to eBird hotspot raw data.
@@ -264,7 +267,7 @@ import birdImage4 from "../assets/bird4.png";
 import graph from "../assets/graph.png";
 import coverPhoto from "../assets/coverPhoto.png";
 import eBirdStill from "../assets/ebird.png";
-import logo from "../assets/logo.jpg";
+import logo from "../assets/logo.png";
 
 const router = useRouter();
 
@@ -291,6 +294,11 @@ function goToHotspotSearch() {
 </style>
 
 <style scoped>
+
+
+*{
+  font-family: CloSans, CloSans override, Noto Sans, Noto Sans Hebrew, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+}
 /* Outer blue margins similar to the ECM page */
 .homescreen-container {
   min-height: 100vh;
@@ -324,8 +332,6 @@ function goToHotspotSearch() {
 }
 
 .title-bar h1 {
-  margin: 0;
-  font-family: "Monospace", monaco;
   font-size: 32px;
   letter-spacing: 0.03em;
 }
@@ -338,15 +344,16 @@ function goToHotspotSearch() {
 }
 
 .header-logo {
+  margin-top: 1%;
   width: 740px;
-  height: 120px;
+  height: 130px;
   aspect-ratio: 343/47;
   border-radius: 5px;
 }
 
 /* Top blue strip */
 .top-nav {
-  max-height: 50px;
+  max-height: 55px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -370,22 +377,22 @@ function goToHotspotSearch() {
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  background: #2C2C2C;
+  background: #b31b1b;
   border: black;
   justify-content:center;
   align-items: center;
-  padding: 7px;
-  font-style: normal;
+  padding: 8px;
+  font-style: bold;
   font-weight: 400;
   font-size: 20px;
-  font-family: "Sans", inter;
   line-height: 100%;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.35);
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 
 .nav-search:hover {
-  background: #335c74;
+  background: #8b1515;
 }
 
 .nav-item {
@@ -393,58 +400,60 @@ function goToHotspotSearch() {
   background: transparent;
   color: black;
   padding: 7px;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
   border-radius: 6px;
-  font-style: normal;
+  font-style: bold;
   font-weight: 400;
-  font-family: "Sans", inter;
   line-height: 100%;
   transition: background 0.15s ease, color 0.15s ease;
   
 }
 
+.nav-item-active,
 .nav-item:hover {
-  background: #F5F5F5;
+  text-decoration: underline;
+  text-decoration-color: #b31b1b;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.4em;
 }
 
-.nav-item-active {
-  background: #F5F5F5;
-  border-bottom: 3px solid #F5F5F5;
-  border-radius: 6;
-}
 
 .cover-banner{
-  width:100%;
-  height: 288px;
-  aspect-ratio: 437/72;
+  max-width: 100%;
   position: relative;
   text-align: center; 
 }
 .cover-photo{
   width:100%;
   height: 100%;
+  opacity: 90%;
 }
 
 .cover-heading{
-  color: black;
-  font-family: "Serif", Noto;
-  font-size: 50px;
-  font-style: normal;
-  font-weight: 400;
+  color: white;
+  font-size: 3.25rem;
+  word-spacing: .7rem;
+  font-style: bolder;
+  font-weight: 700;
+  line-height: 1.75;
   justify-content: center;
   position: absolute;
   top: 40%;
+  width: 100%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: transparent;
+  text-shadow: 0 0 .5rem #20415a;
+  letter-spacing: -.03rem;
+  
 }
 
 .cover-subheading{
-  color: black;
-  font-family: "Roboto", sans-serif;
+  color: white;
   font-size: 32px;
-  font-style: normal;
+  font-style: bold;
+  word-spacing: .2rem;
   font-weight: 300;
   justify-content: center;
   position: absolute;
@@ -452,6 +461,7 @@ function goToHotspotSearch() {
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: transparent;
+  text-shadow: 0 0 .5rem #20415a;
 }
 
 .cover-item{
@@ -461,7 +471,6 @@ function goToHotspotSearch() {
   width: 160px;
   font-weight: 400;
   font-size:20px;
-  font-family: "Sans", inter;
   font-style: normal;
   border-radius: 6px;
   padding: 2px;
@@ -470,7 +479,7 @@ function goToHotspotSearch() {
 }
 
 .cover-item-dark{
-  background: #2C2C2C;
+  background: #40718f;
   color: white;
 }
 
@@ -478,7 +487,7 @@ function goToHotspotSearch() {
   background: #d0cfcf;
 }
 .cover-item-dark:hover{
-  background: #335c74;
+  background: #396581;
 }
 
 .cover-left{
@@ -497,59 +506,68 @@ function goToHotspotSearch() {
 }
 .main-layout {
   display: grid;
+  grid-template-columns: repeat(1, 1fr);
 }
 
 .content {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
   color: black;
 }
+
+.section-heading {
+  font-weight: 300;
+  font-size: 4rem;
+  line-height: 1.111;;
+  letter-spacing: -0.02rem;
+  margin: 0 0 2rem 0;
+  color: black;
+}
+
+.section-heading-2 {
+  font-weight: 300;
+  font-size: 3rem;
+  line-height: 1.111;;
+  letter-spacing: -0.02rem;
+  margin: 1rem  2rem ;
+  color: #203746;
+}
+
+.footer-heading {
+  font-weight: 300;
+  font-size: 2rem;
+  line-height: 1.111;;
+  letter-spacing: -0.02rem;
+  margin: 1rem  2rem ;
+  color: #203746;
+}
+
 
 .about-section{
   position: relative;
   z-index: 2;
-  top: -750px;
-  max-width: 100%;
   max-height: 1800px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
-.section-heading {
-  font-family: "Serif", Noto;
-  font-weight: 400;
-  font-size: 48px;
-  margin: 0 0 16px;
-  color: #950000;
-  text-decoration: underline;
-}
-
-.section-heading-2 {
-  font-family: "Serif", Noto;
-  font-weight: 400;
-  font-size: 36px;
-  margin: 15px 30px;
-  color: #203746;
-  text-decoration: underline;
-}
-
 .about-section-content {
+  align-items: start;
+  height: 100%;
   max-width: 1480px;
-  margin-left: 150px ;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
   padding: 100px 10px 100px 80px ;
 }
 
 .about-subsection{
-  font-family: "Roboto", sans-serif;
   font-weight: 400;
-  font-size: 24px;
+  font-size: 1.5rem;
   color: black;
 }
 
 .how-section {
   position: relative;
   z-index: 2;
-  top: -750px;
-  max-width: 100%;
+  background: #faf9f7;
   max-height: 5900px;
   padding: 100px 10px 100px 80px ;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
@@ -558,23 +576,24 @@ function goToHotspotSearch() {
 .cards{
   position: relative;
   top: 80px;
-  max-width: 1450px;
 }
 
 .how-section-content {
-  height: 1600px;
-  position: relative;
-  margin-left: 150px ;
-  font-family: "Roboto", sans-serif;
+  height: 1700px;
   font-weight: 400;
   font-size: 24px;
   color: black;
+
+  max-width: 1480px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  padding: auto ;
 }
 
 .how-ol{
-color: white;
-padding: 20px 10px 40px 60px;
-font-family: "Roboto", sans-serif;
+color: black;
+padding: 20px 10px 40px 30px;
 font-weight: 400;
 font-size: 20px;
 margin: 0 50px;
@@ -582,8 +601,7 @@ margin: 0 50px;
 }
 .how-ul{
 color: #203746;
-padding: 0px 10px 40px 60px;
-font-family: "Roboto", sans-serif;
+padding: 0px 10px 40px 40px;
 font-weight: 400;
 font-size: 20px;
 margin: 0 50px;
@@ -591,27 +609,25 @@ margin: 0 50px;
 
 .how-subsection{
   margin: 20px 30px 0 30px ;
-  max-width: 100%;
-  font-size: 26px;
-  font-family: "Roboto", sans-serif;
+  font-size: 25px;
+  width: 96%;
   font-weight: 400;
   color: #203746;;
 
 }
 .how-card{
   position: absolute;
-  padding: 20px 10px 20px 0 ;
-  fill: #203746;;
-  width: 1000;
+  padding: 20px 0px 20px 0 ;
+  fill: #40718f;;
+  width: 96%;
   margin-bottom: 0px;
   border-radius: 12px;
 
 }
 
 .blue-card{
-  background: #203746;
-  box-shadow: 0 4px 4px 0 rgb(0,0,0,0.25) inset;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset;
+  background: white;
+  box-shadow: 0 4px 4px 4px rgb(0,0,0,0.25);
   transform: translate(-50px,-50px);
   filter: drop-shadow(10px 10px 4px rgba(0,0,0,0.25));
 
@@ -619,9 +635,9 @@ margin: 0 50px;
 .white-card{
   background: white ;
   position: relative;
-  top: 560px;
+  top: 670px;
   z-index: 3;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset;
+  box-shadow: 0 4px 4px 4px rgba(0, 0, 0, 0.35);
   filter: drop-shadow(10px 10px 4px rgba(0,0,0,0.25));
   transform: translate(24px,24px);;;
 }
@@ -633,14 +649,13 @@ ul li{
 .feature-list {
   margin: 0 0 16px;
   line-height: 1.6;
-  font-family: "Roboto", sans-serif;
   font-size: 23px;
   font-weight: 400;;
   align-items: center;
   text-align: left;
   flex-direction: column;
   color: black;
-  max-width: 1450px;
+  max-width: 1350px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -664,30 +679,30 @@ ul li{
 .centered-image-panel{
   max-width: 1200px;
   margin: 40px 100px 20px  100px  ;
-  justify-content: left;
+  justify-content: center;
   align-items: flex-start;
 }
 
 .doc-section{
   position: relative;
   z-index: 2;
-  top: -750px;
   max-width: 100%;
   padding: 10px 10px 100px 80px ;
-  max-height: 100%;
+  max-height: 1800px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .doc-section-content{
   height: 100%;
   position: relative;
-  max-width: 1480px;
   color: black;
-  margin: 160px ;
+  max-width: 1480px;
+  margin-left: auto;
+  margin-right: auto;
+  margin:50px auto 50px auto
 }
 
 .doc-subsection{
-  font-family: "Roboto", sans-serif;
   margin-top: 10px;
   font-weight: 400;
   font-size: 24px;
@@ -695,11 +710,11 @@ ul li{
 }
 
 .intro-section{
+  max-height: auto;
   max-width: 1480px;
-  max-height: 1382px;
-  margin-bottom: 0%;
-  margin-top: 5%;
-  margin-left: 178px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 3%;
   position: relative;
   z-index: 2;
 }
@@ -707,37 +722,43 @@ ul li{
 .intro-section-imgs{
   display: grid;
   grid-template-columns: repeat(3,1fr);
-  gap: 1.5rem;
-  align-items:start;
+  gap: 2rem;
+  align-items:stretch;
 
 }
 .intro-item{
-  display: flex;
+  display: grid;
+  grid-template-rows: auto 300px;
   flex-direction: column;
+  height: 100%;
 }
 
 .intro-item img{
   width: 100%;
-  height: 350px;
-  object-fit: cover;
+  height:100%;
+  object-fit: cover;  
 }
 
-.intro-item p{
-  margin-top: 0.75rem;;
-}
 .captions{
   text-align: left;
 }
 .standout {
-  font-family: "Sans", Inter;
   font-weight: 700;
-  font-size: 19px;
+  font-size: 21px;
   font-style: normal;
-  color: #950000;
+  color: #40718f;
 }
 
 /* Rect image */
 .rect-image {
+  width: 50em;
+  height: 35em;
+  background: lightgray;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  margin-bottom: 10px;
+}
+
+.graph{
   width: 100%;
   height: 100%;
   background: lightgray;
@@ -745,30 +766,18 @@ ul li{
   margin-bottom: 10px;
 }
 
-.gradient-section{
-  width: 100%;
-  top: -250px;
-  z-index: 1;
-  position: relative;
-  height: 1382px;
-  background: linear-gradient(180deg, #FFF 6.67%, rgba(129,170,197,0.90) 37.88%, #FFF 66.21%);
-}
-
 .gs-info{
  max-width: 1480px;
- margin-left: 130px;
- position: absolute;
- top: 0%;
+ height: 100%;
+ position: relative;
  bottom: 50%;
- transform: translate(5%, 29%);
  justify-content:center;
- padding: 100px 20px 20px 20px ;
+ padding: 50px 20px 20px 20px ;
  text-align:center;
 }
 
 .med-text{
   color: #1e1e1e;
-  font-family: "Serif", Noto;
   font-size: 28px;
   font-style: normal;
   font-weight: 400;
@@ -780,16 +789,18 @@ ul li{
 .footer-section{
   position: relative;
   z-index: 2;
-  top: -750px;
   max-width: 100%;
-  max-height: 100%;
+  max-height: 300px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 
 }
 
 .footer-section-content{
-  max-width: 1480px;
-  padding: 100px 10px 100px 80px ;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 100%;
+  padding: 20px 40px ;
 
 }
 
@@ -802,6 +813,7 @@ a{
   font-size: 18px;
   color: rgb(62, 62, 62);
   margin-top: 16px;
+  margin-left: 50px;
 }
 
 /* Responsive tweaks */

@@ -68,13 +68,13 @@ async def detailed_hotspot_data(
         return ranked
 
     except sqlite3.Error as e:
-        print(f"Database retrieval for detailed hotspot overview failed: {e}")
+        print(f" [Database Request] | Database retrieval for detailed hotspot overview failed: {e}")
         return(None)
 
     finally:
         if sqlConn:
             sqlConn.close()
-            print("SQLite connection closed")
+            print(" [Database Request] | SQLite connection closed")
 
 def get_overviews(limit:int = 20, offset:int = 0):
     try:
@@ -103,10 +103,10 @@ def get_overviews(limit:int = 20, offset:int = 0):
         
 
     except sqlite3.Error as e:
-        print(f"Database overviews retrieval failed: {e}")
+        print(f" [Database Request] | Database overviews retrieval failed: {e}")
         return(None)
 
     finally:
         if sqlConn:
             sqlConn.close()
-            print("SQLite connection closed")
+            print(" [Database Request] | SQLite connection closed")
