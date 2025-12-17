@@ -3,10 +3,18 @@ import pandas as pd
 import os
 import asyncio
 import sqlite3
+from cachetools import TTLCache
 
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 #limit concurrent API calls to prevent exceeding rate limits
 SEMAPHORE = asyncio.Semaphore(5)
+
+# cache hotspot rankings for 5 minutes to speed up pdf gen
+HOTSPOT_CACHE = TTLCache(maxsize=50, ttl=300)
+
+def get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week):
+    """Generate a unique cache key based on all filter parameters"""
+    return f"{hotspotID}:{start_yr}:{end_yr}:{start_month}:{start_week}:{end_month}:{end_week}"
 
 '''
 Provides detailed hotspot overview with optional month/week filtering.
@@ -24,6 +32,14 @@ async def detailed_hotspot_data(
     end_month: int | None = None,
     end_week: int | None = None
 ):
+    # check cache first
+    cache_key = get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week)
+    if cache_key in HOTSPOT_CACHE:
+        print(f"[cache] | HIT for {hotspotID} - using cached data")
+        return HOTSPOT_CACHE[cache_key]
+    
+    print(f"[cache] | MISS for {hotspotID} - fetching from eBird")
+    
     ret = await get_rankings(
         hotspotID,
         start_yr,
@@ -63,7 +79,11 @@ async def detailed_hotspot_data(
         "total_sample_size": total_sample_size,
         "sample_sizes_by_week": sample_sizes_by_week,
         "birds":birds
-        }            
+        }
+        
+        # store in cache for pdf gen
+        HOTSPOT_CACHE[cache_key] = ranked
+        print(f"[cache] | stored {hotspotID} in cache (expires in 5 min)")
 
         return ranked
 
