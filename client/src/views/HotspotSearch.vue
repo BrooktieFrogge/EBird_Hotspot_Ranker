@@ -235,14 +235,14 @@
         </div>
 
         <div class="summary-row">
-          <span class="summary-label">Region:</span>
+          <span class="summary-label">State/Province:</span>
           <span class="summary-value">
             {{ analyticsStore.selectedHotspot.subregion1 }}
           </span>
         </div>
 
         <div class="summary-row">
-          <span class="summary-label">Local Region:</span>
+          <span class="summary-label">County/District:</span>
           <span class="summary-value">
             {{ analyticsStore.selectedHotspot.subregion2 || '—' }}
           </span>
@@ -1260,7 +1260,7 @@ const selectHotspotSuggestion = (name: string) => {
   align-items: center;         
   justify-content: flex-start; 
   gap: 4px;                   
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 700;
   margin: 0;                   
   padding: 0;
