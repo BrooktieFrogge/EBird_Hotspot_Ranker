@@ -227,7 +227,7 @@
                     <img
                       :src="graph"
                       alt="Relative likelihood graph"
-                      class="rect-image"/>
+                      class="rect-image graph"/>
 
                   </figure>
 
@@ -679,7 +679,7 @@ ul li{
 .centered-image-panel{
   max-width: 1200px;
   margin: 40px 100px 20px  100px  ;
-  justify-content: left;
+  justify-content: center;
   align-items: flex-start;
 }
 
@@ -753,6 +753,14 @@ ul li{
 .rect-image {
   width: 50em;
   height: 35em;
+  background: lightgray;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  margin-bottom: 10px;
+}
+
+.graph{
+  width: 100%;
+  height: 100%;
   background: lightgray;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   margin-bottom: 10px;
