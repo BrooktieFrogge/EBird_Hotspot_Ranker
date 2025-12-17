@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlite3
 import os,httpx,asyncio
+from services.search_db import normalize
 
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 
@@ -23,14 +24,14 @@ async def fetch_country_hotspots(client,country_code):
         filtered = [{
             "id": h['locId'],
             "name": h['locName'],
-            "country": get_cname(h['countryCode']),
-            "subregion1":  get_subregion1(h['subnational1Code']) if 'subnational1Code' in h else None,
-            "subregion2":  get_subregion2(h['subnational2Code']) if 'subnational2Code' in h else None,
+            "country": h['countryCode'],
+            "subregion1":  h['subnational1Code'] if 'subnational1Code' in h else None,
+            "subregion2": h['subnational2Code'] if 'subnational2Code' in h else None,
             "speciesCount": h['numSpeciesAllTime'] if 'numSpeciesAllTime' in h else 0
         } for h in data] #list of hotspots in country
 
     except Exception as e:
-        print(f"exception {e}")
+        print(f" [Database Sync] | Exception : {e}")
         return None
 
     return filtered
@@ -53,74 +54,72 @@ async def sync_data():
         for country in country_codes:
             if pd.isna(country):
                 continue
-            print("Fetching:", country,end="\n")
+            print(" [Database Sync] | Fetching:", country,end="\n")
             hotspots = await fetch_country_hotspots(client,country)
             all_results.extend(hotspots)
             
     try:
-        #TODO update with real database path for production
 
-        with sqlite3.connect('server/data/database/COPY.db') as sqlConn:
+        with sqlite3.connect('server/data/database/locations.db', timeout=60) as sqlConn:
                 cursor = sqlConn.cursor()
 
-        sql_q = '''INSERT INTO 'hotspots' (ID, NAME, COUNTRY, SUBREGION1, SUBREGION2, SPECIESCOUNT) VALUES (?, ?, ?, ?, ?, ?) 
-        ON CONFLICT(ID) DO UPDATE SET SPECIESCOUNT = excluded.SPECIESCOUNT 
-        WHERE hotspots.SPECIESCOUNT != excluded.SPECIESCOUNT 
+        sqlConn.execute("PRAGMA journal_mode=WAL")
+        sqlConn.execute("BEGIN IMMEDIATE")
+  
+        #create a updates staging table
+        cursor.execute("DROP TABLE IF EXISTS new_hotspots")
+
+
+        cursor.execute("CREATE TABLE new_hotspots (id TEXT PRIMARY KEY, name TEXT, country_code TEXT, subnational1_code TEXT,  subnational2_code TEXT, species_count INTEGER, norm_name TEXT) ")
+
+        cursor.execute("INSERT INTO new_hotspots (id, name, country_code ,subnational1_code, subnational2_code , species_count, norm_name) SELECT * FROM hotspots ")
+
+        #make updates in staging table        
+        sql_q = '''INSERT INTO 'new_hotspots' (id, name, country_code, subnational1_code, subnational2_code, species_count, norm_name) VALUES (?, ?, ?, ?, ?, ?, ?) 
+
+        ON CONFLICT(id) DO UPDATE SET species_count = excluded.species_count 
+        WHERE new_hotspots.species_count != excluded.species_count 
         '''
 
         for hotspot in all_results:
-             cursor.execute(sql_q, (hotspot['id'],hotspot['name'],hotspot['country'],hotspot['subregion1'],hotspot['subregion2'],hotspot['speciesCount']))
-        
+             cursor.execute(sql_q, (hotspot['id'],hotspot['name'],hotspot['country'],hotspot['subregion1'],hotspot['subregion2'],hotspot['speciesCount'], normalize(hotspot['name'])))
+
+        #validate update
         df = pd.read_sql_query('''SELECT * FROM 'hotspots' ''', sqlConn)
 
-        print(f"Hotspot overview data updated successfully. Length: {len(df)}, Head: \n {df.head}")
+        print(f"[Database Sync] |  Old Hotspot overview data. Length: {len(df)}, Head: \n {df.head}")
 
+        df2 = pd.read_sql_query('''SELECT * FROM 'new_hotspots' ''', sqlConn)
+
+        print(f"[Database Sync] | New Hotspot overview data. Length: {len(df2)}, Head: \n {df2.head}")
+
+        old_count = cursor.execute("SELECT COUNT(*) FROM 'hotspots' ").fetchone()[0]
+
+        new_count = cursor.execute("SELECT COUNT(*) FROM 'new_hotspots' ").fetchone()[0]
+
+        if new_count < old_count:
+             raise ValueError(f" [ERROR] Table size decreased : Old Size = {old_count} New Size = {new_count}")
+        
+        #if all is good then swap 
+        cursor.execute("ALTER TABLE 'hotspots' RENAME TO old_hotspots")
+        cursor.execute("ALTER TABLE 'new_hotspots' RENAME TO hotspots ")
+        cursor.execute("DROP TABLE 'old_hotspots' ")
+        
+
+        print("[Database Sync] | Database was successfuly updated! Sync Complete.")
+
+        #only commit if everything succedes
         sqlConn.commit()
-
-        print("[Background Data Sync] | Database sync finished")
         return {"status" : f"Saved {len(all_results)} hotspots."}
          
 
     except sqlite3.Error as e:
-        print(f"Database UPDATE failed: {e}")
+        print(f" [Database Sync] | Database UPDATE failed: {e}")
+        sqlConn.rollback() # return database to state before update
         return(None)
 
     finally:
         if sqlConn:
             sqlConn.close()
-            print("SQLite connection closed")
+            print(" [Database Sync] | SQLite connection closed")
 
-'''
-Returns: subregion 1 name given subregion 1 code.
-'''
-def get_subregion1(sub_code):
-    sub1Info = pd.read_csv('server/data/subnational1 regions-Table 1.csv')
-
-    row = sub1Info.loc[sub1Info['subnational1_code'] == sub_code]
-    if row.empty:
-        return "None"
-    return row.iloc[0]['subnational1_name']
-
-'''
-Returns: subregion 2 name given subregion 2 code.
-'''
-def get_subregion2(sub_code):
-    sub2Info = pd.read_csv('server/data/subnational2 regions-Table 1.csv')
-
-    row = sub2Info.loc[sub2Info['subnational2_code'] == sub_code]
-
-    if row.empty:
-        return "None"
-    return row.iloc[0]['subnational2_name']
-
-'''
-Returns: subregion 2 name given subregion 2 code.
-'''
-def get_cname(c_code):
-    cInfo = pd.read_csv('server/data/countries-Table 1.csv')
-
-    row = cInfo.loc[cInfo['country_code'] == c_code]
-
-    if row.empty:
-        return "None"
-    return row.iloc[0]['country_name']

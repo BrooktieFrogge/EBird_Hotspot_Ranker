@@ -1,9 +1,5 @@
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-
-class FilterConfig(BaseModel):
-    weeks: Dict[ str , List[int] ]
-
 from models.species_models import Bird
 
 class DetailedHotspot(BaseModel):
