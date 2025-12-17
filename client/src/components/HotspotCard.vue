@@ -151,8 +151,8 @@ export default defineComponent({
 <style scoped>
 .hotspot-card {
   border: 2px solid transparent;
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: 14px;
+  padding: 14px 16px;
   font-family: Arial, sans-serif;
   box-shadow: 0 0 0px 1px #eeeeee;
   background: #ffffff;
@@ -164,14 +164,16 @@ export default defineComponent({
 }
 
 .hotspot-card.selected {
-  box-shadow: 0 0 5px 4px #457999;
+  box-shadow: 0 0 4px 3px rgba(69, 121, 153, 0.6);
+
 }
 
 h3 {
-  margin: 0 0 6px 0;
-  font-size: 1.1em;
-  font-weight: 500;
-  color: #797979;
+  margin: 0 0 8px 0;
+  font-size: 1.05rem;
+  font-weight: 600;             
+  color: #797979;               
+  line-height: 1.25;
 }
 
 /* line under the hotspot name */
@@ -179,27 +181,30 @@ h3 {
   height: 2px;
   border-radius: 999px;
   background: #e0e0e0;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 /* rows */
 .row {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.85em;
-  margin-bottom: 4px;
-  color: #797979;
+  align-items: flex-start;      
+  gap: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 4px;     
+}
+
+.row:last-child {
+  margin-bottom: 0;
 }
 
 /* label with icon inline */
 .label {
-  display: left;
   align-items: left;
   gap: 6px;
-  min-width: 130px;
-  font-weight: 700;
+  min-width: 140px;
+  font-weight: 600;
   color: #797979;
+  white-space: no-wrap;
 }
 
 /* icon inline  */
@@ -207,23 +212,27 @@ h3 {
   width: 14px;
   height: 14px;
   display: inline-block;
-  
+  opacity: 0.75;
 }
 
 /* aligns perfectly */
 .icon :deep(svg) {
-  display: block;
+  stroke-width: 1.75;
 }
 
 /* value */
 .value {
   flex: 1;
+  margin-left: 20px;
+  margin-bottom: 8px;
 }
 
 .species-with-dot {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;                     /* tighter */
+  font-weight: 600;
+  color: #333;
 }
 
 .color-dot {
@@ -231,7 +240,7 @@ h3 {
   height: 10px;
   border-radius: 50%;
   background: red; 
-  box-shadow: 0 0 0 1px #ddd;
   flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
 }
 </style>

@@ -163,9 +163,9 @@
                     <ol class="how-ol">
                       <li>Enter the name of your eBird hotspot. Click on identifying card for your hotspot. </li>
                     <li> Enter the start year and end year for your sample. Many birders select 10-15 year intervals to get a good sample of lists. Click “CONFIRM YEARS”</li>
-                    <li>Select the interval of weeks to include in your sample of lists. For example, if you were visiting a hotspot the 1st week or July, you might bracket this week with 5 weeks prior, and 5 weeks after (i.e., bracket week 4 in May to week 2 August, for an 11-week interval). Click “CONFIRM WEEKS”</li>
+                    <li>Select the interval of weeks to include in your sample of lists. For example, if you were visiting a hotspot the 1st week or July, you might bracket this week with 5 weeks prior, and 5 weeks after (i.e., bracket week 4 in May to week 2 August, for an 11-week interval).</li>
                     <li>Inspect the distribution of lists in that interval of weeks to see if you have a representative distribution of lists in that interval of weeks over several years. You can adjust weeks of the interval or years to increase or decrease the number of lists in your sample. Note that simply adding more years may not increase list sample if lists don't exist for the added years (i.e., extending years to 1900).</li>
-                    <li>Enter the number of species to display (and export?).</li>
+                    <li>Enter the number of species to display.</li>
                     <li>Decide whether to show the List Likelihood curve for the hotspot, the List Likelihood curve as percent (i.e., normalized to top-ranked species for week interval), or both.</li>
                     <li>For species you are curious about that may have a low ranking, enter names in “custom species…” You have choice to display photo of custom species.</li> 
                     <li>Export: To obtain a file with your ranked likelihoods, select export file format (e.g., .docx, .pdf, .csv) and browse to location to download the file. </li>

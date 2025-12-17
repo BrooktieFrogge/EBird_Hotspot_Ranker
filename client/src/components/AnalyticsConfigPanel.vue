@@ -76,7 +76,7 @@
       <h4>Select Time Frame</h4>
       
       <!-- FIRST MONTH/WEEK -->
-      <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+      <div style="background: #eef3f6; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
         <h5 style="margin-bottom: 8px;">Start Time</h5>
         
         <v-select
@@ -114,7 +114,7 @@
       </div>
 
       <!-- ENDING MONTH/WEEK -->
-      <div style="background: #f5f5f5; padding: 12px; border-radius: 8px;">
+      <div style="background: #eef3f6; padding: 12px; border-radius: 8px;">
         <h5 style="margin-bottom: 8px;">End Time</h5>
         
         <v-select
@@ -151,19 +151,8 @@
         </div>
       </div>
 
-      <!--- Confirmation --->
-      <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-        <v-btn
-          color="#296239"
-          @click="confirmTimeRange"
-          :disabled="(!isYearRangeSelected)"
-          size="small"
-        >
-          Confirm Time
-        </v-btn>
-      </div>
       <!-- Data Distribution Graph -->
-      <div style="margin-top: 15px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+      <div style="margin-top: 15px; padding: 12px; background: #eef3f6; border-radius: 8px;">
         <DataDistributionGraph/>
       </div>
 
@@ -195,7 +184,7 @@
     <!------ TOGGLES ------->
     <!--------------------------->
     <div class="config-section">
-      <div style="padding: 12px; background: #f5f5f5; border-radius: 8px;">
+      <div style="padding: 12px; background: #eef3f6; border-radius: 8px;">
         <v-switch
           color="primary"
           label="Show Likelihood Curve"
@@ -256,13 +245,16 @@
     <!--------------------------->
     <!------ UPLOAD AS ... ------>
     <!--------------------------->
-    <div class="buttons-container" style="justify-content: center; margin-top: 150px;">
-      <div id="upload-button" @click="exportReport">
-        <div class="button-wrapper" style="width: 150px; height: 50px; color: black; cursor: pointer;">
-          <span v-if="!isExporting">Export PDF</span>
+    <div style="margin-top: 150px; display: flex; justify-content: flex-end;">
+        <v-btn
+          color="#296239"
+          @click="exportReport"
+          :disabled="(analyticsStore.isLoading)"
+          size="small"
+        >
+          <span v-if="!isExporting"><i class="bi bi-upload" style="margin-right: 10px"></i>Export PDF</span>
           <span v-else>Generating...</span>
-        </div>
-      </div>
+        </v-btn>
     </div>
     
 
@@ -285,6 +277,8 @@ import {
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
 import type { Bird } from '../types';
 import DataDistributionGraph from '../components/DataDistributionGraph.vue'
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 
 /**
@@ -335,9 +329,6 @@ export default defineComponent({
     };
 
     // --- MONTH/WEEK SELECTION DATA ---
-    const isYearRangeSelected = computed(() => {
-        return (tempStartYear.value == analyticsStore.startYear && tempEndYear.value == analyticsStore.endYear)
-    });
 
     const monthOptions = [
       { title: 'January', value: 1 }, { title: 'February', value: 2 }, 
@@ -620,7 +611,6 @@ export default defineComponent({
       currentYear,
       minYear,
       // Month/Week Logic
-      isYearRangeSelected,
       monthOptions,
       startMonth,
       endMonth,
@@ -660,7 +650,7 @@ export default defineComponent({
 <style scoped>
 .analytics-config-panel {
   padding: 16px;
-  background: #fafafa;
+  background: #f4f7f9;
   border-right: 1px solid #ddd;
   
   height: 100vh; 
