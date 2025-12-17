@@ -246,7 +246,7 @@
     <!--------------------------->
     <!------ UPLOAD AS ... ------>
     <!--------------------------->
-    <div class="buttons-container" style="justify-content: left; margin-top: 150px;">
+    <div class="buttons-container" style="justify-content: center; margin-top: 150px;">
       <div id="upload-button" @click="exportReport">
         <div class="button-wrapper" style="width: 150px; height: 50px; color: black; cursor: pointer;">
           <span v-if="!isExporting">Export PDF</span>
