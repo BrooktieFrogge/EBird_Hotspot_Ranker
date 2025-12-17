@@ -30,12 +30,12 @@ export const useAnalyticsStore = defineStore('analytics', {
     hotspotsHasMore: true,
 
     // --- Analytics Panels / Toggles ---
-    startYear: null as number | null,
-    endYear: null as number | null,
-    startMonth: null as number | null,
-    startWeek: null as number | null,
-    endMonth: null as number | null,
-    endWeek: null as number | null,
+    startYear: 1900,
+    endYear: 2025,
+    startMonth: 1,
+    startWeek: 1,
+    endMonth: 12,
+    endWeek: 4,
 
     numTopBirds: 10,
     showLikelihoodCurve: true,
@@ -73,13 +73,6 @@ export const useAnalyticsStore = defineStore('analytics', {
     setYearRange(start: number, end: number) {
       this.startYear = start;
       this.endYear = end;
-    },
-
-    setTimeFrame(startMonth: number, startWeek: number, endMonth: number, endWeek: number) {
-      this.startMonth = startMonth;
-      this.startWeek = startWeek;
-      this.endMonth = endMonth;
-      this.endWeek = endWeek;
     },
 
     /**
@@ -129,7 +122,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.endYear = 2025; //TODO: make this update to this year
       this.startMonth = 1;
       this.startWeek = 1;
-      this.endMonth = 4;
+      this.endMonth = 12;
       this.endWeek = 4;
     },
 

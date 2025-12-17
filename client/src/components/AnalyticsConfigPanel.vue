@@ -342,13 +342,12 @@ export default defineComponent({
     const startWeekDataDensity = computed(() => {
       // find selected month title
       const selectedMonthOption = monthOptions.find(m => m.value === startMonth.value);
-      console.log("selected month: ", selectedMonthOption?.title)
-      console.log(analyticsStore.selectedHotspot?.sample_sizes_by_week)
-
-      // base case
       if (!selectedMonthOption || !analyticsStore.selectedHotspot?.sample_sizes_by_week) {
           return [];
       }
+
+      // Set month
+      analyticsStore.startMonth = startMonth.value;
 
       // Get three-letter abbreviation
       const monthAbbrev = selectedMonthOption.title.substring(0, 3);
@@ -385,12 +384,12 @@ export default defineComponent({
     const endWeekDataDensity = computed(() => {
       // find selected month title
       const selectedMonthOption = monthOptions.find(m => m.value === endMonth.value);
-      console.log("selected month: ", selectedMonthOption?.title)
-      console.log(analyticsStore.selectedHotspot?.sample_sizes_by_week)
-
       if (!selectedMonthOption || !analyticsStore.selectedHotspot?.sample_sizes_by_week) {
           return [];
       }
+
+      // Set month
+      analyticsStore.endMonth = endMonth.value;
 
       // Get three-letter abbreviation
       const monthAbbrev = selectedMonthOption.title.substring(0, 3);
@@ -437,16 +436,15 @@ export default defineComponent({
 
     const selectStartWeek = (weekNumber: number) => {
         startWeek.value = weekNumber;
-        console.log(`Start Week selected: ${startMonth.value}/${startWeek.value}`);
+        analyticsStore.startWeek = startWeek.value;
     };
     
     const selectEndWeek = (weekNumber: number) => {
         endWeek.value = weekNumber;
-        console.log(`End Week selected: ${endMonth.value}/${endWeek.value}`);
+        analyticsStore.endWeek = endWeek.value;
     };
     
     const confirmTimeRange = () => {
-        analyticsStore.setTimeFrame(startMonth.value, startWeek.value, endMonth.value, endWeek.value);
         analyticsStore.fetchHotspotDetail();
         console.log(`Confirmed Time Range: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
     };
@@ -652,7 +650,7 @@ export default defineComponent({
 
 .week-bar {
     width: 60%;
-    background-color: #72A2C0; 
+    background-color: #8EB5CC; 
     border-radius: 3px 3px 0 0;
     transition: background-color 0.15s ease, height 0.3s ease;
 }
