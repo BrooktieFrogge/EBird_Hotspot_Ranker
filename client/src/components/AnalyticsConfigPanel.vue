@@ -152,12 +152,13 @@
         <v-btn
           color="#296239"
           @click="confirmTimeRange"
+          :disabled="(!isYearRangeSelected)"
           size="small"
         >
           Confirm Time
         </v-btn>
       </div>
-
+      <div style="text-align: center; padding: 20px"><h5>{{ analyticsStore.selectedHotspot?.total_sample_size }} total checklists</h5></div>
       <DataDistributionGraph/>
 
     </div>
@@ -324,6 +325,10 @@ export default defineComponent({
     };
 
     // --- MONTH/WEEK SELECTION DATA ---
+    const isYearRangeSelected = computed(() => {
+        return (tempStartYear.value == analyticsStore.startYear && tempEndYear.value == analyticsStore.endYear)
+    });
+
     const monthOptions = [
       { title: 'January', value: 1 }, { title: 'February', value: 2 }, 
       { title: 'March', value: 3 }, { title: 'April', value: 4 }, 
@@ -567,6 +572,7 @@ export default defineComponent({
       isYearRangeValid,
       confirmYearRange,
       // Month/Week Logic
+      isYearRangeSelected,
       monthOptions,
       startMonth,
       endMonth,
