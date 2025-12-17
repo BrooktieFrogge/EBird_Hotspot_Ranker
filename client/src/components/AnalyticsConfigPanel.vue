@@ -75,8 +75,8 @@
     <div class="config-section">
       <h4>Select Time Frame</h4>
       
-      <!--- FIRST MONTH/WEEK --->
-      <div style="border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+      <!-- FIRST MONTH/WEEK -->
+      <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
         <h5 style="margin-bottom: 8px;">Start Time</h5>
         
         <v-select
@@ -91,6 +91,7 @@
 
         <div style="margin-top: 10px;">
           <h5 style="margin-bottom: 5px;">Checklists per Week</h5>
+          <p style="font-size: 11px; color: #777; margin: 0 0 8px 0;">Click a bar to select start week</p>
           
           <div style="display: flex; gap: 4px; align-items: flex-end; height: 100%; padding: 5px 0;">
             <div
@@ -111,8 +112,8 @@
         </div>
       </div>
 
-      <!--- ENDING MONTH/WEEK --->
-      <div style="border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px;">
+      <!-- ENDING MONTH/WEEK -->
+      <div style="background: #f5f5f5; padding: 12px; border-radius: 8px;">
         <h5 style="margin-bottom: 8px;">End Time</h5>
         
         <v-select
@@ -127,6 +128,7 @@
 
         <div style="margin-top: 10px;">
           <h5 style="margin-bottom: 5px;">Checklists per Week</h5>
+          <p style="font-size: 11px; color: #777; margin: 0 0 8px 0;">Click a bar to select end week</p>
           
           <div style="display: flex; gap: 4px; align-items: flex-end; height: 100%; padding: 5px 0;">
             <div
@@ -157,57 +159,56 @@
           Confirm Time
         </v-btn>
       </div>
-
-      <DataDistributionGraph/>
+      <!-- Data Distribution Graph -->
+      <div style="margin-top: 15px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+        <DataDistributionGraph/>
+      </div>
 
     </div>
     
     <!--------------------------->
     <!--- PICK # OF TOP BIRDS --->
-    <!--------------------------->
-    <div class="config-section" style="margin-left: 10px">
-      <div style="display: flex; align-items: center; gap: 8px; width: 250px;">
-        <span>Show top</span>
-        <v-number-input
-          control-variant="stacked"
-          inset
-          v-model="analyticsStore.numTopBirds"
+    <!----------------------------->
+    <div class="config-section">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+        <span style="font-weight: 500;">Show top</span>
+        <v-text-field
+          v-model.number="analyticsStore.numTopBirds"
+          density="compact"
+          style="width: 80px; flex: none;"
+          type="number"
+          variant="outlined"
+          hide-details
+          single-line
           :min="1"
           :max="allBirds.length || 10"
-          style="padding: 5px"
-        ></v-number-input>
-        <span>birds</span>
+        ></v-text-field>
+        <span style="font-weight: 500;">birds</span>
       </div>
     </div>
 
 
     <!--------------------------->
-    <!------ GRAPH TOGGLE ------->
+    <!------ TOGGLES ------->
     <!--------------------------->
     <div class="config-section">
-      <v-switch
-        color="primary"
-        label="Show Likelihood Curve"
-        hide-details
-        style="margin-left: 10px"
-        @change="handleGraphToggle"
-        :model-value="showGraph"
-      ></v-switch>
-    </div>
-
-
-    <!--------------------------->
-    <!------ PHOTO TOGGLE ------->
-    <!--------------------------->
-    <div class="config-section">
-      <v-switch
-        color="primary"
-        label="Show photos of top 3 birds"
-        @change="handlePhotosToggle"
-        hide-details
-        style="margin-left: 10px"
-        :model-value=showTopPhotos
-      ></v-switch>
+      <div style="padding: 12px; background: #f5f5f5; border-radius: 8px;">
+        <v-switch
+          color="primary"
+          label="Show Likelihood Curve"
+          hide-details
+          @change="handleGraphToggle"
+          :model-value="showGraph"
+        ></v-switch>
+        <v-switch
+          color="primary"
+          label="Show photos of top 3 birds"
+          @change="handlePhotosToggle"
+          hide-details
+          :model-value="showTopPhotos"
+          style="margin-top: -8px;"
+        ></v-switch>
+      </div>
     </div>
 
 
@@ -215,29 +216,35 @@
     <!------ CUSTOM BIRDS ------->
     <!--------------------------->
     <div class="config-section">
+      <div style="padding: 12px; background: #f5f5f5; border-radius: 8px;">
+        <v-text-field
+          v-model="birdSearch"
+          variant="outlined"
+          label="Add custom birds..."
+          hide-details
+          clearable
+          density="compact"
+          bg-color="white"
+          @input="filterBirds"
+          @blur="handleSearchBlur"
+          @click:clear="clearSearch"
+        />
 
-      <v-text-field
-        v-model="birdSearch"
-        variant="outlined"
-        label="Add custom birds..."
-        hide-details
-        clearable
-        density="compact"
-        style="height:"
-        @input="filterBirds"
-      />
-
-      <div
-        v-if="filteredBirds.length > 0 && birdSearch.length > 0"
-        class="search-results"
-      >
         <div
-          v-for="bird in filteredBirds"
-          :key="bird.Species"
-          class="search-result-item"
-          @click="selectBird(bird)"
+          v-if="filteredBirds.length > 0 && birdSearch.length > 0"
+          class="search-results"
         >
-          {{ bird.Species }} &emsp; &#8212;&#8212; &emsp; {{ Math.round((10**3)*bird.wtd_rf)/(10**3) }} &emsp; &#8212;&#8212; &emsp;  {{ Math.round((10**2)*bird.rfpc)/(10**2) }}
+          <div
+            v-for="bird in filteredBirds"
+            :key="bird.Species"
+            class="search-result-item"
+            @mousedown.prevent="selectBird(bird)"
+          >
+            <div style="font-weight: 500;">{{ bird.Species }}</div>
+            <div style="font-size: 11px; color: #666;">
+              #{{ bird.Rank }} · Likelihood {{ Math.round(bird.wtd_rf * 100) / 100 }} · Normalized {{ Math.round(bird.rfpc * 10) / 10 }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -487,6 +494,18 @@ export default defineComponent({
       analyticsStore.selectBird(bird);
     };
 
+    const handleSearchBlur = () => {
+      // Delay to allow click on search result to register
+      setTimeout(() => {
+        filteredBirds.value = [];
+      }, 150);
+    };
+
+    const clearSearch = () => {
+      birdSearch.value = '';
+      filteredBirds.value = [];
+    };
+
     const redirectToHomeScreen = () => {
       analyticsStore.resetAnalyticsConfiguration();
       analyticsStore.resetSelectedHotspot();
@@ -590,6 +609,8 @@ export default defineComponent({
       filteredBirds,
       filterBirds,
       selectBird,
+      handleSearchBlur,
+      clearSearch,
       showGraph,
       handleGraphToggle,
       showTopPhotos,
@@ -738,6 +759,16 @@ export default defineComponent({
   overflow-y: auto;
   box-shadow: 0px 2px 8px rgba(0,0,0,0.12);
   text-align: left;
+}
+
+.search-result-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
 }
 
 .search-result-item:hover {
