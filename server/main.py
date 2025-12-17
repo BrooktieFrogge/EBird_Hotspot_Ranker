@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from routes import hotspots, rankings, species
-from apscheduler.schedulers.background import BackgroundScheduler
+
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -20,8 +20,8 @@ async def lifespan(app: FastAPI):
     #start the sechduler when app starts
     scheduler = AsyncIOScheduler()
     trigger = CronTrigger(
-        day=(os.getenv("DATA_SYNC_DAY")), 
-        hour=(os.getenv("DATA_SYNC_HOUR")))
+        day=int((os.getenv("DATA_SYNC_DAY"))), 
+        hour=int((os.getenv("DATA_SYNC_HOUR"))))
 
     job = scheduler.add_job(sync_data, trigger=trigger )
 
@@ -40,8 +40,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
