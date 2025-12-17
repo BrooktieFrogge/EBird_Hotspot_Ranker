@@ -35,7 +35,7 @@
           label="Start"
           hide-details
           single-line
-          :min="1900"
+          :min="minYear"
           :max="tempEndYear"
         ></v-text-field>
 
@@ -51,7 +51,7 @@
           hide-details
           single-line
           :min="tempStartYear"
-          :max="2025"
+          :max="currentYear"
         ></v-text-field>
       </div>
       
@@ -301,16 +301,17 @@ export default defineComponent({
     const showScrollIndicator = ref(false); // Default to false
 
     // --- YEAR SELECTION LOGIC ---
-    const tempStartYear = ref(1900);
-    const tempEndYear = ref(2025);
+    const currentYear = new Date().getFullYear();
+    const minYear = 1900;  // eBird's historical minimum
+    
+    const tempStartYear = ref(analyticsStore.startYear);
+    const tempEndYear = ref(analyticsStore.endYear);
     
     const isYearRangeValid = computed(() => {
         const start = tempStartYear.value;
         const end = tempEndYear.value;
-        const minGlobal = 1900;
-        const maxGlobal = 2025;
         
-        return start <= end && start >= minGlobal && end <= maxGlobal;
+        return start <= end && start >= minYear && end <= currentYear;
     });
 
     const confirmYearRange = () => {
@@ -566,6 +567,8 @@ export default defineComponent({
       tempEndYear,
       isYearRangeValid,
       confirmYearRange,
+      currentYear,
+      minYear,
       // Month/Week Logic
       monthOptions,
       startMonth,

@@ -32,8 +32,9 @@ export const useAnalyticsStore = defineStore('analytics', {
     hotspotsHasMore: true,
 
     // --- Analytics Panels / Toggles ---
-    startYear: 1900,
-    endYear: 2025,
+    // dynamic year defaults: current year and 20 years prior
+    startYear: new Date().getFullYear() - 20,
+    endYear: new Date().getFullYear(),
     startMonth: 1,
     startWeek: 1,
     endMonth: 12,
@@ -120,8 +121,8 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.numTopBirds = 10;
       this.showLikelihoodCurve = true;
       this.showTopBirdPhotos = true;
-      this.startYear = 1900;
-      this.endYear = 2025; //TODO: make this update to this year
+      this.startYear = new Date().getFullYear() - 20;
+      this.endYear = new Date().getFullYear();
       this.startMonth = 1;
       this.startWeek = 1;
       this.endMonth = 12;
@@ -456,7 +457,7 @@ async fetchSubregion2Suggestions(subregion1: string, query: string) {
       try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
-        const response = await axios.get(url, { params });
+        const response = await axios.get(url, { params, timeout: 120000 }); // 2 min timeout
 
         this.selectedHotspot = response.data;
         console.log("Fetched hotspot detail:", response.data);

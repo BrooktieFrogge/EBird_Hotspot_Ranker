@@ -74,63 +74,51 @@ async def get_rankings(
     process_list = [locId.upper()]
     
     try:
-        start_yr = start_yr if start_yr else 1900
-        end_yr = end_yr if end_yr else 2025
+        from datetime import datetime
+        current_year = datetime.now().year
+        start_yr = start_yr if start_yr else current_year - 20  # default to 20 years ago
+        end_yr = end_yr if end_yr else current_year
 
     except Exception as e:
             return(f"Invalid Daterange - {e}.")
 
-    # using async context manager
-    async with async_playwright() as p:
-        # super memory saving @https://pptr.dev/troubleshooting @https://playwright.dev/docs/ci
-        BROWSER = await p.chromium.launch(
-            headless=HEADLESS,
-            args=[
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--no-sandbox',
-                '--disable-extensions',
-                '--disable-background-networking',
-                '--disable-sync',
-                '--disable-translate',
-                '--no-first-run',
-                '--disable-features=site-per-process',
-            ]
-        )
+    # get shared browser instance (fast - no cold start)
+    from services.browser_manager import get_browser
+    BROWSER = await get_browser()
 
-        # await the session check
-        await ensure_session(BROWSER)
+    # await the session check
+    await ensure_session(BROWSER)
 
-        for loc in process_list:
-            # await the fetch data call
-            raw_data = await fetch_data(BROWSER, loc, start_yr, end_yr)
+    for loc in process_list:
+        # await the fetch data call
+        raw_data = await fetch_data(BROWSER, loc, start_yr, end_yr)
 
-            # process in memory
-            if raw_data:
-                try:
-                    # await the calculator process
-                    result_dict = await process_data(
-                        raw_data,
-                        loc,
-                        start_yr,
-                        end_yr,
-                        start_month=start_month,
-                        start_week=start_week,
-                        end_month=end_month,
-                        end_week=end_week,
-                        save=SAVE_FILE
-                    )
+        # process in memory
+        if raw_data:
+            try:
+                # await the calculator process
+                result_dict = await process_data(
+                    raw_data,
+                    loc,
+                    start_yr,
+                    end_yr,
+                    start_month=start_month,
+                    start_week=start_week,
+                    end_month=end_month,
+                    end_week=end_week,
+                    save=SAVE_FILE
+                )
 
-                    if SAVE_FILE:
-                        print ({"Request Status":"[success] | saved results to output directory"})
-                        return result_dict
+                if SAVE_FILE:
+                    print ({"Request Status":"[success] | saved results to output directory"})
+                    return result_dict
+            
+                else:
+                    print(f"[success] | results stored in memory: result_dict (location: {result_dict['location']})")
+                    return result_dict
                 
-                    else:
-                        print(f"[success] | results stored in memory: result_dict (location: {result_dict['location']})")
-                        return result_dict
+            except Exception as e:
+                return(f"[error] | calculation/formatting failed - {e}")
                     
-                except Exception as e:
-                    return(f"[error] | calculation/formatting failed - {e}")
-                        
-            else:
-                return None
+        else:
+            return None

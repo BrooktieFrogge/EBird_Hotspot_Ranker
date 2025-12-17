@@ -2,7 +2,7 @@
 pdf export service using playwright
 """
 import asyncio
-from playwright.async_api import async_playwright
+from services.browser_manager import get_browser
 
 
 async def generate_pdf(
@@ -58,65 +58,49 @@ async def generate_pdf(
     
     print(f"[pdf_export] | Generating PDF from: {full_url[:120]}...")
     
-    async with async_playwright() as p:
-        # super memory saving @https://pptr.dev/troubleshooting @https://playwright.dev/docs/ci
-        browser = await p.chromium.launch(
-            headless=True,
-            args=[
-                '--disable-dev-shm-usage',  # use /tmp instead of /dev/shm
-                '--disable-gpu',
-                '--no-sandbox',
-                '--disable-extensions',
-                '--disable-background-networking',
-                '--disable-sync',
-                '--disable-translate',
-                '--no-first-run',
-                '--disable-features=site-per-process',  # reduces memory
-                '--js-flags=--max-old-space-size=256',  # limit JS heap to 256MB because render constraints to 512MB
-                '--renderer-process-limit=1',  # limit renderer processes
-                '--disable-software-rasterizer',
-            ]
+    # get shared browser instance (fast - no cold start)
+    browser = await get_browser()
+    
+    # create context - tall viewport to capture all content
+    context = await browser.new_context(
+        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        viewport={'width': 850, 'height': 4000},
+        bypass_csp=True,
+    )
+    
+    try:
+        page = await context.new_page()
+        
+        # nav to printable report
+        print(f"[pdf_export] | Navigating to page...")
+        await page.goto(full_url, timeout=90000, wait_until='domcontentloaded')  # 90s for cloud loads
+        
+        # wait for bird table to appear
+        try:
+            await page.wait_for_selector('.bird-table-section', timeout=60000)  # 60s for cold starts
+            print(f"[pdf_export] | Data loaded")
+        except:
+            print("[pdf_export] | Table not found, waiting longer...")
+            await asyncio.sleep(10)  # 10s fallback for really slow loads
+        
+        # wait for render
+        await asyncio.sleep(1)
+        
+        # generate pdf
+        pdf_bytes = await page.pdf(
+            format='Letter',
+            print_background=True,
+            margin={
+                'top': '0.4in',
+                'bottom': '0.4in',
+                'left': '0.5in',
+                'right': '0.5in'
+            },
         )
         
-        try:
-            # create context - tall viewport to capture all content
-            context = await browser.new_context(
-                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                viewport={'width': 850, 'height': 4000},  # reduced height to save memory
-                bypass_csp=True,
-            )
-            
-            page = await context.new_page()
-            
-            # nav to printable report
-            print(f"[pdf_export] | Navigating to page...")
-            await page.goto(full_url, timeout=90000, wait_until='domcontentloaded')  # 90s for cloud loads
-            
-            # wait for bird table to appear
-            try:
-                await page.wait_for_selector('.bird-table-section', timeout=60000)  # 60s for cold starts
-                print(f"[pdf_export] | Data loaded")
-            except:
-                print("[pdf_export] | Table not found, waiting longer...")
-                await asyncio.sleep(10)  # 10s fallback for really slow loads
-            
-            # wait for render
-            await asyncio.sleep(1)
-            
-            # generate pdf
-            pdf_bytes = await page.pdf(
-                format='Letter',
-                print_background=True,
-                margin={
-                    'top': '0.4in',
-                    'bottom': '0.4in',
-                    'left': '0.5in',
-                    'right': '0.5in'
-                },
-            )
-            
-            print(f"[pdf_export] | PDF generated successfully, size: {len(pdf_bytes)} bytes")
-            return pdf_bytes
-            
-        finally:
-            await browser.close()
+        print(f"[pdf_export] | PDF generated successfully, size: {len(pdf_bytes)} bytes")
+        return pdf_bytes
+        
+    finally:
+        await context.close()
+
