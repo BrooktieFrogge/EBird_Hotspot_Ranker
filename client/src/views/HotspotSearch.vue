@@ -25,16 +25,32 @@
           </span>
         </div>
 
-        <!-- Text search -->
-        <div class="filter-group">
+        <!-- Text search (NOW with autocomplete suggestions) -->
+        <div class="filter-group autocomplete">
           <label for="search">Search by name or location</label>
           <input
             id="search"
             type="text"
             v-model="searchQuery"
             placeholder="Type a hotspot name or location..."
+            @input="onHotspotInput"
             @keyup.enter="applyFilters"
           />
+
+          <!-- Hotspot suggestions dropdown -->
+          <div
+            v-if="showHotspotDropdown && filteredHotspotSuggestions.length > 0"
+            class="dropdown"
+          >
+            <div
+              class="dropdown-item"
+              v-for="name in filteredHotspotSuggestions"
+              :key="name"
+              @click="selectHotspotSuggestion(name)"
+            >
+              {{ name }}
+            </div>
+          </div>
         </div>
 
         <!-- Country Autocomplete -->
@@ -271,6 +287,7 @@
 </template>
 
 
+
 <script lang="ts">
 import {
   defineComponent,
@@ -325,6 +342,7 @@ export default defineComponent({
     const showCountryDropdown = ref(false);
     const showSubregionDropdown = ref(false);
     const showSubregion2Dropdown = ref(false);
+    const showHotspotDropdown = ref(false);
 
     // -------------------------
     // SCROLL OBSERVER
@@ -371,45 +389,71 @@ export default defineComponent({
     // -------------------------
     // APPLY FILTERS (BACKEND)
     // -------------------------
-    const applyFilters = () => {
-      const hotspotFilter = searchQuery.value.trim();
-      const countryFilter = analyticsStore.selectedCountry ?? '';
-      const subregion1Filter = (selectedSubregion.value || subregionSearch.value).trim();
-      const subregion2Filter = (selectedSubregion2.value || subregion2Search.value).trim();
 
-      const hasAnyFilter =
-        !!hotspotFilter ||
-        !!countryFilter ||
-        !!subregion1Filter ||
-        !!subregion2Filter;
+  function canonicalize(input: string, options: string[]): string {
+    const raw = (input ?? '').trim();
+    if (!raw) return '';
+    const lower = raw.toLowerCase();
 
-      // Keep store search fields in sync
-      analyticsStore.searchHotspotName = hotspotFilter;
-      analyticsStore.searchCountry = countryFilter;
-      analyticsStore.searchSubregion1 = subregion1Filter;
-      analyticsStore.searchSubregion2 = subregion2Filter;
+    const match = options.find(opt => (opt ?? '').trim().toLowerCase() === lower);
+    return match ?? raw; // if we can't find a canonical option, fall back to what they typed
+  }
 
-      visibleCount.value = pageSize;
+  const applyFilters = () => {
+  const hotspotFilter = searchQuery.value.trim();
+  const countryFilter = analyticsStore.selectedCountry ?? '';
 
-      // persist UI state whenever filters are applied
-      uiStore.persist();
+  const subregion1Raw = (selectedSubregion.value || subregionSearch.value).trim();
+  const subregion2Raw = (selectedSubregion2.value || subregion2Search.value).trim();
 
-      if (!hasAnyFilter) {
-        analyticsStore.countrySuggestions = [];
-        analyticsStore.subregion1Suggestions = [];
-        (analyticsStore as any).subregion2Suggestions = [];
-        analyticsStore.fetchAllHotspots();
-        return;
-      }
+  // Convert typed input into the correct-cased value if it exists
+  const subregion1Filter = canonicalize(subregion1Raw, availableSubregions.value);
 
-      analyticsStore.searchHotspots({
-        hotspot: hotspotFilter,
-        country: countryFilter,
-        subregion1: subregion1Filter,
-        subregion2: subregion2Filter,
-        mode: 'hotspot',
-      });
-    };
+  const sr2Options = (() => {
+    const set = new Set<string>();
+    hotspots.value.forEach(h => {
+      if (subregion1Filter && h.subregion1?.toLowerCase() !== subregion1Filter.toLowerCase()) return;
+      const sr2 = (h.subregion2 ?? '').toString().trim();
+      if (sr2 && sr2.toLowerCase() !== 'none' && sr2.toLowerCase() !== 'null') set.add(sr2);
+    });
+    return Array.from(set);
+  })();
+
+  const subregion2Filter = canonicalize(subregion2Raw, sr2Options);
+
+  const hasAnyFilter =
+    !!hotspotFilter ||
+    !!countryFilter ||
+    !!subregion1Filter ||
+    !!subregion2Filter;
+
+  analyticsStore.searchHotspotName = hotspotFilter;
+  analyticsStore.searchCountry = countryFilter;
+  analyticsStore.searchSubregion1 = subregion1Filter;
+  analyticsStore.searchSubregion2 = subregion2Filter;
+  
+
+  visibleCount.value = pageSize;
+  uiStore.persist();
+
+  if (!hasAnyFilter) {
+    analyticsStore.countrySuggestions = [];
+    analyticsStore.subregion1Suggestions = [];
+    analyticsStore.subregion2Suggestions = [];
+    analyticsStore.hotspotSuggestions = [];
+    analyticsStore.fetchAllHotspots();
+    return;
+  }
+
+  analyticsStore.searchHotspots({
+    hotspot: hotspotFilter,
+    country: countryFilter,
+    subregion1: subregion1Filter,
+    subregion2: subregion2Filter,
+    mode: 'hotspot',
+  });
+};
+
 
     // -------------------------
     // AVAILABLE FILTER VALUES (fallback from current hotspots)
@@ -449,6 +493,22 @@ export default defineComponent({
     // -------------------------
     // AUTOCOMPLETE FILTERING
     // -------------------------
+
+    const filteredHotspotSuggestions = computed(() => {
+  // prefer backend suggestions
+  if (analyticsStore.hotspotSuggestions?.length > 0) {
+    return analyticsStore.hotspotSuggestions;
+  }
+
+  // fallback: local filtering on currently loaded hotspots
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!q) return [];
+
+  const names = hotspots.value.map(h => h.name).filter(Boolean);
+  const matches = names.filter(n => n.toLowerCase().includes(q));
+  return Array.from(new Set(matches)).slice(0, 10);
+});
+
     const filteredCountries = computed(() => {
       if (analyticsStore.countrySuggestions?.length > 0) {
         return analyticsStore.countrySuggestions;
@@ -470,19 +530,43 @@ export default defineComponent({
     });
 
     const filteredSubregions2 = computed(() => {
-      const backend = (analyticsStore as any).subregion2Suggestions as string[] | undefined;
-      if (backend && backend.length > 0) return backend;
+  if (analyticsStore.subregion2Suggestions.length > 0) {
+    return analyticsStore.subregion2Suggestions;
+  }
 
-      if (!subregion2Search.value.trim()) return availableSubregions2.value;
+  if (!subregion2Search.value.trim()) return availableSubregions2.value;
 
-      return availableSubregions2.value.filter(sr2 =>
-        sr2.toLowerCase().includes(subregion2Search.value.toLowerCase())
-      );
-    });
+  return availableSubregions2.value.filter(sr2 =>
+    sr2.toLowerCase().includes(subregion2Search.value.toLowerCase())
+  );
+});
 
     // -------------------------
     // INPUT HANDLERS
     // -------------------------
+    const onHotspotInput = () => {
+  showHotspotDropdown.value = true;
+
+  const q = searchQuery.value.trim();
+  if (!q) {
+    analyticsStore.hotspotSuggestions = [];
+    applyFilters(); // optional: keep current behavior
+    return;
+  }
+
+  // pass current filters so suggestions respect location filters
+  const countryFilter = analyticsStore.selectedCountry ?? '';
+  const subregion1Filter = (selectedSubregion.value || subregionSearch.value).trim();
+  const subregion2Filter = (selectedSubregion2.value || subregion2Search.value).trim();
+
+  analyticsStore.fetchHotspotSuggestions(q, {
+    country: countryFilter,
+    subregion1: subregion1Filter,
+    subregion2: subregion2Filter,
+    limit: 10,
+  });
+};
+
     const onCountryInput = () => {
       showCountryDropdown.value = true;
       const q = countrySearch.value.trim();
@@ -513,20 +597,28 @@ export default defineComponent({
     };
 
     const onSubregion2Input = () => {
-      showSubregion2Dropdown.value = true;
-      const q = subregion2Search.value.trim();
-      const sr1Filter = (selectedSubregion.value || subregionSearch.value).trim();
+  showSubregion2Dropdown.value = true;
 
-      if (q) {
-        if (typeof (analyticsStore as any).fetchSubregion2Suggestions === 'function') {
-          (analyticsStore as any).fetchSubregion2Suggestions(sr1Filter, q);
-        }
-      } else {
-        (analyticsStore as any).subregion2Suggestions = [];
-        selectedSubregion2.value = '';
-        applyFilters();
-      }
-    };
+  const q = subregion2Search.value.trim();
+  const sr1Filter = (selectedSubregion.value || subregionSearch.value).trim();
+
+  if (q) {
+    analyticsStore.fetchSubregion2Suggestions(sr1Filter, q);
+  } else {
+    analyticsStore.subregion2Suggestions = [];
+    selectedSubregion2.value = '';
+    applyFilters();
+  }
+};
+
+const selectHotspotSuggestion = (name: string) => {
+  searchQuery.value = name;
+  showHotspotDropdown.value = false;
+  analyticsStore.hotspotSuggestions = [];
+  applyFilters();
+};
+
+
 
     // -------------------------
     // SELECT FILTER VALUES
@@ -542,7 +634,7 @@ export default defineComponent({
 
       selectedSubregion2.value = '';
       subregion2Search.value = '';
-      (analyticsStore as any).subregion2Suggestions = [];
+      analyticsStore.subregion2Suggestions = [];
 
       applyFilters();
     };
@@ -554,7 +646,7 @@ export default defineComponent({
 
       selectedSubregion2.value = '';
       subregion2Search.value = '';
-      (analyticsStore as any).subregion2Suggestions = [];
+      analyticsStore.subregion2Suggestions = [];
 
       applyFilters();
     };
@@ -593,7 +685,7 @@ export default defineComponent({
     watch(subregion2Search, (val) => {
       if (!val.trim()) {
         selectedSubregion2.value = '';
-        (analyticsStore as any).subregion2Suggestions = [];
+        analyticsStore.subregion2Suggestions = [];
         applyFilters();
       } else {
         uiStore.persist();
@@ -634,6 +726,8 @@ export default defineComponent({
     const clearSearch = () => {
       searchQuery.value = '';
       applyFilters();
+      analyticsStore.hotspotSuggestions = [];
+      showHotspotDropdown.value = false;
     };
 
     const clearCountry = () => {
@@ -647,7 +741,7 @@ export default defineComponent({
 
       selectedSubregion2.value = '';
       subregion2Search.value = '';
-      (analyticsStore as any).subregion2Suggestions = [];
+      analyticsStore.subregion2Suggestions = [];
 
       applyFilters();
     };
@@ -659,7 +753,7 @@ export default defineComponent({
 
       selectedSubregion2.value = '';
       subregion2Search.value = '';
-      (analyticsStore as any).subregion2Suggestions = [];
+      analyticsStore.subregion2Suggestions = [];
 
       applyFilters();
     };
@@ -667,7 +761,7 @@ export default defineComponent({
     const clearSubregion2 = () => {
       selectedSubregion2.value = '';
       subregion2Search.value = '';
-      (analyticsStore as any).subregion2Suggestions = [];
+      analyticsStore.subregion2Suggestions = [];
       applyFilters();
     };
 
@@ -684,7 +778,7 @@ export default defineComponent({
 
       selectedSubregion2.value = '';
       subregion2Search.value = '';
-      (analyticsStore as any).subregion2Suggestions = [];
+      analyticsStore.subregion2Suggestions = [];
 
       applyFilters();
     };
@@ -698,6 +792,7 @@ export default defineComponent({
         showCountryDropdown.value = false;
         showSubregionDropdown.value = false;
         showSubregion2Dropdown.value = false;
+        showHotspotDropdown.value = false;
       }
     };
 
@@ -706,6 +801,8 @@ export default defineComponent({
         showCountryDropdown.value = false;
         showSubregionDropdown.value = false;
         showSubregion2Dropdown.value = false;
+        showHotspotDropdown.value = false;
+
       }
     };
 
@@ -842,6 +939,7 @@ export default defineComponent({
       // active state + apply
       hasActiveFilters,
       applyFilters,
+      canonicalize,
 
       // infinite scroll
       scrollSentinel,
@@ -855,6 +953,12 @@ export default defineComponent({
       // right panel species count
       selectedSpeciesCount,
       getSpeciesCountColor,
+
+      // hotspot autocomplete
+      showHotspotDropdown,
+      filteredHotspotSuggestions,
+      onHotspotInput,
+      selectHotspotSuggestion,
     };
   },
 });
