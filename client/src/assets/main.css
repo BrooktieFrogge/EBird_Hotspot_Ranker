@@ -1,0 +1,92 @@
+/* ===============================
+   Global Theme Variables
+   =============================== */
+
+:root {
+  /* Core colors */
+  --color-white: #ffffff;
+  --color-black: #0A0A0A;
+
+  /* Brand / primary */
+  --color-primary: #457999;   /* eBird-style blue */
+  --color-secondary: #296239; /* deep green */
+
+  /* Accent */
+  --color-accent: #D09B2C;    /* CC yellow */
+
+  /* Destructive */
+  --color-danger: #B31B1B;
+
+  /* Backgrounds */
+  --color-bg-page: #f4f7f9;   /* light blue-gray */
+  --color-bg-panel: #ffffff;
+  --color-bg-muted: #f2f2f2;
+
+  /* Borders */
+  --color-border-light: rgba(69, 121, 153, 0.25);
+  --color-border-strong: rgba(69, 121, 153, 0.45);
+
+  /* Text */
+  --color-text-primary: #0A0A0A;
+  --color-text-secondary: #555555;
+  --color-text-muted: #777777;
+
+  /* Shadows */
+  --shadow-card: 0 8px 24px rgba(69, 121, 153, 0.12);
+  --shadow-dropdown: 0 12px 28px rgba(0,0,0,0.12);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, "Helvetica Neue",
+               Arial, "Noto Sans", sans-serif;
+}
+
+/* ===============================
+   Global Base Styles (eBird-like)
+   =============================== */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--color-text-primary);
+}
+
+/* Labels */
+label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+}
+
+/* Body text */
+p, span, div {
+  font-weight: 400;
+}
+
+/* Numbers / data */
+.summary-value,
+.species-with-dot {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Links (optional, eBird-ish) */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

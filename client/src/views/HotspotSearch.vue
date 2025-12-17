@@ -968,7 +968,7 @@ const selectHotspotSuggestion = (name: string) => {
 .hotspot-search {
   display: flex;
   height: 100vh;
-  background: #fafafa;
+  background: #f4f7f9;
   color: #222;
   font-family: Arial, sans-serif;
   overflow: hidden; 
@@ -976,20 +976,22 @@ const selectHotspotSuggestion = (name: string) => {
 
 /* LEFT PANEL */
 .filters {
-  width: 280px;
-  padding: 16px;
+  width: 300px;                 
+  padding: 20px 18px;           
   box-sizing: border-box;
-  background: #F2F2F2;     
-  overflow-y: auto; 
+  background: #f4f7f9;
+  overflow-y: auto;
+  margin-left: 20px;
 }
 
 /* floating card for filters */
 .filters-card {
-  margin-top: 12px;
-  padding: 14px 12px;
+  margin-top: 16px;             
+  padding: 16px;               
   background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(69, 121, 153, 0.12);
+  border: 1px solid rgba(69, 121, 153, 0.15);
 }
 
 /* Dropdown wrapper */
@@ -1000,9 +1002,9 @@ const selectHotspotSuggestion = (name: string) => {
 /* MIDDLE PANEL: cards */
 .results {
   flex: 1.5;
-  padding: 20px;
+  padding: 24px 20px;
   box-sizing: border-box;
-  background: #F2F2F2;
+  background: #f4f7f9;
   overflow-y: auto;
 }
 
@@ -1019,7 +1021,7 @@ const selectHotspotSuggestion = (name: string) => {
   padding: 10px 16px;
   border-radius: 18px;             
   background: #ffffff;
-  border: 1px solid #0066cc;       
+  border: 1px solid #457999;       
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   font-size: 0.95rem;             
 }
@@ -1036,9 +1038,10 @@ const selectHotspotSuggestion = (name: string) => {
   gap: 6px;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid #0066cc;
-  background: #f3f8ff;
-  color: #0066cc;
+  border: 1px solid #457999;
+  background: rgba(69, 121, 153, 0.12);
+  color: #457999;
+  font-weight: 500;
   font-size: 0.95rem;
   cursor: pointer;
 }
@@ -1049,17 +1052,21 @@ const selectHotspotSuggestion = (name: string) => {
 }
 
 .chip:hover {
-  background: #e4f0ff;
+  background: rgba(69, 121, 153, 0.2);
 }
 
 .clear-filters {
   border: none;
   background: transparent;
-  color: #0066cc; 
+  color: #B31B1B; 
   cursor: pointer;
   padding: 0 4px;
   font-size: 0.9rem;
   white-space: nowrap;
+}
+
+.clear-filters:hover {
+  text-decoration: underline;
 }
 
 /* Dropdown for autocomplete */
@@ -1071,9 +1078,9 @@ const selectHotspotSuggestion = (name: string) => {
   max-height: 180px;
   overflow-y: auto;
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  border-radius: 10px;
+  border: 1px solid rgba(69, 121, 153, 0.25);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
   z-index: 20;
 }
 
@@ -1084,9 +1091,8 @@ const selectHotspotSuggestion = (name: string) => {
 }
 
 .dropdown-item:hover {
-  background: #f2f2f2;
+  background: rgba(69, 121, 153, 0.1);
 }
-
 
 /* Buttons container  */
 .buttons-container {
@@ -1094,39 +1100,37 @@ const selectHotspotSuggestion = (name: string) => {
   justify-content: center; 
   align-items: center;
   width: 100%;
-  height: 60px;
-  padding-top: 20px;
-  padding-inline: 40px;
-  padding-bottom: 20px;
+  height: auto;
+  padding: 12px 0 8px;
 }
 
 .back-button-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
   width: fit-content;
-  border: 1px solid #000000;
   padding: 15px;
   border-radius: 10px;
-  background-color: #ffffff;
-  color: #000000;
+  border: none;
+  background: #457999;
+  color: white;
+  box-shadow: 0 4px 10px rgba(69, 121, 153, 0.3);
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .back-button-wrapper:hover {
-  background-color: #d2d2d2;
+  background: #296239;
 }
 
 .panel-title {
   font-size: 18px;
   font-weight: 600;
-  margin-top: 16px;
-  margin-bottom: 4px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  text-align: center;
 }
 
 .filter-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   display: flex;
   flex-direction: column;
 }
@@ -1134,16 +1138,34 @@ const selectHotspotSuggestion = (name: string) => {
 .filter-group label {
   font-size: 0.9rem;
   margin-bottom: 4px;
-  color: #333;
+  color: #457999;
+  font-weight: 600;
 }
 
-.filter-group input,
+.filter-group input{
+  border: 1px solid rgba(69, 121, 153, 0.4);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.filter-group input:focus {
+  outline: none;
+  border-color: #457999;
+  box-shadow: 0 0 0 2px rgba(69, 121, 153, 0.2);
+}
+
 .filter-group select {
   padding: 6px 8px;
   border-radius: 6px;
   border: 1px solid #bfbfbf;
   background-color: #ffffff;
   color: #000000;
+}
+
+.filter-group::placeholder {
+  color: #7b7b7b;
+}
+
+.filter-group:last-of-type {
+  margin-bottom: 12px;
 }
 
 .filter-summary {
@@ -1155,7 +1177,7 @@ const selectHotspotSuggestion = (name: string) => {
 .cards-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 20px;
   align-content: flex-start;
 }
 
@@ -1163,8 +1185,10 @@ const selectHotspotSuggestion = (name: string) => {
 .summary-panel {
   width: 320px;
   box-sizing: border-box;
-  padding: 16px;
-  background: #F2F2F2;
+  padding: 20px;
+  background: #ffffff;
+  border-left: 1px solid rgba(69, 121, 153, 0.15);
+  box-shadow: -6px 0 16px rgba(0,0,0,0.04);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1174,6 +1198,8 @@ const selectHotspotSuggestion = (name: string) => {
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 12px 0;
+  color: #0A0A0A;
+  letter-spacing: 0.2px;
 }
 
 .summary-body {
@@ -1188,15 +1214,25 @@ const selectHotspotSuggestion = (name: string) => {
   margin-bottom: 10px;
 }
 
+.summary-name::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: #D09B2C;
+  margin-top: 6px;
+  border-radius: 2px;
+}
+
 .summary-row {
   display: flex;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .summary-label {
   width: 110px;
   font-weight: 500;
-  color: #666;
+  color: #457999;
 }
 
 .summary-value {
@@ -1214,8 +1250,9 @@ const selectHotspotSuggestion = (name: string) => {
 .detail-button {
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid #000;
-  background: #fff;
+  border: none;
+  background: #457999;
+  color: white;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
@@ -1230,7 +1267,7 @@ const selectHotspotSuggestion = (name: string) => {
 }
 
 .detail-button:not(:disabled):hover {
-   background-color: #d2d2d2;
+  background: #296239;
 }
 
 .filter-heading {
