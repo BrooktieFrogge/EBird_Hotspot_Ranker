@@ -53,7 +53,8 @@ async def get_rankings(
     start_month: int | None = None,
     start_week: int | None = None,
     end_month: int | None = None,
-    end_week: int | None = None
+    end_week: int | None = None,
+    cached_raw_data: str | None = None  # pass raw tsv data to skip eBird fetch
 ):
     """
     get bird rankings for a location with optional month/week filtering.
@@ -66,9 +67,10 @@ async def get_rankings(
         start_week: Start week within start_month (1-4)
         end_month: End month (1-12)
         end_week: End week within end_month (1-4)
+        cached_raw_data: If provided, skip eBird fetch and use this raw TSV data
     
     returns:
-        Dictionary with location name, sample size, and ranked bird data
+        Dictionary with location name, sample size, ranked bird data, and raw_tsv for caching
     """
     
     process_list = [locId.upper()]
@@ -82,43 +84,49 @@ async def get_rankings(
     except Exception as e:
             return(f"Invalid Daterange - {e}.")
 
-    # get shared browser instance (fast - no cold start)
-    from services.browser_manager import get_browser
-    BROWSER = await get_browser()
+    # if we have cached raw data, skip the expensive eBird fetch
+    if cached_raw_data:
+        print(f"[cache] | using cached raw TSV for {locId} (skipping eBird fetch)")
+        raw_data = cached_raw_data
+    else:
+        # get shared browser instance (fast - no cold start)
+        from services.browser_manager import get_browser
+        BROWSER = await get_browser()
 
-    # await the session check
-    await ensure_session(BROWSER)
+        # await the session check
+        await ensure_session(BROWSER)
 
-    for loc in process_list:
         # await the fetch data call
-        raw_data = await fetch_data(BROWSER, loc, start_yr, end_yr)
+        raw_data = await fetch_data(BROWSER, process_list[0], start_yr, end_yr)
 
-        # process in memory
-        if raw_data:
-            try:
-                # await the calculator process
-                result_dict = await process_data(
-                    raw_data,
-                    loc,
-                    start_yr,
-                    end_yr,
-                    start_month=start_month,
-                    start_week=start_week,
-                    end_month=end_month,
-                    end_week=end_week,
-                    save=SAVE_FILE
-                )
+    # process in memory
+    if raw_data:
+        try:
+            # await the calculator process
+            result_dict = await process_data(
+                raw_data,
+                process_list[0],
+                start_yr,
+                end_yr,
+                start_month=start_month,
+                start_week=start_week,
+                end_month=end_month,
+                end_week=end_week,
+                save=SAVE_FILE
+            )
 
-                if SAVE_FILE:
-                    print ({"Request Status":"[success] | saved results to output directory"})
-                    return result_dict
+            if SAVE_FILE:
+                print ({"Request Status":"[success] | saved results to output directory"})
+                result_dict['raw_tsv'] = raw_data  # include raw data for caching
+                return result_dict
+        
+            else:
+                print(f"[success] | results stored in memory: result_dict (location: {result_dict['location']})")
+                result_dict['raw_tsv'] = raw_data  # include raw data for caching
+                return result_dict
             
-                else:
-                    print(f"[success] | results stored in memory: result_dict (location: {result_dict['location']})")
-                    return result_dict
+        except Exception as e:
+            return(f"[error] | calculation/formatting failed - {e}")
                 
-            except Exception as e:
-                return(f"[error] | calculation/formatting failed - {e}")
-                    
-        else:
-            return None
+    else:
+        return None

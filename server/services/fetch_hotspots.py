@@ -5,6 +5,13 @@ import asyncio
 import sqlite3
 from cachetools import TTLCache
 
+'''
+provides detailed hotspot overview with optional month/week filtering.
+
+returns:
+-hotspot id,name,region,location, and list of ranked birds for the given hotspot using ranking engine
+'''
+
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 #limit concurrent API calls to prevent exceeding rate limits
 SEMAPHORE = asyncio.Semaphore(5)
@@ -12,16 +19,17 @@ SEMAPHORE = asyncio.Semaphore(5)
 # cache hotspot rankings for 5 minutes to speed up pdf gen
 HOTSPOT_CACHE = TTLCache(maxsize=50, ttl=300)
 
+## cache raw TSV data separately (keyed by hotspot+years only)
+## this lets us instant re-filtering when only time params change
+RAW_DATA_CACHE = TTLCache(maxsize=20, ttl=300)
+
 def get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week):
-    """Generate a unique cache key based on all filter parameters"""
+    """generate a unique cache key based on all filter parameters"""
     return f"{hotspotID}:{start_yr}:{end_yr}:{start_month}:{start_week}:{end_month}:{end_week}"
 
-'''
-Provides detailed hotspot overview with optional month/week filtering.
-
-Returns:
--hotspot id,name,region,location, and list of ranked birds for the given hotspot using ranking engine
-'''
+def get_raw_cache_key(hotspotID, start_yr, end_yr):
+    """generate cache key for raw TSV data (year range only, no time filters)"""
+    return f"raw:{hotspotID}:{start_yr}:{end_yr}"
 
 async def detailed_hotspot_data(
     hotspotID: str,
@@ -32,14 +40,22 @@ async def detailed_hotspot_data(
     end_month: int | None = None,
     end_week: int | None = None
 ):
-    # check cache first
+    # check full result cache first
     cache_key = get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week)
     if cache_key in HOTSPOT_CACHE:
-        print(f"[cache] | HIT for {hotspotID} - using cached data")
+        print(f"[cache] | FULL HIT for {hotspotID} - using cached result")
         return HOTSPOT_CACHE[cache_key]
     
-    print(f"[cache] | MISS for {hotspotID} - fetching from eBird")
+    # check if we have cached raw data for this hotspot+years
+    raw_cache_key = get_raw_cache_key(hotspotID, start_yr, end_yr)
+    cached_raw = RAW_DATA_CACHE.get(raw_cache_key)
     
+    if cached_raw:
+        print(f"[cache] | RAW HIT for {hotspotID} - re-filtering cached data (instant!)")
+    else:
+        print(f"[cache] | MISS for {hotspotID} - fetching from eBird")
+    
+    # call get_rankings with cached raw data if available
     ret = await get_rankings(
         hotspotID,
         start_yr,
@@ -47,13 +63,19 @@ async def detailed_hotspot_data(
         start_month=start_month,
         start_week=start_week,
         end_month=end_month,
-        end_week=end_week
+        end_week=end_week,
+        cached_raw_data=cached_raw  # pass cached raw data if we have it
     )
 
     if ret:
         birds = ret['data']
         total_sample_size = ret['total_sample_size']
         sample_sizes_by_week = ret['sample_sizes_by_week']
+        
+        # cache the raw TSV data for future time filter changes
+        if 'raw_tsv' in ret and not cached_raw:
+            RAW_DATA_CACHE[raw_cache_key] = ret['raw_tsv']
+            print(f"[cache] | stored raw TSV for {hotspotID} (enables instant time filtering)")
 
     else:
         return None
@@ -81,9 +103,9 @@ async def detailed_hotspot_data(
         "birds":birds
         }
         
-        # store in cache for pdf gen
+        # store in result cache for pdf gen
         HOTSPOT_CACHE[cache_key] = ranked
-        print(f"[cache] | stored {hotspotID} in cache (expires in 5 min)")
+        print(f"[cache] | stored result for {hotspotID} in cache (expires in 5 min)")
 
         return ranked
 

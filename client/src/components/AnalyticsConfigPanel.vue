@@ -87,6 +87,7 @@
           density="compact"
           hide-details
           style="width: 125px; margin-bottom: 10px;"
+          @update:model-value="onMonthChange"
         ></v-select>
 
         <div style="margin-top: 10px;">
@@ -124,6 +125,7 @@
           density="compact"
           hide-details
           style="width: 125px; margin-bottom: 10px;"
+          @update:model-value="onMonthChange"
         ></v-select>
 
         <div style="margin-top: 10px;">
@@ -149,16 +151,7 @@
         </div>
       </div>
 
-      <!--- Confirmation --->
-      <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-        <v-btn
-          color="#296239"
-          @click="confirmTimeRange"
-          size="small"
-        >
-          Confirm Time
-        </v-btn>
-      </div>
+      <!-- ** Time changes now auto-apply with debounce! -->
       <!-- Data Distribution Graph -->
       <div style="margin-top: 15px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
         <DataDistributionGraph/>
@@ -442,19 +435,43 @@ export default defineComponent({
       });
     });
 
+    // debounce timer for auto-fetch
+    let fetchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+    
+    const debouncedFetchHotspot = () => {
+        // clear existing timer
+        if (fetchDebounceTimer) {
+            clearTimeout(fetchDebounceTimer);
+        }
+        // set new timer - fetch after 300ms
+        fetchDebounceTimer = setTimeout(() => {
+            console.log(`[auto-fetch] Time changed: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
+            analyticsStore.fetchHotspotDetail();
+        }, 300);
+    };
+
     const selectStartWeek = (weekNumber: number) => {
         startWeek.value = weekNumber;
         analyticsStore.startWeek = startWeek.value;
+        debouncedFetchHotspot();  // Auto-fetch with debounce
     };
-    
+
     const selectEndWeek = (weekNumber: number) => {
         endWeek.value = weekNumber;
         analyticsStore.endWeek = endWeek.value;
+        debouncedFetchHotspot();  // auto-fetch with debounce
     };
     
+    // keep manual trigger if we need it later
     const confirmTimeRange = () => {
+        if (fetchDebounceTimer) clearTimeout(fetchDebounceTimer);
         analyticsStore.fetchHotspotDetail();
-        console.log(`Confirmed Time Range: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
+        console.log(`Manual confirm: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
+    };
+
+    // handler for month dropdown changes - triggers debounced fetch
+    const onMonthChange = () => {
+        debouncedFetchHotspot();
     };
 
 
@@ -599,6 +616,7 @@ export default defineComponent({
       selectStartWeek,
       selectEndWeek,
       confirmTimeRange,
+      onMonthChange,
       // Scroll Logic
       panel,
       showScrollIndicator,
