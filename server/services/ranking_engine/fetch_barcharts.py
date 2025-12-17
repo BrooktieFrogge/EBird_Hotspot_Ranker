@@ -90,18 +90,33 @@ async def fetch_data(BROWSER, loc, start, end):
     print("[info] | downloading data...")
 
     context = None
-    try:
-        context = await BROWSER.new_context(storage_state=SESSION_FILE)
-        data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
-        
-        request_context = context.request
-        response = await request_context.get(data_url)
-        data_text = await response.text()
+    max_retries = 2  # try twice before giving up
+    
+    for attempt in range(max_retries):
+        try:
+            context = await BROWSER.new_context(storage_state=SESSION_FILE)
+            data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
+            
+            request_context = context.request
+            response = await request_context.get(data_url, timeout=90000)  # 90s timeout
+            data_text = await response.text()
 
-        if "<!doctype html>" in data_text.lower():
-            # session might be invalid or page failed to load properly
-            return None
+            if "<!doctype html>" in data_text.lower():
+                # session might be invalid or page failed to load properly
+                return None
 
-        return data_text
-    finally:
-        if context: await context.close()
+            return data_text
+        except Exception as e:
+            if context:
+                await context.close()
+                context = None
+            
+            if attempt < max_retries - 1:
+                print(f"[retry] | attempt {attempt + 1} failed: {e}. Retrying...")
+                await asyncio.sleep(2)  # Brief pause before retry
+            else:
+                print(f"[error] | all {max_retries} attempts failed: {e}")
+                raise
+        finally:
+            if context:
+                await context.close()

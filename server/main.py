@@ -8,6 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from apscheduler.triggers.cron import CronTrigger
 from services.database_sync import sync_data
+from services.browser_manager import close_browser
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -33,7 +34,9 @@ async def lifespan(app: FastAPI):
 
     yield
 
+    # cleanup on shutdown
     scheduler.shutdown()
+    await close_browser()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -42,7 +45,7 @@ origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -20,9 +20,11 @@ export const useAnalyticsStore = defineStore('analytics', {
     searchSubregion1: '' as string,
     searchSubregion2: '' as string,
 
-    // suggestions from backend search (country / subregion1 autocomplete)
+    // suggestions from backend search 
     countrySuggestions: [] as string[],
     subregion1Suggestions: [] as string[],
+    subregion2Suggestions: [] as string[],
+    hotspotSuggestions: [] as string[],
 
     // pagination for browse-hotspots (for infinite scroll)
     hotspotsOffset: 0,
@@ -30,8 +32,9 @@ export const useAnalyticsStore = defineStore('analytics', {
     hotspotsHasMore: true,
 
     // --- Analytics Panels / Toggles ---
-    startYear: 1900,
-    endYear: 2025,
+    // dynamic year defaults: current year and 20 years prior
+    startYear: new Date().getFullYear() - 20,
+    endYear: new Date().getFullYear(),
     startMonth: 1,
     startWeek: 1,
     endMonth: 12,
@@ -118,8 +121,8 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.numTopBirds = 10;
       this.showLikelihoodCurve = true;
       this.showTopBirdPhotos = true;
-      this.startYear = 1900;
-      this.endYear = 2025; //TODO: make this update to this year
+      this.startYear = new Date().getFullYear() - 20;
+      this.endYear = new Date().getFullYear();
       this.startMonth = 1;
       this.startWeek = 1;
       this.endMonth = 12;
@@ -253,6 +256,52 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     /**
+ * Backend-powered autocomplete for hotspot names (mode='hotspot')
+ * Returns list of hotspot name strings.
+ */
+async fetchHotspotSuggestions(
+  query: string,
+  opts?: { country?: string; subregion1?: string; subregion2?: string; limit?: number }
+) {
+  this.isLoading = true;
+  this.error = null;
+
+  try {
+    const response = await axios.get('/api/hotspots/search', {
+      params: {
+        hotspot: query,
+        country: opts?.country ?? '',
+        subregion1: opts?.subregion1 ?? '',
+        subregion2: opts?.subregion2 ?? '',
+        mode: 'hotspot',
+        limit: opts?.limit ?? 10,
+      },
+    });
+
+    const raw = response.data.results ?? [];
+
+    // mode='hotspot' returns hotspot overviews, so map to .name
+    const names = raw
+      .map((item: any) => item?.name ?? item?.hotspot ?? '')
+      .filter((s: string) => !!s);
+
+    // unique + keep order
+    this.hotspotSuggestions = Array.from(new Set(names));
+  } catch (e: any) {
+    if (axios.isAxiosError(e) && e.response?.status === 404) {
+      this.hotspotSuggestions = [];
+      this.error = null;
+    } else {
+      console.error('Error searching hotspot suggestions:', e);
+      this.error = e.message ?? 'Unknown error';
+    }
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+
+    /**
      * Backend-powered autocomplete for countries (mode='country')
      * Normalizes results into plain country name strings.
      */
@@ -341,6 +390,50 @@ export const useAnalyticsStore = defineStore('analytics', {
   }
 },
 
+/**
+ * Backend-powered autocomplete for subregion2 (mode='subregion2')
+ * Requires an exact subregion1 filter (backend uses it as a filter).
+ */
+async fetchSubregion2Suggestions(subregion1: string, query: string) {
+  this.isLoading = true;
+  this.error = null;
+
+  try {
+    const response = await axios.get('/api/hotspots/search', {
+      params: {
+        hotspot: '',
+        country: '',
+        subregion1: subregion1 ?? '',
+        subregion2: query,
+        mode: 'subregion2',
+      },
+    });
+
+    const raw = response.data.results ?? [];
+
+    this.subregion2Suggestions = raw
+      .map((item: any) => {
+        if (typeof item === 'string') return item;
+        if (item.name) return item.name;
+        if (item.subregion2) return item.subregion2;
+        if (item.SUBREGION2_NAME) return item.SUBREGION2_NAME;
+        return '';
+      })
+      .filter((name: string) => !!name);
+  } catch (e: any) {
+    if (axios.isAxiosError(e) && e.response?.status === 404) {
+      this.subregion2Suggestions = [];
+      this.error = null;
+    } else {
+      console.error('Error searching subregion2:', e);
+      this.error = e.message ?? 'Unknown error';
+    }
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+
 
     async fetchHotspotDetail() {
       if (!this.selectedHotspotId) return
@@ -364,7 +457,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       try {
         console.log("Fetching hotspot detail for hotspot ID:", this.selectedHotspotId);
 
-        const response = await axios.get(url, { params });
+        const response = await axios.get(url, { params, timeout: 120000 }); // 2 min timeout
 
         this.selectedHotspot = response.data;
         console.log("Fetched hotspot detail:", response.data);

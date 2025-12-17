@@ -26,7 +26,12 @@
 
     <!-- top birds list - matches original styling -->
     <div class="section bird-table-section">
-      <h2 class="section-title">Top {{ store.numTopBirds }} Birds</h2>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+        <h2 class="section-title" style="margin-bottom: 0;">Top {{ store.numTopBirds }} Birds</h2>
+        <span style="font-size: 11px; color: #666;">
+          Based on <strong>{{ store.selectedHotspot?.total_sample_size?.toLocaleString() ?? 0 }}</strong> checklists
+        </span>
+      </div>
 
       <div class="table-header">
         <div>Species</div>

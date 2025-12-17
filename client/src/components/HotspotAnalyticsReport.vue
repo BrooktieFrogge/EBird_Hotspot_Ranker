@@ -13,6 +13,13 @@
 
       <hr />
 
+      <!-- sample size indicator -->
+      <div style="text-align: left; margin-bottom: 8px;">
+        <span style="font-size: 12px; color: #666;">
+          Based on <strong>{{ analyticsStore.selectedHotspot?.total_sample_size?.toLocaleString() ?? 0 }}</strong> checklists
+        </span>
+      </div>
+
       <!--------------------------->
       <!----- LIKELIHOOD GRAPH ---->
       <!--------------------------->

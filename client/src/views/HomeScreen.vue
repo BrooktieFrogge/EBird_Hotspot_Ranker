@@ -371,7 +371,6 @@ function goToHotspotSearch() {
   width: auto;
   gap: 12px;
 }
-
 .nav-search{
   width: auto;
   color: white;
@@ -389,7 +388,6 @@ function goToHotspotSearch() {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.35);
   transition: background 0.15s ease, color 0.15s ease;
 }
-
 
 .nav-search:hover {
   background: #8b1515;
@@ -417,8 +415,6 @@ function goToHotspotSearch() {
   text-decoration-thickness: 3px;
   text-underline-offset: 0.4em;
 }
-
-
 .cover-banner{
   max-width: 100%;
   position: relative;
@@ -751,8 +747,8 @@ ul li{
 
 /* Rect image */
 .rect-image {
-  width: 50em;
-  height: 35em;
+  width: 40em;
+  height: 25em;
   background: lightgray;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   margin-bottom: 10px;

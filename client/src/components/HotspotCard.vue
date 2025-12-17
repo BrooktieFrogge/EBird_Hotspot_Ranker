@@ -20,7 +20,7 @@
     <div class="row">
       <span class="label">
         <BIconGeoAlt class="icon" />
-        Subregion 1:
+        State/Province:
       </span>
       <span class="value">{{ subregion1 }}</span>
     </div>
@@ -29,7 +29,7 @@
     <div class="row">
       <span class="label">
         <BIconGeoFill class="icon" />
-        Subregion 2:
+        County/District:
       </span>
       <span class="value">
         {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
