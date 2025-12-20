@@ -15,6 +15,18 @@ from datetime import datetime
 
 load_dotenv()
 
+# startup validation: ensure owner configured the server
+required_vars = ["EBIRD_API_KEY", "EBIRD_USERNAME", "EBIRD_PASSWORD"]
+missing_vars = [var for var in required_vars if not os.getenv(var)]
+
+if missing_vars:
+    print("\n" + "!" * 50)
+    print("CRITICAL CONFIGURATION ERROR:")
+    print(f"The following environment variables are missing: {', '.join(missing_vars)}")
+    print("Please set them in your .env file (Local) or Dashboard (Render/Azure).")
+    print("!" * 50 + "\n")
+    raise ValueError(f"Missing required config: {', '.join(missing_vars)}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # start scheduler on app startup
@@ -46,9 +58,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+origins = ["http://localhost:5173"]
+if os.getenv("CLIENT_URL"):
+    origins.append(os.getenv("CLIENT_URL"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

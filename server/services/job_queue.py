@@ -57,6 +57,35 @@ class JobManager:
     def get_job(self, job_id: str) -> Optional[Dict[str, Any]]:
         return self.jobs.get(job_id)
 
+    # background cleanup task
+    async def _cleanup_loop(self):
+        print("[JobQueue] Cleanup task started")
+        while self.running:
+            try:
+                await asyncio.sleep(3600)  # run every hour
+                now = datetime.now()
+                # remove jobs older than 1 hour
+                expired_ids = []
+                for jid, job in self.jobs.items():
+                    # check age
+                    created = datetime.fromisoformat(job["created_at"]) 
+                    age = (now - created).total_seconds()
+                    
+                    # keep jobs for 1 hour for polling
+                    if age > 3600 and job["status"] in [JobStatus.COMPLETED, JobStatus.FAILED]:
+                        expired_ids.append(jid)
+                
+                for jid in expired_ids:
+                    del self.jobs[jid]
+                
+                if expired_ids:
+                    print(f"[JobQueue] Cleaned up {len(expired_ids)} expired jobs")
+
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                print(f"[JobQueue] cleanup error: {e}")
+
     # start background workers
     async def start_worker(self):
         if self.running:
@@ -66,7 +95,10 @@ class JobManager:
         self.worker_tasks = [
             asyncio.create_task(self._worker_loop(i)) for i in range(30)
         ]
-        print(f"[JobQueue] {len(self.worker_tasks)} workers started")
+        # add cleanup task
+        self.worker_tasks.append(asyncio.create_task(self._cleanup_loop()))
+        print(f"[JobQueue] {len(self.worker_tasks)} workers started (inc. cleanup)")
+
 
     # stop background workers
     async def stop_worker(self):

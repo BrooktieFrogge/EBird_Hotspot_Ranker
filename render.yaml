@@ -24,6 +24,11 @@ services:
         value: "2"
       - key: MANUAL_SYNC
         value: "False"
+      - key: CLIENT_URL
+        fromService:
+          type: web
+          name: ebird-featherweight
+          property: url
 
   # frontend
   - type: web
@@ -34,7 +39,8 @@ services:
     dockerContext: ./client
     plan: free
     envVars:
-      # set on render dashboard
       - key: BACKEND_HOST
-        sync: false
-
+        fromService:
+          type: web
+          name: featherweight-server
+          property: host

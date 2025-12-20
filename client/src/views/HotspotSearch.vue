@@ -462,6 +462,12 @@ export default defineComponent({
     const analyticsStore = useAnalyticsStore();
     const navStore = useNavigationStore();
 
+    // cleanup timers
+    onBeforeUnmount(() => {
+      clearTimeout(hotspotDebounceTimer);
+      clearTimeout(countryDebounceTimer);
+    });
+
     // UI state store (persists across route changes)
     const uiStore = useHotspotSearchUIStore();
 
