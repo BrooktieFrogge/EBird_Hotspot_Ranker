@@ -25,10 +25,7 @@ services:
       - key: MANUAL_SYNC
         value: "False"
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: ebird-featherweight
-          property: url
+        sync: false # Set manually in Render dashboard - fromService doesn't support 'url' property
 
   # frontend
   - type: web
