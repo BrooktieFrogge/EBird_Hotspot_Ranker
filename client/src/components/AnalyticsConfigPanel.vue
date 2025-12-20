@@ -358,7 +358,7 @@
 </style>
 
 <script lang="ts">
-import { computed, defineComponent, ref, onMounted } from "vue";
+import { computed, defineComponent, ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
   BIconHouseFill,
@@ -441,6 +441,33 @@ export default defineComponent({
 
     const startWeek = ref(1);
     const endWeek = ref(4);
+
+    // watch for external changes to store values (e.g., from slider)
+    // and sync local refs to match
+    watch(
+      () => analyticsStore.startMonth,
+      (newVal) => {
+        if (newVal && newVal !== startMonth.value) startMonth.value = newVal;
+      }
+    );
+    watch(
+      () => analyticsStore.startWeek,
+      (newVal) => {
+        if (newVal && newVal !== startWeek.value) startWeek.value = newVal;
+      }
+    );
+    watch(
+      () => analyticsStore.endMonth,
+      (newVal) => {
+        if (newVal && newVal !== endMonth.value) endMonth.value = newVal;
+      }
+    );
+    watch(
+      () => analyticsStore.endWeek,
+      (newVal) => {
+        if (newVal && newVal !== endWeek.value) endWeek.value = newVal;
+      }
+    );
 
     // --- SEASONAL PRESETS ---
     const SEASONAL_PRESETS = {
