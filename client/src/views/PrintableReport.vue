@@ -265,6 +265,7 @@ export default defineComponent({
       maintainAspectRatio: true,
       aspectRatio: 2.5,
       animation: false,
+      devicePixelRatio: 3, // High-DPI rendering for crisp PDF output
       plugins: {
         legend: {
           position: "top" as const,

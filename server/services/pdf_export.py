@@ -63,10 +63,11 @@ async def generate_pdf(
     # get shared browser instance (fast - no cold start)
     browser = await get_browser()
     
-    # create context - tall viewport to capture all content
+    # create context - tall viewport to capture all content, high DPI for crisp charts
     context = await browser.new_context(
         user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         viewport={'width': 850, 'height': 4000},
+        device_scale_factor=2,  # 2x resolution for crisp charts and text
         bypass_csp=True,
     )
     
