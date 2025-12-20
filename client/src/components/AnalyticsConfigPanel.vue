@@ -1,6 +1,5 @@
 <template>
   <div class="analytics-config-panel" @scroll="checkScrollPosition" ref="panel">
-    
     <!--------------------------->
     <!----- YEAR SELECTION ------>
     <!--------------------------->
@@ -12,7 +11,7 @@
           <v-text-field
             v-model.number="tempStartYear"
             density="compact"
-            style="width: 100px;"
+            style="width: 100px"
             type="number"
             variant="outlined"
             hide-details
@@ -35,15 +34,15 @@
             :max="currentYear"
           ></v-text-field>
         </div>
-        
+
         <!--- Confirmation --->
-        <div class="confirm-btn-wrapper"> 
+        <div class="confirm-btn-wrapper">
           <v-btn
             color="#296239"
             @click="confirmYearRange"
             :disabled="!isYearRangeValid"
             size="small"
-            class="confirm-btn" 
+            class="confirm-btn"
             elevation="2"
           >
             Confirm Years
@@ -52,16 +51,14 @@
       </div>
     </div>
 
-
     <!--------------------------->
     <!----- TIME SELECTION ------>
     <!--------------------------->
     <div class="config-section">
       <h4 class="unified-config-header">Select Time Frame</h4>
-      
+
       <!-- unified time container -->
       <div class="unified-time-container">
-        
         <!-- single header for both blocks -->
         <div class="container-header">
           <span class="header-main">Checklists per Week</span>
@@ -90,7 +87,10 @@
             >
               <div class="week-bar-density">{{ week.density }}</div>
               <div
-                :class="['week-bar-max', { 'week-bar-selected': startWeek === week.value }]"
+                :class="[
+                  'week-bar-max',
+                  { 'week-bar-selected': startWeek === week.value },
+                ]"
                 :style="{ height: week.height }"
               ></div>
               <div class="week-bar-text">{{ week.label }}</div>
@@ -124,7 +124,10 @@
             >
               <div class="week-bar-density">{{ week.density }}</div>
               <div
-                :class="['week-bar-max', { 'week-bar-selected': endWeek === week.value }]"
+                :class="[
+                  'week-bar-max',
+                  { 'week-bar-selected': endWeek === week.value },
+                ]"
                 :style="{ height: week.height }"
               ></div>
               <div class="week-bar-text">{{ week.label }}</div>
@@ -132,21 +135,22 @@
           </div>
           <span class="click-subtext-mobile">(Click bar to select)</span>
         </div>
-
       </div>
 
       <!-- data distribution graph -->
       <!-- title outside container (like "select time frame") -->
       <h4 class="unified-config-header">Data Density</h4>
-      
+
       <!-- graph inside unified container -->
       <div class="unified-time-container graph-container">
-        <h5 v-if="!analyticsStore.selectedHotspot" class="empty-graph-label">Select Hotspot to View Data</h5>
+        <h5 v-if="!analyticsStore.selectedHotspot" class="empty-graph-label">
+          Select Hotspot to View Data
+        </h5>
         <!-- graph itself -->
-        <DataDistributionGraph/>
+        <DataDistributionGraph />
       </div>
     </div>
-    
+
     <!--------------------------->
     <!--- PICK # OF TOP BIRDS --->
     <!----------------------------->
@@ -154,36 +158,55 @@
     <!--- PICK # OF TOP BIRDS --->
     <!----------------------------->
     <div class="config-section">
-      <h4 class="unified-config-header">Show Top Birds</h4>
-      <div class="unified-time-container top-birds-centered">
-        <span class="config-text">Show top</span>
-        <v-text-field
-          v-model.number="analyticsStore.numTopBirds"
-          density="compact"
-          style="width: 85px; flex: none;"
-          type="number"
-          variant="outlined"
-          hide-details
-          single-line
-          :min="1"
-          :max="allBirds.length || 10"
-        ></v-text-field>
-        <span class="config-text">birds</span>
+      <h4 class="unified-config-header">Display Counts</h4>
+      <div class="unified-time-container top-counts-container">
+        <!-- Show Top Birds Row -->
+        <div class="top-count-row">
+          <span class="config-text">Show top</span>
+          <v-text-field
+            v-model.number="analyticsStore.numTopBirds"
+            density="compact"
+            class="top-count-input"
+            type="number"
+            variant="outlined"
+            hide-details
+            single-line
+            :min="1"
+            :max="allBirds.length || 10"
+          ></v-text-field>
+          <span class="config-text">birds</span>
+        </div>
+
+        <!-- Show Top Photos Row -->
+        <div class="top-count-row">
+          <span class="config-text">Show top</span>
+          <v-text-field
+            v-model.number="analyticsStore.numTopPhotos"
+            density="compact"
+            class="top-count-input"
+            type="number"
+            variant="outlined"
+            hide-details
+            single-line
+            :min="1"
+            :max="analyticsStore.numTopBirds"
+          ></v-text-field>
+          <span class="config-text">photos</span>
+        </div>
       </div>
     </div>
-
 
     <!--------------------------->
     <!------ CUSTOM BIRDS ------->
     <!--------------------------->
     <div class="config-section">
       <h4 class="unified-config-header">Add Custom Birds</h4>
-      <div class="unified-time-container" style="padding: 12px 16px;">
+      <div class="unified-time-container" style="padding: 12px 16px">
         <div class="search-container">
           <v-text-field
             v-model="birdSearch"
             variant="outlined"
-            placeholder="Search birds..." 
+            placeholder="Search birds..."
             label=""
             hide-details
             clearable
@@ -203,9 +226,11 @@
               class="search-result-item"
               @mousedown.prevent="selectBird(bird)"
             >
-              <div style="font-weight: 500;">{{ bird.Species }}</div>
+              <div style="font-weight: 500">{{ bird.Species }}</div>
               <div class="search-result-subtext">
-                #{{ bird.Rank }} · Likelihood {{ Math.round(bird.wtd_rf * 100) / 100 }} · Normalized {{ Math.round(bird.rfpc * 10) / 10 }}
+                #{{ bird.Rank }} · Likelihood
+                {{ Math.round(bird.wtd_rf * 100) / 100 }} · Normalized
+                {{ Math.round(bird.rfpc * 10) / 10 }}
               </div>
             </div>
           </div>
@@ -213,13 +238,12 @@
       </div>
     </div>
 
-
     <!--------------------------->
     <!------ TOGGLES ------->
     <!--------------------------->
     <div class="config-section">
       <h4 class="unified-config-header">Display Options</h4>
-      <div class="unified-time-container" style="padding: 8px 16px;">
+      <div class="unified-time-container" style="padding: 8px 16px">
         <div class="toggle-container">
           <v-switch
             color="#296239"
@@ -236,7 +260,7 @@
             @change="handlePhotosToggle"
             hide-details
             :model-value="showTopPhotos"
-            style="margin-top: -8px;"
+            style="margin-top: -8px"
           ></v-switch>
         </div>
       </div>
@@ -257,17 +281,18 @@
   position: relative;
 }
 
-.empty-graph-label, .graph-label {
-    text-align: center;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-    font-weight: 500;
+.empty-graph-label,
+.graph-label {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 /* custom input styling for dark mode */
 :deep(.v-field__outline) {
-    --v-field-border-opacity: 0.15;
+  --v-field-border-opacity: 0.15;
 }
 
 /* on hover, slightly more visible */
@@ -286,120 +311,135 @@
 }
 
 .time-section-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .time-section-box h5 {
-    width: 100%;
-    text-align: center;
+  width: 100%;
+  text-align: center;
 }
 :deep(.v-switch .v-selection-control__input input:checked + .v-switch__track) {
-  background-color: #2196F3 !important; /* Active Blue */
+  background-color: #2196f3 !important; /* Active Blue */
   opacity: 1 !important;
 }
 
 :deep(.v-switch .v-selection-control__input input:checked ~ .v-switch__thumb) {
-  color: #2196F3 !important;
+  color: #2196f3 !important;
 }
 
-:deep(.v-switch .v-selection-control__input input:not(:checked) + .v-switch__track) {
-  background-color: #90EE90 !important;
-  opacity: 1 !important; 
+:deep(
+    .v-switch .v-selection-control__input input:not(:checked) + .v-switch__track
+  ) {
+  background-color: #90ee90 !important;
+  opacity: 1 !important;
 }
 
-:deep(.v-switch .v-selection-control__input input:not(:checked) ~ .v-switch__thumb) {
+:deep(
+    .v-switch .v-selection-control__input input:not(:checked) ~ .v-switch__thumb
+  ) {
   color: #fff !important;
 }
 </style>
 
 <script lang="ts">
-import { computed, defineComponent, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, defineComponent, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import {
   BIconHouseFill,
   BIconArrowLeft,
-  BIconArrowDown
-} from 'bootstrap-icons-vue';
-import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import type { Bird } from '../types';
-import DataDistributionGraph from '../components/DataDistributionGraph.vue'
+  BIconArrowDown,
+} from "bootstrap-icons-vue";
+import { useAnalyticsStore } from "../stores/useAnalyticsStore";
+import type { Bird } from "../types";
+import DataDistributionGraph from "../components/DataDistributionGraph.vue";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-
-
 /**
- * A panel for configurating the analytics report. 
- * It includes functionality for date range, etc. (has yet to be completed). 
+ * A panel for configurating the analytics report.
+ * It includes functionality for date range, etc. (has yet to be completed).
  * The panel allows users to ...
  */
 export default defineComponent({
-  name: 'AnalyticsConfigPanel',
+  name: "AnalyticsConfigPanel",
 
   components: {
     BIconHouseFill,
     BIconArrowLeft,
     BIconArrowDown,
-    DataDistributionGraph
+    DataDistributionGraph,
   },
 
   setup() {
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
-    
+
     // SCROLL LOGIC STATE
     const panel = ref<HTMLElement | null>(null);
     const showScrollIndicator = ref(false); // Default to false
 
     // --- YEAR SELECTION LOGIC ---
     const currentYear = new Date().getFullYear();
-    const minYear = 1900;  // eBird's historical minimum
-    
+    const minYear = 1900; // eBird's historical minimum
+
     const tempStartYear = ref(analyticsStore.startYear);
     const tempEndYear = ref(analyticsStore.endYear);
-    
+
     const isYearRangeValid = computed(() => {
-        const start = tempStartYear.value;
-        const end = tempEndYear.value;
-        
-        return start <= end && start >= minYear && end <= currentYear;
+      const start = tempStartYear.value;
+      const end = tempEndYear.value;
+
+      return start <= end && start >= minYear && end <= currentYear;
     });
 
     const confirmYearRange = () => {
-        if (isYearRangeValid.value) {
-            analyticsStore.setYearRange(tempStartYear.value, tempEndYear.value);
-            analyticsStore.fetchHotspotDetail();
-            console.log(`Confirmed year range: ${tempStartYear.value} to ${tempEndYear.value}`);
-        } else {
-            console.error("Invalid year range entered.");
-        }
+      if (isYearRangeValid.value) {
+        analyticsStore.setYearRange(tempStartYear.value, tempEndYear.value);
+        analyticsStore.fetchHotspotDetail();
+        console.log(
+          `Confirmed year range: ${tempStartYear.value} to ${tempEndYear.value}`
+        );
+      } else {
+        console.error("Invalid year range entered.");
+      }
     };
 
     // --- MONTH/WEEK SELECTION DATA ---
 
     const monthOptions = [
-      { title: 'January', value: 1 }, { title: 'February', value: 2 }, 
-      { title: 'March', value: 3 }, { title: 'April', value: 4 }, 
-      { title: 'May', value: 5 }, { title: 'June', value: 6 }, 
-      { title: 'July', value: 7 }, { title: 'August', value: 8 }, 
-      { title: 'September', value: 9 }, { title: 'October', value: 10 }, 
-      { title: 'November', value: 11 }, { title: 'December', value: 12 }
+      { title: "January", value: 1 },
+      { title: "February", value: 2 },
+      { title: "March", value: 3 },
+      { title: "April", value: 4 },
+      { title: "May", value: 5 },
+      { title: "June", value: 6 },
+      { title: "July", value: 7 },
+      { title: "August", value: 8 },
+      { title: "September", value: 9 },
+      { title: "October", value: 10 },
+      { title: "November", value: 11 },
+      { title: "December", value: 12 },
     ];
 
     const startMonth = ref(1);
     const endMonth = ref(12);
-    
+
     const startWeek = ref(1);
-    const endWeek = ref(4); 
+    const endWeek = ref(4);
 
     const startWeekDataDensity = computed(() => {
       // find selected month title
-      const selectedMonthOption = monthOptions.find(m => m.value === startMonth.value);
-      if (!selectedMonthOption || !analyticsStore.selectedHotspot?.sample_sizes_by_week) {
-          return [];
+      const selectedMonthOption = monthOptions.find(
+        (m) => m.value === startMonth.value
+      );
+      if (
+        !selectedMonthOption ||
+        !analyticsStore.selectedHotspot?.sample_sizes_by_week
+      ) {
+        return [];
       }
 
       // Set month
@@ -410,37 +450,41 @@ export default defineComponent({
       const densityData = analyticsStore.selectedHotspot.sample_sizes_by_week;
 
       // populate list + loop through weeks in month
-      const result: { label: string, value: number, density: number }[] = [];
+      const result: { label: string; value: number; density: number }[] = [];
       for (let i = 1; i <= 4; i++) {
-          const wkIndex = `${monthAbbrev}_w${i}`;
-          const density = densityData[wkIndex] ?? 0;
-          result.push({
-              label: `Wk ${i}`,
-              value: i,
-              density: density
-          });
+        const wkIndex = `${monthAbbrev}_w${i}`;
+        const density = densityData[wkIndex] ?? 0;
+        result.push({
+          label: `Wk ${i}`,
+          value: i,
+          density: density,
+        });
       }
       return result;
     });
 
-
     //For formatting, keeps the bars below a max height and computed relative to max data
     const maxDensity = computed(() => {
-        const densityData = analyticsStore.selectedHotspot?.sample_sizes_by_week;
+      const densityData = analyticsStore.selectedHotspot?.sample_sizes_by_week;
 
-        if (!densityData || Object.keys(densityData).length === 0) {
-            return 1;
-        }
-        const values = Object.values(densityData) as number[];
+      if (!densityData || Object.keys(densityData).length === 0) {
+        return 1;
+      }
+      const values = Object.values(densityData) as number[];
 
-        return Math.max(...values, 1); 
+      return Math.max(...values, 1);
     });
 
     const endWeekDataDensity = computed(() => {
       // find selected month title
-      const selectedMonthOption = monthOptions.find(m => m.value === endMonth.value);
-      if (!selectedMonthOption || !analyticsStore.selectedHotspot?.sample_sizes_by_week) {
-          return [];
+      const selectedMonthOption = monthOptions.find(
+        (m) => m.value === endMonth.value
+      );
+      if (
+        !selectedMonthOption ||
+        !analyticsStore.selectedHotspot?.sample_sizes_by_week
+      ) {
+        return [];
       }
 
       // Set month
@@ -451,104 +495,105 @@ export default defineComponent({
       const densityData = analyticsStore.selectedHotspot.sample_sizes_by_week;
 
       // populate list + loop through weeks in month
-      const result: { label: string, value: number, density: number }[] = [];
+      const result: { label: string; value: number; density: number }[] = [];
       for (let i = 1; i <= 4; i++) {
-          const wkIndex = `${monthAbbrev}_w${i}`;
-          const density = densityData[wkIndex] ?? 0;
-          result.push({
-              label: `Wk ${i}`,
-              value: i,
-              density: density
-          });
+        const wkIndex = `${monthAbbrev}_w${i}`;
+        const density = densityData[wkIndex] ?? 0;
+        result.push({
+          label: `Wk ${i}`,
+          value: i,
+          density: density,
+        });
       }
       return result;
     });
 
-
     const weeksInStartMonth = computed(() => {
       const maxD = maxDensity.value;
-      return startWeekDataDensity.value.map(week => {
+      return startWeekDataDensity.value.map((week) => {
         // calculate percentage (min 10% to show bar even if empty/low)
         const percent = maxD > 0 ? (week.density / maxD) * 100 : 0;
-        const safePercent = Math.max(10, percent); 
-            
+        const safePercent = Math.max(10, percent);
+
         return {
           ...week,
-          height: `${safePercent}%`
+          height: `${safePercent}%`,
         };
       });
     });
 
     const weeksInEndMonth = computed(() => {
       const maxD = maxDensity.value;
-      return endWeekDataDensity.value.map(week => {
+      return endWeekDataDensity.value.map((week) => {
         const percent = maxD > 0 ? (week.density / maxD) * 100 : 0;
-        const safePercent = Math.max(10, percent); 
-            
+        const safePercent = Math.max(10, percent);
+
         return {
           ...week,
-          height: `${safePercent}%` 
+          height: `${safePercent}%`,
         };
       });
     });
 
     // debounce timer for auto-fetch
     let fetchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-    
+
     const debouncedFetchHotspot = () => {
-        // clear existing timer
-        if (fetchDebounceTimer) {
-            clearTimeout(fetchDebounceTimer);
-        }
-        // set new timer - fetch after 300ms
-        fetchDebounceTimer = setTimeout(() => {
-            console.log(`[auto-fetch] Time changed: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
-            analyticsStore.fetchHotspotDetail();
-        }, 300);
+      // clear existing timer
+      if (fetchDebounceTimer) {
+        clearTimeout(fetchDebounceTimer);
+      }
+      // set new timer - fetch after 300ms
+      fetchDebounceTimer = setTimeout(() => {
+        console.log(
+          `[auto-fetch] Time changed: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`
+        );
+        analyticsStore.fetchHotspotDetail();
+      }, 300);
     };
 
     const selectStartWeek = (weekNumber: number) => {
-        startWeek.value = weekNumber;
-        analyticsStore.startWeek = startWeek.value;
-        debouncedFetchHotspot();  // Auto-fetch with debounce
+      startWeek.value = weekNumber;
+      analyticsStore.startWeek = startWeek.value;
+      debouncedFetchHotspot(); // Auto-fetch with debounce
     };
 
     const selectEndWeek = (weekNumber: number) => {
-        endWeek.value = weekNumber;
-        analyticsStore.endWeek = endWeek.value;
-        debouncedFetchHotspot();  // auto-fetch with debounce
+      endWeek.value = weekNumber;
+      analyticsStore.endWeek = endWeek.value;
+      debouncedFetchHotspot(); // auto-fetch with debounce
     };
-    
+
     // keep manual trigger if we need it later
     const confirmTimeRange = () => {
-        if (fetchDebounceTimer) clearTimeout(fetchDebounceTimer);
-        analyticsStore.fetchHotspotDetail();
-        console.log(`Manual confirm: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`);
+      if (fetchDebounceTimer) clearTimeout(fetchDebounceTimer);
+      analyticsStore.fetchHotspotDetail();
+      console.log(
+        `Manual confirm: ${startMonth.value}/${startWeek.value} to ${endMonth.value}/${endWeek.value}`
+      );
     };
 
     // handler for month dropdown changes - triggers debounced fetch
     const onMonthChange = () => {
-        debouncedFetchHotspot();
+      debouncedFetchHotspot();
     };
-
 
     // --- SCROLL LOGIC FUNCTIONS ---
     const checkScrollPosition = () => {
-        if (!panel.value) return;
+      if (!panel.value) return;
 
-        const { scrollTop, clientHeight, scrollHeight } = panel.value;
+      const { scrollTop, clientHeight, scrollHeight } = panel.value;
 
-        // Check if content overflows/not near bottom
-        const hasOverflow = scrollHeight > clientHeight;
-        const isNearBottom = scrollHeight - scrollTop - clientHeight < 5;
-        
-        showScrollIndicator.value = hasOverflow && !isNearBottom;
+      // Check if content overflows/not near bottom
+      const hasOverflow = scrollHeight > clientHeight;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 5;
+
+      showScrollIndicator.value = hasOverflow && !isNearBottom;
     };
-    
-    onMounted(() => {
-        setTimeout(checkScrollPosition, 100);  // for checking the scroll position
-    });
 
+    onMounted(() => {
+      setTimeout(checkScrollPosition, 100); // for checking the scroll position
+    });
 
     // --- OTHER LOGIC (UNCHANGED) ---
     const birdSearch = ref("");
@@ -557,14 +602,14 @@ export default defineComponent({
 
     const filterBirds = () => {
       const q = birdSearch.value.toLowerCase();
-      filteredBirds.value = allBirds.value.filter(bird =>
+      filteredBirds.value = allBirds.value.filter((bird) =>
         bird.Species.toLowerCase().includes(q)
       );
     };
 
     const selectBird = (bird: Bird) => {
       analyticsStore.selectBird(bird);
-      birdSearch.value = '';  // clear search to allow quick addition of more birds
+      birdSearch.value = ""; // clear search to allow quick addition of more birds
       filteredBirds.value = [];
     };
 
@@ -576,31 +621,31 @@ export default defineComponent({
     };
 
     const clearSearch = () => {
-      birdSearch.value = '';
+      birdSearch.value = "";
       filteredBirds.value = [];
     };
 
     const redirectToHomeScreen = () => {
       analyticsStore.resetAnalyticsConfiguration();
       analyticsStore.resetSelectedHotspot();
-      router.push({ name: 'HomeScreen' });
+      router.push({ name: "HomeScreen" });
     };
 
     const redirectToHotspotSearch = () => {
       analyticsStore.resetAnalyticsConfiguration();
-      router.push({ name: 'HotspotSearch' });
+      router.push({ name: "HotspotSearch" });
     };
 
     const showGraph = analyticsStore.showLikelihoodCurve;
 
     const handleGraphToggle = () => {
-        analyticsStore.toggleLikelihoodCurve();
+      analyticsStore.toggleLikelihoodCurve();
     };
 
     const showTopPhotos = analyticsStore.showTopBirdPhotos;
 
     const handlePhotosToggle = () => {
-        analyticsStore.toggleTopPhotos();
+      analyticsStore.toggleTopPhotos();
     };
 
     // Export Report as PDF
@@ -608,45 +653,60 @@ export default defineComponent({
 
     const exportReport = async () => {
       if (!analyticsStore.selectedHotspotId || isExporting.value) return;
-      
+
       isExporting.value = true;
-      
+
       try {
         // Build URL for PDF endpoint with current config
         const params = new URLSearchParams({
           num_top_birds: analyticsStore.numTopBirds.toString(),
+          num_top_photos: analyticsStore.numTopPhotos.toString(),
           show_graph: analyticsStore.showLikelihoodCurve.toString(),
           show_photos: analyticsStore.showTopBirdPhotos.toString(),
         });
-        
-        if (analyticsStore.startYear) params.append('start_yr', analyticsStore.startYear.toString());
-        if (analyticsStore.endYear) params.append('end_yr', analyticsStore.endYear.toString());
-        if (analyticsStore.startMonth) params.append('start_month', analyticsStore.startMonth.toString());
-        if (analyticsStore.startWeek) params.append('start_week', analyticsStore.startWeek.toString());
-        if (analyticsStore.endMonth) params.append('end_month', analyticsStore.endMonth.toString());
-        if (analyticsStore.endWeek) params.append('end_week', analyticsStore.endWeek.toString());
-        
+
+        if (analyticsStore.startYear)
+          params.append("start_yr", analyticsStore.startYear.toString());
+        if (analyticsStore.endYear)
+          params.append("end_yr", analyticsStore.endYear.toString());
+        if (analyticsStore.startMonth)
+          params.append("start_month", analyticsStore.startMonth.toString());
+        if (analyticsStore.startWeek)
+          params.append("start_week", analyticsStore.startWeek.toString());
+        if (analyticsStore.endMonth)
+          params.append("end_month", analyticsStore.endMonth.toString());
+        if (analyticsStore.endWeek)
+          params.append("end_week", analyticsStore.endWeek.toString());
+
         // Pass custom bird ranks only (much shorter than full objects)
         if (analyticsStore.selectedBirds.length > 0) {
-          const ranks = analyticsStore.selectedBirds.map(b => b.Rank);
-          params.append('custom_ranks', ranks.join(','));
+          const ranks = analyticsStore.selectedBirds.map((b) => b.Rank);
+          params.append("custom_ranks", ranks.join(","));
         }
         if (analyticsStore.selectedBirdPhotos.length > 0) {
-          const photoRanks = analyticsStore.selectedBirdPhotos.map(b => b.Rank);
-          params.append('photo_ranks', photoRanks.join(','));
+          const photoRanks = analyticsStore.selectedBirdPhotos.map(
+            (b) => b.Rank
+          );
+          params.append("photo_ranks", photoRanks.join(","));
         }
-        
+
         // Pass the current date from client (correct timezone)
-        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        params.append('gen_date', today);
-        
-        const pdfUrl = `/api/hotspots/report/${analyticsStore.selectedHotspotId}/pdf?${params.toString()}`;
-        
+        const today = new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        params.append("gen_date", today);
+
+        const pdfUrl = `/api/hotspots/report/${
+          analyticsStore.selectedHotspotId
+        }/pdf?${params.toString()}`;
+
         // Open PDF in new tab - browser will show print dialog or PDF viewer
-        window.open(pdfUrl, '_blank');
+        window.open(pdfUrl, "_blank");
       } catch (error) {
-        console.error('Export failed:', error);
-        alert('Failed to generate PDF. Please try again.');
+        console.error("Export failed:", error);
+        alert("Failed to generate PDF. Please try again.");
       } finally {
         isExporting.value = false;
       }
@@ -679,7 +739,7 @@ export default defineComponent({
       showScrollIndicator,
       checkScrollPosition,
       // Other Logic
-      birdSearch, 
+      birdSearch,
       allBirds,
       filteredBirds,
       filterBirds,
@@ -692,23 +752,23 @@ export default defineComponent({
       handlePhotosToggle,
       analyticsStore,
       exportReport,
-      isExporting
+      isExporting,
     };
   },
 });
-
 </script>
 
 <style scoped>
 .analytics-config-panel {
-  padding: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px) 80px clamp(12px, 2vw, 20px);
+  padding: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px) 80px
+    clamp(12px, 2vw, 20px);
   background: var(--color-bg-seamless);
   border-right: 1px solid var(--color-border-light);
-  
-  height: 100vh; 
-  overflow-y: auto; 
+
+  height: 100vh;
+  overflow-y: auto;
   position: relative;
-    
+
   box-sizing: border-box;
 }
 
@@ -726,19 +786,19 @@ export default defineComponent({
 }
 
 .scroll-indicator {
-    position: sticky; 
-    bottom: 0px; 
-    left: 0;
-    right: 0;
-    height: 30px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    color: var(--color-text-muted);
-    font-size: 1.2em;
-    pointer-events: none; 
-    opacity: 0.6;
+  position: sticky;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.2em;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 /* --- YEAR SECTION STYLES --- */
@@ -795,24 +855,23 @@ export default defineComponent({
   font-size: clamp(12px, 1.5vw, 15px);
   font-weight: 600;
   margin-bottom: 8px; /* strict separation from container */
-  margin-top: 24px;   /* strict separation from previous section */
+  margin-top: 24px; /* strict separation from previous section */
   color: var(--color-text-primary) !important;
   text-align: center;
   position: relative;
 }
 
-
 /* first header shouldn't have top margin */
 .year-section .unified-config-header {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .unified-inputs-container {
-    padding: 20px 16px !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  padding: 20px 16px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* keep previous rule for safety/specificity but renamed targets */
@@ -820,31 +879,59 @@ export default defineComponent({
   font-size: clamp(12px, 1.5vw, 15px);
   font-weight: 600;
   margin-bottom: clamp(6px, 1vw, 12px);
-  color: var(--color-text-primary) !important; 
+  color: var(--color-text-primary) !important;
 }
 
 .to-text {
-  font-weight: 600; 
-  font-size: 0.9rem; 
+  font-weight: 600;
+  font-size: 0.9rem;
   margin: 0 4px;
   color: var(--color-text-primary) !important;
 }
 
 .config-text {
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: var(--color-text-primary) !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--color-text-primary) !important;
 }
 
-/* --- HELPER FOR TOP BIRDS ALIGNMENT --- */
-.top-birds-centered {
-  display: flex !important;
+/* --- TOP COUNTS CONTAINER (Birds + Photos) --- */
+.top-counts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.top-count-row {
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
 }
 
-:global(body.theme--dark) .top-birds-picker {
+.top-count-input {
+  width: 80px;
+  flex: none;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+  .top-counts-container {
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .top-count-row {
+    gap: 8px;
+  }
+
+  .top-count-input {
+    width: 70px;
+  }
+}
+
+:global(body.theme--dark) .top-counts-container {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -975,7 +1062,7 @@ export default defineComponent({
 }
 
 body.theme--dark .week-bar-max {
-  background-color: #8EB5CC;
+  background-color: #8eb5cc;
 }
 
 .week-bar-selected {
@@ -1068,42 +1155,42 @@ body.theme--dark .search-result-item:hover {
     gap: 4px;
     margin-bottom: 14px;
   }
-  
+
   .header-sub {
     display: none;
   }
-  
+
   .click-subtext-mobile {
     display: block;
   }
-  
+
   .time-block-minimal {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
   }
-  
+
   .block-label {
     font-size: 1rem;
     text-align: center;
   }
-  
+
   .dropdown-minimal {
     width: clamp(140px, 60%, 200px);
     align-self: center;
   }
-  
+
   .weeks-row-max {
     height: clamp(120px, 22vh, 180px);
     gap: 16px;
   }
-  
+
   .week-bar-wrapper-max {
     flex: 1;
     max-width: clamp(55px, 12vw, 80px);
   }
-  
+
   .week-bar-max {
     width: 75%;
   }
@@ -1119,36 +1206,36 @@ body.theme--dark .search-result-item:hover {
     gap: 2px;
     margin-bottom: 10px;
   }
-  
+
   .header-sub {
     display: none;
   }
-  
+
   .click-subtext-mobile {
     display: block;
   }
-  
+
   .time-block-minimal {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
   }
-  
+
   .block-label {
     text-align: center;
   }
-  
+
   .dropdown-minimal {
     width: clamp(100px, 40%, 160px);
     align-self: center;
   }
-  
+
   .weeks-row-max {
     height: clamp(80px, 15vh, 120px);
     gap: 10px;
   }
-  
+
   .week-bar-wrapper-max {
     flex: 1;
     max-width: clamp(35px, 8vw, 50px);
@@ -1163,36 +1250,36 @@ body.theme--dark .search-result-item:hover {
     gap: 2px;
     margin-bottom: 12px;
   }
-  
+
   .header-sub {
     display: none;
   }
-  
+
   .click-subtext-mobile {
     display: block;
   }
-  
+
   .time-block-minimal {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
   }
-  
+
   .block-label {
     text-align: center;
   }
-  
+
   .dropdown-minimal {
     width: clamp(120px, 50%, 180px);
     align-self: center;
   }
-  
+
   .weeks-row-max {
     height: clamp(100px, 18vh, 150px);
     gap: 12px;
   }
-  
+
   .week-bar-wrapper-max {
     flex: 1;
     max-width: clamp(45px, 10vw, 60px);
@@ -1207,37 +1294,37 @@ body.theme--dark .search-result-item:hover {
     gap: 2px;
     margin-bottom: 10px;
   }
-  
+
   .header-sub {
     display: none;
   }
-  
+
   .click-subtext-mobile {
     display: block;
   }
-  
+
   .time-block-minimal {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
   }
-  
+
   .block-label {
     text-align: center;
   }
-  
+
   .dropdown-minimal {
     width: 50%;
     max-width: 180px;
     align-self: center;
   }
-  
+
   .weeks-row-max {
     height: clamp(100px, 22vh, 160px);
     gap: 12px;
   }
-  
+
   .week-bar-wrapper-max {
     flex: 1;
     max-width: clamp(50px, 12vw, 70px);
@@ -1249,76 +1336,75 @@ body.theme--dark .search-result-item:hover {
   .unified-time-container {
     padding: 12px 10px;
   }
-  
+
   .container-header {
     flex-direction: column;
     align-items: center;
     gap: 2px;
     margin-bottom: 10px;
   }
-  
+
   .header-main {
     font-size: 0.85rem;
   }
-  
+
   .header-sub {
     font-size: 0.6rem;
   }
-  
+
   .time-block-minimal {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
   }
-  
+
   .block-label {
     font-size: 0.8rem;
     text-align: center;
   }
-  
+
   .header-sub {
     display: none;
   }
-  
+
   .click-subtext-mobile {
     display: block;
   }
-  
+
   .dropdown-minimal {
     width: 60%;
     max-width: 160px;
     align-self: center;
   }
-  
+
   .weeks-row-max {
     height: clamp(120px, 35vh, 200px);
     width: 100%;
     gap: 12px;
   }
-  
+
   .week-bar-wrapper-max {
     flex: 1;
     max-width: clamp(50px, 12vw, 70px);
     padding: 4px 2px;
   }
-  
+
   .week-bar-max {
     width: 75%;
     border-radius: 6px;
   }
-  
+
   .week-bar-density {
     font-size: 10px;
   }
-  
+
   .week-bar-text {
     font-size: 9px;
   }
-  
+
   .time-divider {
     margin: 10px 0;
   }
 }
-
 </style>

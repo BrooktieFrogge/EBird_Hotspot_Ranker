@@ -9,6 +9,7 @@ async def generate_pdf(
     client_url: str,
     hotspot_id: str,
     num_top_birds: int = 10,
+    num_top_photos: int = 3,
     show_graph: bool = True,
     show_photos: bool = True,
     start_year: int = None,
@@ -27,6 +28,7 @@ async def generate_pdf(
     # build the url with query params
     params = []
     params.append(f"numTopBirds={num_top_birds}")
+    params.append(f"numTopPhotos={num_top_photos}")
     params.append(f"showGraph={'true' if show_graph else 'false'}")
     params.append(f"showPhotos={'true' if show_photos else 'false'}")
     

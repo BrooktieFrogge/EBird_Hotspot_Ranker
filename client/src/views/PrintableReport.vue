@@ -1,6 +1,8 @@
 <template>
-  <div class="printable-report" v-if="!store.isLoading && store.selectedHotspot">
-    
+  <div
+    class="printable-report"
+    v-if="!store.isLoading && store.selectedHotspot"
+  >
     <!-- report header -->
     <header class="report-header">
       <h1>FeatherWeight Report</h1>
@@ -9,27 +11,40 @@
 
     <!-- hotspot name -->
     <div class="hotspot-info">
-      <h2>{{ store.selectedHotspot?.name ?? 'No Hotspot Selected' }}</h2>
-      <p class="location">{{ store.selectedHotspot?.country ?? ''}}, {{ store.selectedHotspot?.subregion1 ?? ''}}</p>
+      <h2>{{ store.selectedHotspot?.name ?? "No Hotspot Selected" }}</h2>
+      <p class="location">
+        {{ store.selectedHotspot?.country ?? "" }},
+        {{ store.selectedHotspot?.subregion1 ?? "" }}
+      </p>
     </div>
 
     <!-- observation likelihood graph -->
     <div class="section" v-if="store.showLikelihoodCurve && birds.length > 0">
       <h3 class="section-title">Observation Likelihood</h3>
       <div class="chart-wrapper">
-        <LineChart 
-          :chartData="chartData"
-          :options="chartOptions"
-        />
+        <LineChart :chartData="chartData" :options="chartOptions" />
       </div>
     </div>
 
     <!-- top birds list - matches original styling -->
     <div class="section bird-table-section">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
-        <h2 class="section-title" style="margin-bottom: 0;">Top {{ store.numTopBirds }} Birds</h2>
-        <span style="font-size: 11px; color: #666;">
-          Based on <strong>{{ store.selectedHotspot?.total_sample_size?.toLocaleString() ?? 0 }}</strong> checklists
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          margin-bottom: 4px;
+        "
+      >
+        <h2 class="section-title" style="margin-bottom: 0">
+          Top {{ store.numTopBirds }} Birds
+        </h2>
+        <span style="font-size: 11px; color: #666">
+          Based on
+          <strong>{{
+            store.selectedHotspot?.total_sample_size?.toLocaleString() ?? 0
+          }}</strong>
+          checklists
         </span>
       </div>
 
@@ -39,29 +54,40 @@
         <div>List Likelihood (normalized to {{ birds[0]?.Species }})</div>
       </div>
 
-      <div
-        class="table-row"
-        v-for="(bird, i) in birds"
-        :key="i"
-      >
+      <div class="table-row" v-for="(bird, i) in birds" :key="i">
         <div class="species-cell">
           <span class="index">{{ i + 1 }}.</span>
-          <a v-if="bird.speciesUrl" :href="bird.speciesUrl" target="_blank" class="species-link">{{ bird.Species }}</a>
+          <a
+            v-if="bird.speciesUrl"
+            :href="bird.speciesUrl"
+            target="_blank"
+            class="species-link"
+            >{{ bird.Species }}</a
+          >
           <span v-else>{{ bird.Species }}</span>
         </div>
-        <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2)}}</div>
-        <div class="cell">{{ Math.round((10)*bird.rfpc)/(10) }}</div>
+        <div class="cell">
+          {{ Math.round(10 ** 2 * bird.wtd_rf) / 10 ** 2 }}
+        </div>
+        <div class="cell">{{ Math.round(10 * bird.rfpc) / 10 }}</div>
       </div>
     </div>
 
-    <!-- top 3 bird photos grid -->
-    <div class="section photos-section" v-if="store.showTopBirdPhotos && topThreeBirds.length > 0">
-      <h3 class="section-title">Top 3 Birds</h3>
+    <!-- top bird photos grid -->
+    <div
+      class="section photos-section"
+      v-if="store.showTopBirdPhotos && topPhotoBirds.length > 0"
+    >
+      <h3 class="section-title">Top {{ store.numTopPhotos }} Birds</h3>
       <div class="photo-grid">
-        <div class="photo-card" v-for="(bird, i) in topThreeBirds" :key="'top-'+i">
-          <img 
-            v-if="bird.imageUrl" 
-            :src="bird.imageUrl" 
+        <div
+          class="photo-card"
+          v-for="(bird, i) in topPhotoBirds"
+          :key="'top-' + i"
+        >
+          <img
+            v-if="bird.imageUrl"
+            :src="bird.imageUrl"
             :alt="bird.Species"
             class="bird-photo"
             referrerpolicy="no-referrer"
@@ -77,7 +103,8 @@
       <h2 class="section-title">Custom Birds</h2>
 
       <div class="table-header-custom">
-        <div style="text-align: right; padding-right: 5px;">#</div> <!-- Index Header -->
+        <div style="text-align: right; padding-right: 5px">#</div>
+        <!-- Index Header -->
         <div>Species</div>
         <div>Rank</div>
         <div>List Likelihood</div>
@@ -89,14 +116,23 @@
         v-for="(bird, i) in customBirds"
         :key="'custom-' + i"
       >
-        <div class="index-cell">{{ i + 1 }}.</div> <!-- Index Cell -->
+        <div class="index-cell">{{ i + 1 }}.</div>
+        <!-- Index Cell -->
         <div class="species-cell">
-          <a v-if="bird.speciesUrl" :href="bird.speciesUrl" target="_blank" class="species-link">{{ bird.Species }}</a>
+          <a
+            v-if="bird.speciesUrl"
+            :href="bird.speciesUrl"
+            target="_blank"
+            class="species-link"
+            >{{ bird.Species }}</a
+          >
           <span v-else>{{ bird.Species }}</span>
         </div>
         <div class="cell">{{ bird.Rank }}</div>
-        <div class="cell">{{ Math.round((10**2)*bird.wtd_rf)/(10**2) }}</div>
-        <div class="cell">{{ Math.round((10)*bird.rfpc)/(10)}}</div>
+        <div class="cell">
+          {{ Math.round(10 ** 2 * bird.wtd_rf) / 10 ** 2 }}
+        </div>
+        <div class="cell">{{ Math.round(10 * bird.rfpc) / 10 }}</div>
       </div>
     </div>
 
@@ -104,10 +140,14 @@
     <div class="section photos-section" v-if="customBirdPhotos.length > 0">
       <h3 class="section-title">Custom Bird Photos</h3>
       <div class="photo-grid">
-        <div class="photo-card" v-for="(bird, i) in customBirdPhotos" :key="'custom-photo-'+i">
-          <img 
-            v-if="bird.imageUrl" 
-            :src="bird.imageUrl" 
+        <div
+          class="photo-card"
+          v-for="(bird, i) in customBirdPhotos"
+          :key="'custom-photo-' + i"
+        >
+          <img
+            v-if="bird.imageUrl"
+            :src="bird.imageUrl"
             :alt="bird.Species"
             class="bird-photo"
             referrerpolicy="no-referrer"
@@ -131,50 +171,60 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { useAnalyticsStore } from '../stores/useAnalyticsStore';
-import { LineChart } from 'vue-chart-3';
+import { defineComponent, onMounted, computed, ref } from "vue";
+import { useRoute } from "vue-router";
+import { useAnalyticsStore } from "../stores/useAnalyticsStore";
+import { LineChart } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
-import type { Bird } from '../types';
+import type { Bird } from "../types";
 
 Chart.register(...registerables);
 
 export default defineComponent({
-  name: 'PrintableReport',
+  name: "PrintableReport",
 
   components: {
-    LineChart
+    LineChart,
   },
 
   setup() {
     const store = useAnalyticsStore();
     const route = useRoute();
-    
+
     // custom bird ranks parsed from URL
     const customRanks = ref<number[]>([]);
     const photoRanks = ref<number[]>([]);
-    
+
     // date passed from client (handles timezone correctly)
-    const generatedDate = ref(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+    const generatedDate = ref(
+      new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    );
 
     const birds = computed(() => store.getTopBirds);
     const allBirds = computed(() => store.getAllBirds);
-    const topThreeBirds = computed(() => birds.value.slice(0, 3));
-    
+    const topPhotoBirds = computed(() =>
+      birds.value.slice(0, store.numTopPhotos)
+    );
+
     // look up custom birds by rank from the full bird list
     const customBirds = computed(() => {
-      if (customRanks.value.length === 0 || allBirds.value.length === 0) return [];
+      if (customRanks.value.length === 0 || allBirds.value.length === 0)
+        return [];
       return customRanks.value
-        .map(rank => allBirds.value.find(b => b.Rank === rank))
-        .filter(b => b !== undefined) as Bird[];
+        .map((rank) => allBirds.value.find((b) => b.Rank === rank))
+        .filter((b) => b !== undefined) as Bird[];
     });
-    
+
     const customBirdPhotos = computed(() => {
-      if (photoRanks.value.length === 0 || allBirds.value.length === 0) return [];
+      if (photoRanks.value.length === 0 || allBirds.value.length === 0)
+        return [];
       return photoRanks.value
-        .map(rank => allBirds.value.find(b => b.Rank === rank))
-        .filter(b => b !== undefined) as Bird[];
+        .map((rank) => allBirds.value.find((b) => b.Rank === rank))
+        .filter((b) => b !== undefined) as Bird[];
     });
 
     // chart configuration
@@ -187,20 +237,20 @@ export default defineComponent({
         labels: birdsData.map((b: any) => b.Species),
         datasets: [
           {
-            label: 'List Likelihood',
+            label: "List Likelihood",
             data: wtdrfData,
-            backgroundColor: '#45799980',
-            borderColor: '#457999',
+            backgroundColor: "#45799980",
+            borderColor: "#457999",
             pointRadius: 5,
             pointHoverRadius: 7,
             borderWidth: 2.5,
             tension: 0.1,
           },
           {
-            label: 'List Likelihood (normalized to top bird)',
+            label: "List Likelihood (normalized to top bird)",
             data: rfpcData,
-            backgroundColor: '#29623980',
-            borderColor: '#296239',
+            backgroundColor: "#29623980",
+            borderColor: "#296239",
             pointRadius: 5,
             pointHoverRadius: 7,
             borderWidth: 2.5,
@@ -217,12 +267,12 @@ export default defineComponent({
       animation: false,
       plugins: {
         legend: {
-          position: 'top' as const,
-          labels: { 
+          position: "top" as const,
+          labels: {
             font: { size: 11 },
-            padding: 15
-          }
-        }
+            padding: 15,
+          },
+        },
       },
       scales: {
         x: {
@@ -231,46 +281,60 @@ export default defineComponent({
             minRotation: 45,
             font: { size: 9 },
             autoSkip: true,
-            maxTicksLimit: 30
+            maxTicksLimit: 30,
           },
           grid: {
-            display: false
-          }
+            display: false,
+          },
         },
         y: {
           beginAtZero: true,
           ticks: { font: { size: 10 } },
           grid: {
-            color: '#e0e0e0'
-          }
-        }
-      }
+            color: "#e0e0e0",
+          },
+        },
+      },
     };
 
     onMounted(() => {
       const id = route.params.id as string;
       const query = route.query;
-      
+
       // parse configuration
-      if (query.numTopBirds) store.numTopBirds = parseInt(query.numTopBirds as string) || 10;
-      if (query.showGraph !== undefined) store.showLikelihoodCurve = query.showGraph === 'true';
-      if (query.showPhotos !== undefined) store.showTopBirdPhotos = query.showPhotos === 'true';
-      if (query.startYear) store.startYear = parseInt(query.startYear as string);
+      if (query.numTopBirds)
+        store.numTopBirds = parseInt(query.numTopBirds as string) || 10;
+      if (query.numTopPhotos)
+        store.numTopPhotos = parseInt(query.numTopPhotos as string) || 3;
+      if (query.showGraph !== undefined)
+        store.showLikelihoodCurve = query.showGraph === "true";
+      if (query.showPhotos !== undefined)
+        store.showTopBirdPhotos = query.showPhotos === "true";
+      if (query.startYear)
+        store.startYear = parseInt(query.startYear as string);
       if (query.endYear) store.endYear = parseInt(query.endYear as string);
-      if (query.startMonth) store.startMonth = parseInt(query.startMonth as string);
-      if (query.startWeek) store.startWeek = parseInt(query.startWeek as string);
+      if (query.startMonth)
+        store.startMonth = parseInt(query.startMonth as string);
+      if (query.startWeek)
+        store.startWeek = parseInt(query.startWeek as string);
       if (query.endMonth) store.endMonth = parseInt(query.endMonth as string);
       if (query.endWeek) store.endWeek = parseInt(query.endWeek as string);
 
       // parse custom bird ranks from url (comma-separated)
       if (query.customRanks) {
-        customRanks.value = (query.customRanks as string).split(',').map(r => parseInt(r)).filter(r => !isNaN(r));
+        customRanks.value = (query.customRanks as string)
+          .split(",")
+          .map((r) => parseInt(r))
+          .filter((r) => !isNaN(r));
       }
       if (query.photoRanks) {
-        photoRanks.value = (query.photoRanks as string).split(',').map(r => parseInt(r)).filter(r => !isNaN(r));
+        photoRanks.value = (query.photoRanks as string)
+          .split(",")
+          .map((r) => parseInt(r))
+          .filter((r) => !isNaN(r));
       }
-      
-      // use date from client 
+
+      // use date from client
       if (query.genDate) {
         generatedDate.value = query.genDate as string;
       }
@@ -281,22 +345,23 @@ export default defineComponent({
       }
     });
 
-    return { 
-      store, 
+    return {
+      store,
       birds,
-      topThreeBirds,
+      topPhotoBirds,
       customBirds,
       customBirdPhotos,
       chartData,
       chartOptions,
-      generatedDate
+      generatedDate,
     };
-  }
+  },
 });
 </script>
 
 <style>
-html, body {
+html,
+body {
   height: auto !important;
   overflow: visible !important;
 }
@@ -412,7 +477,7 @@ html, body {
 .table-header-custom,
 .table-row-custom {
   display: grid;
-  grid-template-columns: 35px 1fr .5fr .8fr .8fr;
+  grid-template-columns: 35px 1fr 0.5fr 0.8fr 0.8fr;
   padding: 6px 0;
   border-bottom: 1px solid #e4e4e4;
   font-size: 11px;
@@ -478,7 +543,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   break-inside: avoid;
   page-break-inside: avoid;
 }
