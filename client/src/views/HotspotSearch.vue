@@ -31,7 +31,6 @@
             v-if="searchQuery"
             class="mobile-search-clear"
             @click="clearSearch"
-            style="right: 8px"
           >
             ✕
           </button>
@@ -291,6 +290,14 @@
       <div
         class="summary-panel slide-sheet"
         :class="{ open: showSummarySheet }"
+        :style="{
+          transform: showSummarySheet
+            ? sheetTranslateY > 0
+              ? `translateY(${sheetTranslateY}px)`
+              : 'translateY(0%)'
+            : '',
+          transition: isDraggingSheet ? 'none' : '',
+        }"
       >
         <!-- close button for mobile sheet -->
         <button
@@ -300,9 +307,19 @@
           ✕
         </button>
 
-        <div class="sheet-handle mobile-only"></div>
+        <div
+          class="sheet-handle mobile-only"
+          @touchstart="onSheetTouchStart"
+          @touchmove="onSheetTouchMove"
+          @touchend="onSheetTouchEnd"
+        ></div>
 
-        <div class="summary-header">
+        <div
+          class="summary-header"
+          @touchstart="onSheetTouchStart"
+          @touchmove="onSheetTouchMove"
+          @touchend="onSheetTouchEnd"
+        >
           <h2 v-if="analyticsStore.selectedHotspot">Selected Hotspot</h2>
           <h2 v-else>No Hotspot Selected</h2>
         </div>
@@ -503,7 +520,8 @@ export default defineComponent({
         target.closest(".summary-panel") ||
         target.closest(".filters") ||
         target.closest(".mobile-header") ||
-        target.closest(".mobile-search-bar")
+        target.closest(".mobile-search-bar") ||
+        target.closest(".hotspot-card")
       ) {
         return;
       }
@@ -511,12 +529,64 @@ export default defineComponent({
       if (showSummarySheet.value) {
         showSummarySheet.value = false;
       }
+
+      // deselect hotspot if clicking background
+      if (analyticsStore.selectedHotspotId) {
+        analyticsStore.resetSelectedHotspot();
+      }
     };
 
     const hotspots = computed(() => analyticsStore.allHotspots);
 
     // -------------------------
+    // SLIDE SHEET GESTURES
+    // -------------------------
+    const sheetTranslateY = ref(0);
+    const isDraggingSheet = ref(false);
+    let sheetStartY = 0;
+
+    const onSheetTouchStart = (e: TouchEvent) => {
+      // only work if sheet is open
+      if (!showSummarySheet.value) return;
+      if (!e.touches || e.touches.length === 0) return;
+
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      sheetStartY = touch.clientY;
+      isDraggingSheet.value = true;
+    };
+
+    const onSheetTouchMove = (e: TouchEvent) => {
+      if (!isDraggingSheet.value) return;
+      if (!e.touches || e.touches.length === 0) return;
+
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      const delta = touch.clientY - sheetStartY;
+
+      // only allow dragging down
+      if (delta > 0) {
+        // prevent pull-to-refresh or scrolling body
+        if (e.cancelable) e.preventDefault();
+        sheetTranslateY.value = delta;
+      }
+    };
+
+    const onSheetTouchEnd = () => {
+      isDraggingSheet.value = false;
+      // threshold to close
+      if (sheetTranslateY.value > 120) {
+        showSummarySheet.value = false;
+      }
+      // animate back to 0
+      sheetTranslateY.value = 0;
+    };
+
+    // -------------------------
     // PAGINATION (UI-side)
+
     // -------------------------
     const pageSize = 20;
     const visibleCount = ref(pageSize);
@@ -1263,6 +1333,13 @@ export default defineComponent({
       // handlePageClick duplicate removed
       navStore,
       loadingImage,
+
+      // slide sheet
+      sheetTranslateY,
+      isDraggingSheet,
+      onSheetTouchStart,
+      onSheetTouchMove,
+      onSheetTouchEnd,
     };
   },
 });
@@ -1833,8 +1910,12 @@ export default defineComponent({
   }
 
   .mobile-search-clear {
-    width: 32px;
-    height: 32px;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
     border: none;
     background: var(--color-bg-muted);
     color: var(--color-text-primary);
@@ -1846,6 +1927,7 @@ export default defineComponent({
     justify-content: center;
     padding: 0;
     line-height: 1;
+    z-index: 10;
   }
 
   /* ensure active filters have breathing room from search bar */
