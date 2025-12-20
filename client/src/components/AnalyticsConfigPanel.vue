@@ -59,6 +59,19 @@
 
       <!-- unified time container -->
       <div class="unified-time-container">
+        <!-- seasonal presets selector -->
+        <div class="preset-selector-row">
+          <v-select
+            v-model="selectedPreset"
+            :items="presetOptions"
+            variant="outlined"
+            density="compact"
+            hide-details
+            class="preset-dropdown"
+            @update:model-value="applyPreset"
+          ></v-select>
+        </div>
+
         <!-- single header for both blocks -->
         <div class="container-header">
           <span class="header-main">Checklists per Week</span>
@@ -138,7 +151,6 @@
       </div>
 
       <!-- data distribution graph -->
-      <!-- title outside container (like "select time frame") -->
       <h4 class="unified-config-header">Data Density</h4>
 
       <!-- graph inside unified container -->
@@ -160,7 +172,7 @@
     <div class="config-section">
       <h4 class="unified-config-header">Display Counts</h4>
       <div class="unified-time-container top-counts-container">
-        <!-- Show Top Birds Row -->
+        <!-- show top birds row -->
         <div class="top-count-row">
           <span class="config-text">Show top</span>
           <v-text-field
@@ -177,7 +189,7 @@
           <span class="config-text">birds</span>
         </div>
 
-        <!-- Show Top Photos Row -->
+        <!-- show top photos row -->
         <div class="top-count-row">
           <span class="config-text">Show top</span>
           <v-text-field
@@ -430,6 +442,79 @@ export default defineComponent({
     const startWeek = ref(1);
     const endWeek = ref(4);
 
+    // --- SEASONAL PRESETS ---
+    const SEASONAL_PRESETS = {
+      year: {
+        label: "Entire Year (Jan-Dec)",
+        startMonth: 1,
+        startWeek: 1,
+        endMonth: 12,
+        endWeek: 4,
+      },
+      spring: {
+        label: "Spring Migration (Mar-May)",
+        startMonth: 3,
+        startWeek: 1,
+        endMonth: 5,
+        endWeek: 4,
+      },
+      breeding: {
+        label: "Breeding Season (Jun-Jul)",
+        startMonth: 6,
+        startWeek: 1,
+        endMonth: 7,
+        endWeek: 4,
+      },
+      fall: {
+        label: "Fall Migration (Aug-Nov)",
+        startMonth: 8,
+        startWeek: 1,
+        endMonth: 11,
+        endWeek: 4,
+      },
+      winter: {
+        label: "Winter (Dec-Feb)",
+        startMonth: 12,
+        startWeek: 1,
+        endMonth: 2,
+        endWeek: 4,
+      },
+      custom: {
+        label: "Custom",
+        startMonth: null,
+        startWeek: null,
+        endMonth: null,
+        endWeek: null,
+      },
+    };
+
+    const presetOptions = Object.entries(SEASONAL_PRESETS).map(
+      ([key, val]) => ({
+        title: val.label,
+        value: key,
+      })
+    );
+
+    const selectedPreset = ref("year");
+
+    const applyPreset = (presetKey: string) => {
+      selectedPreset.value = presetKey;
+      const preset =
+        SEASONAL_PRESETS[presetKey as keyof typeof SEASONAL_PRESETS];
+      if (preset && preset.startMonth !== null) {
+        startMonth.value = preset.startMonth;
+        startWeek.value = preset.startWeek!;
+        endMonth.value = preset.endMonth!;
+        endWeek.value = preset.endWeek!;
+        // Sync with store
+        analyticsStore.startMonth = preset.startMonth;
+        analyticsStore.startWeek = preset.startWeek!;
+        analyticsStore.endMonth = preset.endMonth!;
+        analyticsStore.endWeek = preset.endWeek!;
+        debouncedFetchHotspot();
+      }
+    };
+
     const startWeekDataDensity = computed(() => {
       // find selected month title
       const selectedMonthOption = monthOptions.find(
@@ -555,12 +640,14 @@ export default defineComponent({
     const selectStartWeek = (weekNumber: number) => {
       startWeek.value = weekNumber;
       analyticsStore.startWeek = startWeek.value;
+      selectedPreset.value = "custom"; // Switch to custom on manual change
       debouncedFetchHotspot(); // Auto-fetch with debounce
     };
 
     const selectEndWeek = (weekNumber: number) => {
       endWeek.value = weekNumber;
       analyticsStore.endWeek = endWeek.value;
+      selectedPreset.value = "custom"; // Switch to custom on manual change
       debouncedFetchHotspot(); // auto-fetch with debounce
     };
 
@@ -575,6 +662,7 @@ export default defineComponent({
 
     // handler for month dropdown changes - triggers debounced fetch
     const onMonthChange = () => {
+      selectedPreset.value = "custom"; // Switch to custom on manual change
       debouncedFetchHotspot();
     };
 
@@ -734,6 +822,10 @@ export default defineComponent({
       selectEndWeek,
       confirmTimeRange,
       onMonthChange,
+      // Presets
+      selectedPreset,
+      presetOptions,
+      applyPreset,
       // Scroll Logic
       panel,
       showScrollIndicator,
@@ -935,6 +1027,50 @@ export default defineComponent({
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* --- PRESET SELECTOR --- */
+.preset-selector-row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.preset-dropdown {
+  width: 100%;
+  max-width: 280px;
+}
+
+.preset-dropdown :deep(.v-field__input) {
+  justify-content: center;
+  text-align: center;
+  font-size: 0.85rem;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.preset-dropdown :deep(.v-select__selection) {
+  justify-content: center;
+  width: 100%;
+}
+
+.preset-dropdown :deep(.v-field) {
+  border-radius: 8px;
+}
+
+/* responsive adjustments */
+@media (max-width: 480px) {
+  .preset-dropdown {
+    max-width: 100%;
+  }
+
+  .preset-selector-row {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+}
+
 /* --- UNIFIED TIME CONTAINER --- */
 .unified-time-container {
   background: var(--color-bg-muted);
@@ -1066,9 +1202,15 @@ body.theme--dark .week-bar-max {
 }
 
 .week-bar-selected {
-  background-color: #457999;
-  box-shadow: 0 0 12px rgba(69, 121, 153, 0.5);
+  background-color: #2f5b7a !important;
+  box-shadow: 0 0 12px rgba(47, 91, 122, 0.7), 0 0 4px rgba(255, 255, 255, 0.3);
   transform: scaleY(1.08);
+}
+
+/* Dark mode selected bar - brighter for visibility */
+:global(body.theme--dark) .week-bar-selected {
+  background-color: #5a9bc0 !important;
+  box-shadow: 0 0 14px rgba(90, 155, 192, 0.8), 0 0 4px rgba(255, 255, 255, 0.4);
 }
 
 .week-bar-text {
