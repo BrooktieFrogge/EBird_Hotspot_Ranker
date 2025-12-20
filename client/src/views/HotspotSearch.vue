@@ -772,13 +772,17 @@ export default defineComponent({
           selectedSubregion2.value || subregion2Search.value
         ).trim();
 
+        // fetch suggestions
         analyticsStore.fetchHotspotSuggestions(q, {
           country: countryFilter,
           subregion1: subregion1Filter,
           subregion2: subregion2Filter,
           limit: 10,
         });
-      }, 300);
+
+        // trigger auto-search with debounces
+        applyFilters();
+      }, 500);
     };
 
     let countryDebounceTimer: ReturnType<typeof setTimeout>;
