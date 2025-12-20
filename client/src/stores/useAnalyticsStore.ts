@@ -31,6 +31,10 @@ export const useAnalyticsStore = defineStore("analytics", {
     hotspotsLimit: 20,
     hotspotsHasMore: true,
 
+    // prefetch cache for faster scroll (warms up DB connection)
+    _prefetchedData: null as HotspotOverview[] | null,
+    _prefetchedOffset: null as number | null,
+
     // --- Analytics Panels / Toggles ---
     // dynamic year defaults: current year and 20 years prior
     startYear: new Date().getFullYear() - 20,
@@ -159,6 +163,11 @@ export const useAnalyticsStore = defineStore("analytics", {
         // reset pagination state
         this.hotspotsOffset = data.length;
         this.hotspotsHasMore = data.length === this.hotspotsLimit;
+
+        // prefetch next batch in background to warm up DB connection
+        if (this.hotspotsHasMore) {
+          this.prefetchNextBatch();
+        }
       } catch (e: any) {
         console.log("there was an error");
         console.log(e);
@@ -169,11 +178,53 @@ export const useAnalyticsStore = defineStore("analytics", {
     },
 
     /**
+     * prefetch next batch - warms up DB, doesn't update loading state
+     */
+    async prefetchNextBatch() {
+      try {
+        const response = await axios.get(`/api/hotspots/browse-hotspots`, {
+          params: {
+            limit: this.hotspotsLimit,
+            offset: this.hotspotsOffset,
+          },
+        });
+
+        // store prefetched data for later use
+        const newItems = response.data as HotspotOverview[];
+        this._prefetchedData = newItems;
+        this._prefetchedOffset = this.hotspotsOffset;
+      } catch (e) {
+        // silent fail
+      }
+    },
+
+    /**
      * Load next page for infinite scroll (browse mode)
      */
     async loadMoreHotspots() {
       if (this.isLoading || !this.hotspotsHasMore) return;
 
+      // check if we have prefetched data for this offset
+      if (
+        this._prefetchedData &&
+        this._prefetchedOffset === this.hotspotsOffset
+      ) {
+        const newItems = this._prefetchedData;
+        this._prefetchedData = null;
+        this._prefetchedOffset = null;
+
+        this.allHotspots = [...this.allHotspots, ...newItems];
+        this.hotspotsOffset += newItems.length;
+        this.hotspotsHasMore = newItems.length === this.hotspotsLimit;
+
+        // prefetch next batch
+        if (this.hotspotsHasMore) {
+          this.prefetchNextBatch();
+        }
+        return;
+      }
+
+      // otherwise fetch normally with loading state
       this.isLoading = true;
       this.error = null;
 
@@ -184,11 +235,16 @@ export const useAnalyticsStore = defineStore("analytics", {
             offset: this.hotspotsOffset,
           },
         });
-
         const newItems = response.data as HotspotOverview[];
+
         this.allHotspots = [...this.allHotspots, ...newItems];
         this.hotspotsOffset += newItems.length;
         this.hotspotsHasMore = newItems.length === this.hotspotsLimit;
+
+        // prefetch next batch for fast scrolling
+        if (this.hotspotsHasMore) {
+          this.prefetchNextBatch();
+        }
       } catch (e: any) {
         console.error("Error loading more hotspots:", e);
         this.error = e.message ?? "Unknown error";
