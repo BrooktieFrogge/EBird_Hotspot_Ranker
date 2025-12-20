@@ -600,6 +600,7 @@ export default defineComponent({
     // -------------------------
     // SCROLL OBSERVER
     // -------------------------
+    const resultsContainer = ref<HTMLElement | null>(null);
     const scrollSentinel = ref<HTMLElement | null>(null);
     const scrollObserver = ref<IntersectionObserver | null>(null);
 
@@ -705,6 +706,11 @@ export default defineComponent({
 
       visibleCount.value = pageSize;
       uiStore.persist();
+
+      // scroll to top of results
+      if (resultsContainer.value) {
+        resultsContainer.value.scrollTop = 0;
+      }
 
       if (!hasAnyFilter) {
         analyticsStore.countrySuggestions = [];
@@ -1144,7 +1150,6 @@ export default defineComponent({
     };
 
     // Backup scroll handler for when IntersectionObserver doesn't re-fire
-    const resultsContainer = ref<HTMLElement | null>(null);
 
     const handleResultsScroll = () => {
       if (!resultsContainer.value) return;

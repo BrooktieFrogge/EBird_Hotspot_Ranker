@@ -91,9 +91,13 @@ class JobManager:
         if self.running:
             return
         self.running = True
-        # 40 workers (adjusted for small mem)
+        # default 20 workers, configurable via env
+        import os
+        worker_count = int(os.getenv('JOB_WORKER_COUNT', '20'))
+        print(f"[JobQueue] Starting {worker_count} background workers...")
+        
         self.worker_tasks = [
-            asyncio.create_task(self._worker_loop(i)) for i in range(40)
+            asyncio.create_task(self._worker_loop(i)) for i in range(worker_count)
         ]
         # add cleanup task
         self.worker_tasks.append(asyncio.create_task(self._cleanup_loop()))

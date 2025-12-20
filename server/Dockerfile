@@ -13,4 +13,5 @@ EXPOSE 8000
 # set python path
 ENV PYTHONPATH=/app/server
 # run server
-CMD ["fastapi", "run", "server/main.py", "--port", "8000"]
+# run server with configurable workers
+CMD ["/bin/sh", "-c", "fastapi run server/main.py --port 8000 --workers ${WEB_CONCURRENCY:-1}"]

@@ -108,8 +108,11 @@ async def ensure_session(BROWSER):
             if page: await page.close()
             if context: await context.close()
             
-# limit concurrent eBird connections to preventing banning
-EBIRD_SEMAPHORE = asyncio.Semaphore(5)
+# limit concurrent eBird connections to preventing banning/timeouts
+# default to 2 to be safe on weak hardware
+concurrency_limit = int(os.getenv('EBIRD_CONCURRENCY', '2'))
+print(f"[config] | EBIRD_CONCURRENCY set to {concurrency_limit}")
+EBIRD_SEMAPHORE = asyncio.Semaphore(concurrency_limit)
 
 async def fetch_data(BROWSER, loc, start, end):
     async with EBIRD_SEMAPHORE:

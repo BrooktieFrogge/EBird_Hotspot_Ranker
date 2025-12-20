@@ -527,7 +527,19 @@ export const useAnalyticsStore = defineStore("analytics", {
         const response = await axios.get(url, { params });
 
         if (response.status === 202) {
+          // validate response is JSON
+          if (
+            typeof response.data === "string" &&
+            response.data.trim().startsWith("<")
+          ) {
+            throw new Error(
+              "eBird blocked the request (got HTML). Try again later."
+            );
+          }
+
           const jobId = response.data.jobId;
+          if (!jobId) throw new Error("No job ID returned.");
+
           console.log(`Job enqueued: ${jobId}. Polling...`);
 
           // poll for result
@@ -576,10 +588,22 @@ export const useAnalyticsStore = defineStore("analytics", {
             }
           }
         } else {
-          // fallback if backend returns immediate result\
-          this.selectedHotspot = response.data;
-          this.hotspotDetailCache[cacheKey] = response.data;
-          console.log("Fetched hotspot detail (immediate):", response.data);
+          // fallback if backend returns immediate result
+          const data = response.data;
+
+          // safety check: ensure we didn't get an HTML error
+          if (typeof data === "string" && data.trim().startsWith("<")) {
+            throw new Error(
+              "Received HTML instead of JSON. The server may be overloaded."
+            );
+          }
+          if (!data || typeof data !== "object") {
+            throw new Error("Invalid response format from server.");
+          }
+
+          this.selectedHotspot = data;
+          this.hotspotDetailCache[cacheKey] = data;
+          console.log("Fetched hotspot detail (immediate):", data);
         }
       } catch (e: any) {
         this.error = e.message ?? "Unknown error";
