@@ -37,7 +37,4 @@ services:
     plan: free
     envVars:
       - key: BACKEND_HOST
-        fromService:
-          type: web
-          name: featherweight-server
-          property: host
+        sync: false
