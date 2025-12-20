@@ -108,33 +108,37 @@ async def ensure_session(BROWSER):
             if page: await page.close()
             if context: await context.close()
             
+# limit concurrent eBird connections to preventing banning
+EBIRD_SEMAPHORE = asyncio.Semaphore(5)
+
 async def fetch_data(BROWSER, loc, start, end):
-    context = None
-    max_retries = 3
-    
-    for attempt in range(max_retries):
-        try:
-            context = await BROWSER.new_context(storage_state=SESSION_FILE)
-            data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
-            
-            request_context = context.request
-            response = await request_context.get(data_url, timeout=30000)
-            data_text = await response.text()
+    async with EBIRD_SEMAPHORE:
+        context = None
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            try:
+                context = await BROWSER.new_context(storage_state=SESSION_FILE)
+                data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
+                
+                request_context = context.request
+                response = await request_context.get(data_url, timeout=30000)
+                data_text = await response.text()
 
-            if "<!doctype html>" in data_text.lower():
-                raise Exception(f"eBird blocked the request (got HTML). Try again later.")
+                if "<!doctype html>" in data_text.lower():
+                    raise Exception(f"eBird blocked the request (got HTML). Try again later.")
 
-            return data_text
-        except Exception as e:
-            if context:
-                await context.close()
-                context = None
-            
-            if attempt < max_retries - 1:
-                await asyncio.sleep(2)
-            else:
-                print(f"[error] | fetch failed for {loc}: {e}")
-                raise
-        finally:
-            if context:
-                await context.close()
+                return data_text
+            except Exception as e:
+                if context:
+                    await context.close()
+                    context = None
+                
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2)
+                else:
+                    print(f"[error] | fetch failed for {loc}: {e}")
+                    raise
+            finally:
+                if context:
+                    await context.close()

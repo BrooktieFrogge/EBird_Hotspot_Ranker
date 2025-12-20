@@ -13,8 +13,7 @@ returns:
 '''
 
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
-#limit concurrent API calls to prevent exceeding rate limits
-SEMAPHORE = asyncio.Semaphore(5)
+
 
 # cache hotspot rankings for 1 hour to speed up pdf gen
 HOTSPOT_CACHE = TTLCache(maxsize=500, ttl=3600)

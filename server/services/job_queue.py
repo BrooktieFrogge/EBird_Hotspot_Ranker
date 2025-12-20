@@ -118,7 +118,19 @@ class JobManager:
         while self.running:
             try:
                 job_id = await self.queue.get()
-                await self._process_job(job_id)
+                
+                # kill any job taking too long
+                try:
+                    await asyncio.wait_for(self._process_job(job_id), timeout=300)
+                except asyncio.TimeoutError:
+                    print(f"[JobQueue] job {job_id} TIMED OUT (Fail-Safe Triggered). Killing worker.")
+                    # manually mark as failed
+                    job = self.jobs.get(job_id)
+                    if job:
+                        job["status"] = JobStatus.FAILED
+                        job["error"] = "Server Busy: Job timed out (Limit: 300s)"
+                        job["updated_at"] = datetime.now().isoformat()
+                        
                 self.queue.task_done()
             except asyncio.CancelledError:
                 break
