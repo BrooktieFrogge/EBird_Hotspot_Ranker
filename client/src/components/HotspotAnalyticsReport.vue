@@ -189,6 +189,24 @@
     </div>
   </div>
 
+  <!--------------------------->
+  <!-- ERROR STATE -->
+  <!--------------------------->
+  <div class="loading-screen" v-else-if="analyticsStore.error">
+    <div style="text-align: center; padding: 20px">
+      <BIconExclamationTriangle
+        style="font-size: 48px; color: #d32f2f; margin-bottom: 16px"
+      />
+      <h3 style="margin-bottom: 8px">Unable to load report</h3>
+      <p style="color: var(--color-text-muted); margin-bottom: 20px">
+        {{ analyticsStore.error }}
+      </p>
+      <v-btn color="primary" @click="analyticsStore.fetchHotspotDetail()">
+        Try Again
+      </v-btn>
+    </div>
+  </div>
+
   <!---------------------------->
   <!-- DEFAULT: Loading Image -->
   <!---------------------------->
@@ -205,6 +223,7 @@ import {
   BIconXCircle,
   BIconCamera,
   BIconGeoAltFill,
+  BIconExclamationTriangle,
 } from "bootstrap-icons-vue";
 import { LineChart } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
@@ -218,6 +237,7 @@ export default defineComponent({
     BIconXCircle,
     BIconCamera,
     BIconGeoAltFill,
+    BIconExclamationTriangle,
     LineChart,
   },
 

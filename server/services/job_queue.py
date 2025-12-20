@@ -62,9 +62,9 @@ class JobManager:
         if self.running:
             return
         self.running = True
-        # spawn 2 workers for concurrency
+        # 30 workers (should only hit max memory ~450MB)
         self.worker_tasks = [
-            asyncio.create_task(self._worker_loop(i)) for i in range(2)
+            asyncio.create_task(self._worker_loop(i)) for i in range(30)
         ]
         print(f"[JobQueue] {len(self.worker_tasks)} workers started")
 

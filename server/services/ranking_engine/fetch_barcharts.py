@@ -28,8 +28,8 @@ async def is_session_valid(BROWSER):
         # await the context creation
         context = await BROWSER.new_context(storage_state=SESSION_FILE)
         request_context = context.request 
-        # await the get request
-        response = await request_context.get("https://ebird.org/prefs")
+        # await the get request with strict timeout
+        response = await request_context.get("https://ebird.org/prefs", timeout=15000)
 
         if "login" in response.url:
             return False
@@ -70,13 +70,13 @@ async def ensure_session(BROWSER):
             await page.wait_for_selector('input[name="username"]', timeout=60000)  # 60s for cold starts
 
             ## automated login
-            await page.click('input[name="username"]') 
-            await page.fill('input[name="username"]', EBIRD_USERNAME)
+            await page.click('input[name="username"]', timeout=5000) 
+            await page.fill('input[name="username"]', EBIRD_USERNAME, timeout=5000)
             await asyncio.sleep(2)  # longer wait for cloud environments
 
             await page.keyboard.press("Tab")
 
-            await page.fill('input[name="password"]', EBIRD_PASSWORD)
+            await page.fill('input[name="password"]', EBIRD_PASSWORD, timeout=5000)
             await asyncio.sleep(2)  # longer wait for cloud environments
 
             await page.keyboard.press("Enter")
@@ -95,7 +95,7 @@ async def ensure_session(BROWSER):
             
 async def fetch_data(BROWSER, loc, start, end):
     context = None
-    max_retries = 2
+    max_retries = 3
     
     for attempt in range(max_retries):
         try:
@@ -107,8 +107,7 @@ async def fetch_data(BROWSER, loc, start, end):
             data_text = await response.text()
 
             if "<!doctype html>" in data_text.lower():
-                print(f"[error] | got HTML instead of data for {loc}")
-                return None
+                raise Exception(f"eBird blocked the request (got HTML). Try again later.")
 
             return data_text
         except Exception as e:

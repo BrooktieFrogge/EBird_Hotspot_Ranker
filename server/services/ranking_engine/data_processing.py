@@ -82,7 +82,7 @@ async def get_rankings(
         end_yr = end_yr if end_yr else current_year
 
     except Exception as e:
-            return(f"Invalid Daterange - {e}.")
+            raise Exception(f"Invalid Daterange - {e}")
 
     # if we have cached raw data, skip the expensive eBird fetch
     if cached_raw_data:
@@ -126,7 +126,7 @@ async def get_rankings(
                 return result_dict
             
         except Exception as e:
-            return(f"[error] | calculation/formatting failed - {e}")
+            raise Exception(f"Calculation failed: {e}")
                 
     else:
-        return None
+        raise Exception("Failed to fetch data (None returned)")
