@@ -1190,6 +1190,10 @@ export default defineComponent({
       // auto-open summary sheet on mobile when card is selected
       if (window.innerWidth <= 768) {
         showSummarySheet.value = true;
+        // close mobile nav drawer to prevent overlap with summary sheet
+        if (navStore.mobileNavOpen) {
+          navStore.closeMobileNav();
+        }
       }
     };
 
