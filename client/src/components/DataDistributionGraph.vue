@@ -7,6 +7,7 @@ import { computed, defineComponent } from 'vue';
 import { BarChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
 import { useAnalyticsStore } from '../stores/useAnalyticsStore';
+import { useTheme } from 'vuetify';
 
 Chart.register(...registerables);
 
@@ -35,8 +36,17 @@ export default defineComponent({
   components: { BarChart },
   setup() {
     const analyticsStore = useAnalyticsStore();
-    const STANDARD_COLOR = '#8EB5CC';
-    const HIGHLIGHT_COLOR = '#457999'; 
+    const theme = useTheme();
+    
+    // access to dark mode state to prevent crash
+    const isDarkMode = computed(() => theme.global.current.value?.dark);
+    
+    // theme-aware colors
+    const STANDARD_COLOR = computed(() => isDarkMode.value ? '#7eb8d9' : '#8EB5CC');
+    const HIGHLIGHT_COLOR = computed(() => isDarkMode.value ? '#3a5a6d' : '#457999');
+    const GRID_COLOR = computed(() => isDarkMode.value ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)');
+    const TEXT_COLOR = computed(() => isDarkMode.value ? '#e0e0e0' : '#666');
+    const HOVER_COLOR = computed(() => isDarkMode.value ? '#2a4a5d' : '#3a6680');
 
     // Helper function to convert (month, week) to index (0-47) of the bars
     const dateToIndex = (month: number, week: number): number => {
@@ -63,17 +73,17 @@ export default defineComponent({
       // populate background colors based on if index range
       const backgroundColors: string[] = [];
       for (let i = 0; i < 48; i++) {
-        let color = STANDARD_COLOR;
+        let color = STANDARD_COLOR.value;
 
         if (isWrapping) {
           if (i <= endIndex || i >= startIndex) {
-            color = HIGHLIGHT_COLOR;
+            color = HIGHLIGHT_COLOR.value;
           }
         }
         
         else {
           if (i >= startIndex && i <= endIndex) {
-            color = HIGHLIGHT_COLOR
+            color = HIGHLIGHT_COLOR.value
           }
         }
 
@@ -87,7 +97,8 @@ export default defineComponent({
             label: 'Data Density by Month',
             data: chartData,
             backgroundColor: backgroundColors,
-            borderColor: '#457999',
+            borderColor: isDarkMode.value ? '#7eb8d9' : '#457999',
+            hoverBackgroundColor: HOVER_COLOR.value,
             pointRadius: 6,
             pointHoverRadius: 10,
           }
@@ -111,21 +122,38 @@ export default defineComponent({
                             return '';
                         },
                         autoSkip: false,
-                        maxRotation: 0, 
-                        minRotation: 0,
+                        maxRotation: 60, 
+                        minRotation: 45,
+                        font: {
+                            size: 9
+                        },
+                        color: TEXT_COLOR.value
                     },
+                    grid: {
+                        color: GRID_COLOR.value
+                    }
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                       display: true,
-                      text: "Checklists"
+                      text: "Checklists",
+                      color: TEXT_COLOR.value
+                    },
+                    ticks: {
+                        color: TEXT_COLOR.value
+                    },
+                    grid: {
+                        color: GRID_COLOR.value
                     }
                 }
             },
             plugins: {
                 legend: {
                     display: true,
+                    labels: {
+                        color: TEXT_COLOR.value
+                    }
                 }
             }
         };

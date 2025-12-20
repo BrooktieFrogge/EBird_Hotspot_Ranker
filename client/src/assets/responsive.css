@@ -1,0 +1,403 @@
+/* ===============================
+    responsive design utilities
+   =============================== */
+
+/* breakpoint variables */
+:root {
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+}
+
+/* ===============================
+    visibility utilities
+   =============================== */
+
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  .mobile-only-flex {
+    display: flex !important;
+  }
+
+  /* global scrollbar hiding for mobile app-like feel */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  html,
+  body,
+  * {
+    scrollbar-width: none; /* firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+
+  /* utility for dock lifting animation */
+  :root {
+    --drawer-lift-height: 220px;
+  }
+
+  .dock-lifted {
+    transform: translateY(calc(var(--drawer-lift-height) * -1)) !important;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+}
+
+/* ===============================
+    mobile carousel
+   =============================== */
+
+.mobile-carousel {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-carousel {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    display: flex;
+    width: 300%; /* 3 slides × 100% */
+    height: calc(100vh - 60px); /* leave room for dots */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* firefox */
+  }
+
+  .carousel-track::-webkit-scrollbar {
+    display: none; /* chrome, safari */
+  }
+
+  .carousel-slide {
+    flex: 0 0 calc(100% / 3); /* each slide is 1/3 of track = 100vw */
+    width: calc(100vw);
+    min-width: 100vw;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* fixed navigation bar at bottom */
+  .carousel-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px; /* taller as requested */
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    width: 100%; /* ensure full width */
+    box-sizing: border-box; /* include padding in width */
+    background: var(--color-bg-panel);
+    border-top: 1px solid var(--color-border-light);
+    z-index: 100;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-primary);
+    opacity: 0.35;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+  }
+
+  .carousel-dot:hover {
+    opacity: 0.6;
+  }
+
+  .carousel-dot.active {
+    width: 24px;
+    opacity: 1;
+  }
+
+  /* action buttons (back / home) - rounded squares */
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px; /* rounded square */
+    background: var(--color-bg-muted);
+    color: var(--color-primary);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    flex-shrink: 0;
+  }
+
+  .nav-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* primary action button (get report) */
+  .nav-btn.primary-action {
+    width: auto;
+    flex: 1;
+    margin: 0 16px;
+    border-radius: 999px; /* pill shape */
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(66, 184, 131, 0.3);
+  }
+
+  .nav-btn.primary-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--color-text-muted);
+    box-shadow: none;
+  }
+
+  /* search icon / text switching */
+  .desktop-search-text {
+    display: none;
+  }
+
+  .mobile-search-icon {
+    display: inline-block;
+    font-size: 1.2rem;
+  }
+
+  /* toggle visibility */
+  .desktop-only-toggle {
+    display: none;
+  }
+
+  .mobile-nav-item {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) {
+  .carousel-nav-bar {
+    display: none;
+  }
+
+  .mobile-only {
+    display: none !important;
+  }
+
+  .desktop-search-text {
+    display: inline;
+  }
+
+  .mobile-search-icon {
+    display: none;
+  }
+
+  .desktop-only-toggle {
+    display: block;
+  }
+}
+
+/* ===============================
+    slide-out drawer (for filters)
+   =============================== */
+
+.drawer-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .drawer-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .slide-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    background: var(--color-bg-panel);
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease, visibility 0.3s ease;
+    visibility: hidden;
+    overflow-y: auto;
+    scrollbar-width: none; /* firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+
+  .slide-drawer::-webkit-scrollbar {
+    display: none; /* chrome/safari */
+  }
+
+  .slide-drawer.open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .drawer-close-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--color-bg-muted);
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* ===============================
+    slide-up sheet (for summary)
+   =============================== */
+
+@media (max-width: 768px) {
+  .slide-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 70vh;
+    background: var(--color-bg-panel);
+    z-index: 999;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    scrollbar-width: none; /* firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+
+  .slide-sheet::-webkit-scrollbar {
+    display: none; /* chrome/safari */
+  }
+
+  .slide-sheet.open {
+    transform: translateY(0);
+  }
+
+  .sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 12px auto;
+  }
+}
+
+/* ===============================
+    mobile navigation toggle
+   =============================== */
+
+.mobile-nav-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #457999;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .mobile-nav-toggle:hover {
+    background: #3a6680;
+  }
+}
+
+/* ===============================
+    mobile action button (fab style)
+   =============================== */
+
+@media (max-width: 768px) {
+  .mobile-fab {
+    position: fixed;
+    bottom: 70px; /* above carousel dots */
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #457999;
+    color: white;
+    border: none;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(69, 121, 153, 0.4);
+    cursor: pointer;
+    z-index: 90;
+  }
+
+  .mobile-fab:hover {
+    background: #3a6680;
+  }
+}

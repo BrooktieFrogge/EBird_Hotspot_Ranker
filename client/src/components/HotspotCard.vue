@@ -3,54 +3,60 @@
     :class="['hotspot-card', { selected: isSelected }]"
     @click="handleClick"
   >
-    <!-- Title -->
-    <h3>{{ name }}</h3>
-    <div class="title-line"></div>
-
-    <!-- Country -->
-    <div class="row">
-      <span class="label">
-        <BIconGlobe class="icon" />
-        Country:
-      </span>
-      <span class="value">{{ country }}</span>
+    <!-- title section (top) -->
+    <div class="card-name-section">
+      <h3>{{ name }}</h3>
     </div>
 
-    <!-- Subregion 1 -->
-    <div class="row">
-      <span class="label">
-        <BIconGeoAlt class="icon" />
-        State/Province:
-      </span>
-      <span class="value">{{ subregion1 }}</span>
-    </div>
+    <!-- details section (bottom) -->
+    <div class="card-bottom-section">
+      <div class="title-line"></div>
 
-    <!-- Subregion 2 -->
-    <div class="row">
-      <span class="label">
-        <BIconGeoFill class="icon" />
-        County/District:
-      </span>
-      <span class="value">
-        {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
-      </span>
-    </div>
+      <!-- Country -->
+      <div class="row">
+        <span class="label">
+          <BIconGlobe class="icon" />
+          Country:
+        </span>
+        <span class="value">{{ country }}</span>
+      </div>
 
-    <!-- Species Count + Color Dot -->
-    <div class="row">
-      <span class="label">
-       <i class="bi bi-feather"></i>
-        Species Count:
-      </span>
+      <!-- Subregion 1 -->
+      <div class="row">
+        <span class="label">
+          <BIconGeoAlt class="icon" />
+          State/Province:
+        </span>
+        <span class="value">{{ subregion1 }}</span>
+      </div>
 
-      <span class="value species-with-dot">
-      <span
-        class="color-dot"
-        :style="{ backgroundColor: getSpeciesCountColor(speciesCount) }"
-        aria-hidden="true"
-      />
-      {{ speciesCount }}
-    </span>
+      <!-- Subregion 2 -->
+      <div class="row">
+        <span class="label">
+          <BIconGeoFill class="icon" />
+          County/District:
+        </span>
+        <span class="value">
+          {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
+        </span>
+      </div>
+
+      <!-- Species Count + Color Dot -->
+      <div class="row">
+        <span class="label">
+         <i class="bi bi-feather"></i>
+          Species Count:
+        </span>
+
+        <span class="value species-with-dot">
+        <span
+          class="color-dot"
+          :style="{ backgroundColor: getSpeciesCountColor(speciesCount) }"
+          aria-hidden="true"
+        />
+        {{ speciesCount }}
+      </span>
+      </div>
     </div>
   </div>
 </template>
@@ -154,33 +160,56 @@ export default defineComponent({
   border-radius: 14px;
   padding: 14px 16px;
   font-family: Arial, sans-serif;
-  box-shadow: 0 0 0px 1px #eeeeee;
-  background: #ffffff;
+  box-shadow: 0 0 0px 1px var(--color-border-light);
+  background: var(--color-bg-panel);
   cursor: pointer;
   position: relative;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   box-sizing: border-box;
   flex: 0 0 calc(33.333% - 16px);
+  /* flex layout for internal structure */
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  contain: layout;
+}
+
+.card-name-section {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 8px;
+}
+
+.card-bottom-section {
+  flex: 0 0 auto;
+  margin-top: auto;
+  width: 100%;
 }
 
 .hotspot-card.selected {
   box-shadow: 0 0 4px 3px rgba(69, 121, 153, 0.6);
-
+  border-color: rgba(69, 121, 153, 0.4);
 }
 
 h3 {
-  margin: 0 0 8px 0;
+  margin: 0;
   font-size: 1.05rem;
   font-weight: 600;             
-  color: #797979;               
+  color: var(--color-text-secondary);               
   line-height: 1.25;
+  text-align: center; /* Center horizontally */
+  width: 100%;
 }
 
 /* line under the hotspot name */
 .title-line {
   height: 2px;
   border-radius: 999px;
-  background: #e0e0e0;
+  background: var(--color-border-light);
   margin-bottom: 10px;
 }
 
@@ -203,7 +232,7 @@ h3 {
   gap: 6px;
   min-width: 140px;
   font-weight: 600;
-  color: #797979;
+  color: var(--color-text-muted);
   white-space: no-wrap;
 }
 
@@ -232,7 +261,7 @@ h3 {
   align-items: center;
   gap: 6px;                     /* tighter */
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .color-dot {
@@ -242,5 +271,71 @@ h3 {
   background: red; 
   flex-shrink: 0;
   box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+}
+
+/* ===============================
+  responsive styles
+  =============================== */
+
+@media (max-width: 768px) {
+  .hotspot-card {
+    padding: 10px 12px;
+    border-radius: 10px;
+    flex: none;
+  }
+  
+  h3 {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+  
+  .title-line {
+    margin-bottom: 6px;
+  }
+  
+  .row {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+    gap: 4px;
+  }
+  
+  .label {
+    min-width: 100px;
+  }
+  
+  .value {
+    margin-left: 8px;
+    margin-bottom: 4px;
+  }
+  
+  .icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* tablet */
+@media (min-width: 769px) and (max-width: 1198px) {
+  .hotspot-card {
+    padding: 12px 14px;
+    flex: none !important;
+    width: 100% !important;
+    height: 100%;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  h3 {
+    font-size: 0.95rem;
+  }
+  
+  .row {
+    font-size: 0.8rem;
+  }
+  
+  .label {
+    min-width: 110px;
+  }
 }
 </style>

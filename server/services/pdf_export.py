@@ -86,6 +86,12 @@ async def generate_pdf(
         # wait for render
         await asyncio.sleep(1)
         
+        # resize viewport to match content height
+        full_height = await page.evaluate("document.body.scrollHeight")
+        if full_height > 0:
+            print(f"[pdf_export] | Resizing viewport to {full_height}px")
+            await page.set_viewport_size({"width": 850, "height": full_height + 50})
+        
         # generate pdf
         pdf_bytes = await page.pdf(
             format='Letter',

@@ -2,69 +2,53 @@
   <div class="analytics-config-panel" @scroll="checkScrollPosition" ref="panel">
     
     <!--------------------------->
-    <!---- HOME/BACK BUTTONS ---->
-    <!--------------------------->
-    <div class="buttons-container">
-      <div id="back-button" @click="redirectToHotspotSearch">
-        <div class="button-wrapper">
-          <BIconArrowLeft />
-        </div>
-      </div>
-
-      <div id="home-button" @click="redirectToHomeScreen">
-        <div class="button-wrapper">
-          <BIconHouseFill />
-        </div>
-      </div>
-    </div>
-
-
-    <!--------------------------->
     <!----- YEAR SELECTION ------>
     <!--------------------------->
-    <div class="config-section">
-      <h4>Select Year Range</h4>
+    <div class="config-section year-section">
+      <h4 class="unified-config-header">Select Year Range</h4>
 
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <v-text-field
-          v-model.number="tempStartYear"
-          density="compact"
-          style="width: 100px;"
-          type="number"
-          variant="outlined"
-          label="Start"
-          hide-details
-          single-line
-          :min="minYear"
-          :max="tempEndYear"
-        ></v-text-field>
+      <div class="unified-time-container unified-inputs-container">
+        <div class="year-inputs-row">
+          <v-text-field
+            v-model.number="tempStartYear"
+            density="compact"
+            style="width: 100px;"
+            type="number"
+            variant="outlined"
+            hide-details
+            single-line
+            :min="minYear"
+            :max="tempEndYear"
+          ></v-text-field>
 
-        <span style="font-weight: bold;">to</span>
+          <span class="to-text">to</span>
 
-        <v-text-field
-          v-model.number="tempEndYear"
-          density="compact"
-          style="width: 100px"
-          type="number"
-          variant="outlined"
-          label="End"
-          hide-details
-          single-line
-          :min="tempStartYear"
-          :max="currentYear"
-        ></v-text-field>
-      </div>
-      
-      <!--- Confirmation --->
-      <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-        <v-btn
-          color="#296239"
-          @click="confirmYearRange"
-          :disabled="!isYearRangeValid"
-          size="small"
-        >
-          Confirm Years
-        </v-btn>
+          <v-text-field
+            v-model.number="tempEndYear"
+            density="compact"
+            style="width: 100px"
+            type="number"
+            variant="outlined"
+            hide-details
+            single-line
+            :min="tempStartYear"
+            :max="currentYear"
+          ></v-text-field>
+        </div>
+        
+        <!--- Confirmation --->
+        <div class="confirm-btn-wrapper"> 
+          <v-btn
+            color="#296239"
+            @click="confirmYearRange"
+            :disabled="!isYearRangeValid"
+            size="small"
+            class="confirm-btn" 
+            elevation="2"
+          >
+            Confirm Years
+          </v-btn>
+        </div>
       </div>
     </div>
 
@@ -73,101 +57,110 @@
     <!----- TIME SELECTION ------>
     <!--------------------------->
     <div class="config-section">
-      <h4>Select Time Frame</h4>
+      <h4 class="unified-config-header">Select Time Frame</h4>
       
-      <!-- FIRST MONTH/WEEK -->
-      <div style="background: #eef3f6; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-        <h5 style="margin-bottom: 8px;">Start Time</h5>
+      <!-- unified time container -->
+      <div class="unified-time-container">
         
-        <v-select
-          v-model="startMonth"
-          :items="monthOptions"
-          label="Month"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="width: 125px; margin-bottom: 10px;"
-          @update:model-value="onMonthChange"
-        ></v-select>
+        <!-- single header for both blocks -->
+        <div class="container-header">
+          <span class="header-main">Checklists per Week</span>
+          <span class="header-sub">(Click bars to select)</span>
+        </div>
 
-        <div style="margin-top: 10px;">
-          <h5 style="margin-bottom: 5px;">Checklists per Week</h5>
-          <p style="font-size: 11px; color: #777; margin: 0 0 8px 0;">Click a bar to select start week</p>
-          
-          <div style="display: flex; gap: 4px; align-items: flex-end; height: 100%; padding: 5px 0;">
+        <!-- start time block -->
+        <div class="time-block-minimal">
+          <div class="block-label">Start Time</div>
+          <v-select
+            v-model="startMonth"
+            :items="monthOptions"
+            label="Month"
+            variant="outlined"
+            density="compact"
+            hide-details
+            class="dropdown-minimal"
+            @update:model-value="onMonthChange"
+          ></v-select>
+          <div class="weeks-row-max">
             <div
               v-for="week in weeksInStartMonth"
               :key="'start-week-' + week.value"
-              class="week-bar-container"
-              :style="{ height: week.height, cursor: 'pointer' }"
+              class="week-bar-wrapper-max"
               @click="selectStartWeek(week.value)"
             >
-              <div class="week-bar-label">{{ week.density }}</div>
+              <div class="week-bar-density">{{ week.density }}</div>
               <div
-                :class="['week-bar', { 'week-bar-selected': startWeek === week.value }]"
-                :style="{ height: '100%' }"
+                :class="['week-bar-max', { 'week-bar-selected': startWeek === week.value }]"
+                :style="{ height: week.height }"
               ></div>
-              <div class="week-bar-label">{{ week.label }}</div>
+              <div class="week-bar-text">{{ week.label }}</div>
             </div>
           </div>
+          <span class="click-subtext-mobile">(Click bar to select)</span>
         </div>
-      </div>
 
-      <!-- ENDING MONTH/WEEK -->
-      <div style="background: #eef3f6; padding: 12px; border-radius: 8px;">
-        <h5 style="margin-bottom: 8px;">End Time</h5>
-        
-        <v-select
-          v-model="endMonth"
-          :items="monthOptions"
-          label="Month"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="width: 125px; margin-bottom: 10px;"
-          @update:model-value="onMonthChange"
-        ></v-select>
+        <!-- divider -->
+        <div class="time-divider"></div>
 
-        <div style="margin-top: 10px;">
-          <h5 style="margin-bottom: 5px;">Checklists per Week</h5>
-          <p style="font-size: 11px; color: #777; margin: 0 0 8px 0;">Click a bar to select end week</p>
-          
-          <div style="display: flex; gap: 4px; align-items: flex-end; height: 100%; padding: 5px 0;">
+        <!-- end time block -->
+        <div class="time-block-minimal">
+          <div class="block-label">End Time</div>
+          <v-select
+            v-model="endMonth"
+            :items="monthOptions"
+            label="Month"
+            variant="outlined"
+            density="compact"
+            hide-details
+            class="dropdown-minimal"
+            @update:model-value="onMonthChange"
+          ></v-select>
+          <div class="weeks-row-max">
             <div
               v-for="week in weeksInEndMonth"
               :key="'end-week-' + week.value"
-              class="week-bar-container"
-              :style="{ height: week.height, cursor: 'pointer' }"
+              class="week-bar-wrapper-max"
               @click="selectEndWeek(week.value)"
             >
-              <div class="week-bar-label">{{ week.density }}</div>
+              <div class="week-bar-density">{{ week.density }}</div>
               <div
-                :class="['week-bar', { 'week-bar-selected': endWeek === week.value }]"
-                :style="{ height: '100%' }"
+                :class="['week-bar-max', { 'week-bar-selected': endWeek === week.value }]"
+                :style="{ height: week.height }"
               ></div>
-              <div class="week-bar-label">{{ week.label }}</div>
+              <div class="week-bar-text">{{ week.label }}</div>
             </div>
           </div>
+          <span class="click-subtext-mobile">(Click bar to select)</span>
         </div>
+
       </div>
 
-      <!-- Data Distribution Graph -->
-      <div style="margin-top: 15px; padding: 12px; background: #eef3f6; border-radius: 8px;">
+      <!-- data distribution graph -->
+      <!-- title outside container (like "select time frame") -->
+      <h4 class="unified-config-header">Data Density</h4>
+      
+      <!-- graph inside unified container -->
+      <div class="unified-time-container graph-container">
+        <h5 v-if="!analyticsStore.selectedHotspot" class="empty-graph-label">Select Hotspot to View Data</h5>
+        <!-- graph itself -->
         <DataDistributionGraph/>
       </div>
-
     </div>
     
     <!--------------------------->
     <!--- PICK # OF TOP BIRDS --->
     <!----------------------------->
+    <!--------------------------->
+    <!--- PICK # OF TOP BIRDS --->
+    <!----------------------------->
     <div class="config-section">
-      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: 8px;">
-        <span style="font-weight: 500;">Show top</span>
+      <h4 class="unified-config-header">Show Top Birds</h4>
+      <div class="unified-time-container top-birds-centered">
+        <span class="config-text">Show top</span>
         <v-text-field
           v-model.number="analyticsStore.numTopBirds"
           density="compact"
-          style="width: 80px; flex: none;"
+          style="width: 85px; flex: none;"
           type="number"
           variant="outlined"
           hide-details
@@ -175,31 +168,7 @@
           :min="1"
           :max="allBirds.length || 10"
         ></v-text-field>
-        <span style="font-weight: 500;">birds</span>
-      </div>
-    </div>
-
-
-    <!--------------------------->
-    <!------ TOGGLES ------->
-    <!--------------------------->
-    <div class="config-section">
-      <div style="padding: 12px; background: #eef3f6; border-radius: 8px;">
-        <v-switch
-          color="primary"
-          label="Show Likelihood Curve"
-          hide-details
-          @change="handleGraphToggle"
-          :model-value="showGraph"
-        ></v-switch>
-        <v-switch
-          color="primary"
-          label="Show photos of top 3 birds"
-          @change="handlePhotosToggle"
-          hide-details
-          :model-value="showTopPhotos"
-          style="margin-top: -8px;"
-        ></v-switch>
+        <span class="config-text">birds</span>
       </div>
     </div>
 
@@ -208,33 +177,36 @@
     <!------ CUSTOM BIRDS ------->
     <!--------------------------->
     <div class="config-section">
-      <div style="padding: 12px; border-radius: 8px;">
-        <v-text-field
-          v-model="birdSearch"
-          variant="outlined"
-          label="Add custom birds..."
-          hide-details
-          clearable
-          density="compact"
-          bg-color="white"
-          @input="filterBirds"
-          @blur="handleSearchBlur"
-          @click:clear="clearSearch"
-        />
+      <h4 class="unified-config-header">Add Custom Birds</h4>
+      <div class="unified-time-container" style="padding: 12px 16px;">
+        <div class="search-container">
+          <v-text-field
+            v-model="birdSearch"
+            variant="outlined"
+            placeholder="Search birds..." 
+            label=""
+            hide-details
+            clearable
+            density="compact"
+            @input="filterBirds"
+            @blur="handleSearchBlur"
+            @click:clear="clearSearch"
+          />
 
-        <div
-          v-if="filteredBirds.length > 0 && birdSearch.length > 0"
-          class="search-results"
-        >
           <div
-            v-for="bird in filteredBirds"
-            :key="bird.Species"
-            class="search-result-item"
-            @mousedown.prevent="selectBird(bird)"
+            v-if="filteredBirds.length > 0 && birdSearch.length > 0"
+            class="search-results"
           >
-            <div style="font-weight: 500;">{{ bird.Species }}</div>
-            <div style="font-size: 11px; color: #666;">
-              #{{ bird.Rank }} · Likelihood {{ Math.round(bird.wtd_rf * 100) / 100 }} · Normalized {{ Math.round(bird.rfpc * 10) / 10 }}
+            <div
+              v-for="bird in filteredBirds"
+              :key="bird.Species"
+              class="search-result-item"
+              @mousedown.prevent="selectBird(bird)"
+            >
+              <div style="font-weight: 500;">{{ bird.Species }}</div>
+              <div class="search-result-subtext">
+                #{{ bird.Rank }} · Likelihood {{ Math.round(bird.wtd_rf * 100) / 100 }} · Normalized {{ Math.round(bird.rfpc * 10) / 10 }}
+              </div>
             </div>
           </div>
         </div>
@@ -243,28 +215,106 @@
 
 
     <!--------------------------->
-    <!------ UPLOAD AS ... ------>
+    <!------ TOGGLES ------->
     <!--------------------------->
-    <div style="margin-top: 150px; display: flex; justify-content: flex-end;">
-        <v-btn
-          color="#296239"
-          @click="exportReport"
-          :disabled="(analyticsStore.isLoading)"
-          size="small"
-        >
-          <span v-if="!isExporting"><i class="bi bi-upload" style="margin-right: 10px"></i>Export PDF</span>
-          <span v-else>Generating...</span>
-        </v-btn>
+    <div class="config-section">
+      <h4 class="unified-config-header">Display Options</h4>
+      <div class="unified-time-container" style="padding: 8px 16px;">
+        <div class="toggle-container">
+          <v-switch
+            color="#296239"
+            base-color="grey-lighten-1"
+            label="Show Likelihood Curve"
+            hide-details
+            @change="handleGraphToggle"
+            :model-value="showGraph"
+          ></v-switch>
+          <v-switch
+            color="#296239"
+            base-color="grey-lighten-1"
+            label="Show photos of top 3 birds"
+            @change="handlePhotosToggle"
+            hide-details
+            :model-value="showTopPhotos"
+            style="margin-top: -8px;"
+          ></v-switch>
+        </div>
+      </div>
     </div>
-    
-
-    <!---- Scroll Indicator ----->
+    <!---- scroll indicator ----->
     <div v-if="showScrollIndicator" class="scroll-indicator">
       <BIconArrowDown />
     </div>
-
   </div>
 </template>
+
+<style scoped>
+/* centered header style */
+.centered-header {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.empty-graph-label, .graph-label {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* custom input styling for dark mode */
+:deep(.v-field__outline) {
+    --v-field-border-opacity: 0.15;
+}
+
+/* on hover, slightly more visible */
+:deep(.v-field:hover .v-field__outline) {
+  --v-field-border-opacity: 0.3;
+}
+
+/* focused state - use primary color but keep it clean */
+:deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 0.5;
+}
+
+:deep(.v-field) {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.time-section-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.time-section-box h5 {
+    width: 100%;
+    text-align: center;
+}
+:deep(.v-switch .v-selection-control__input input:checked + .v-switch__track) {
+  background-color: #2196F3 !important; /* Active Blue */
+  opacity: 1 !important;
+}
+
+:deep(.v-switch .v-selection-control__input input:checked ~ .v-switch__thumb) {
+  color: #2196F3 !important;
+}
+
+:deep(.v-switch .v-selection-control__input input:not(:checked) + .v-switch__track) {
+  background-color: #90EE90 !important;
+  opacity: 1 !important; 
+}
+
+:deep(.v-switch .v-selection-control__input input:not(:checked) ~ .v-switch__thumb) {
+  color: #fff !important;
+}
+</style>
 
 <script lang="ts">
 import { computed, defineComponent, ref, onMounted } from 'vue';
@@ -373,7 +423,6 @@ export default defineComponent({
       return result;
     });
 
-    const MAX_BAR_HEIGHT_PX = 100;
 
     //For formatting, keeps the bars below a max height and computed relative to max data
     const maxDensity = computed(() => {
@@ -419,11 +468,13 @@ export default defineComponent({
     const weeksInStartMonth = computed(() => {
       const maxD = maxDensity.value;
       return startWeekDataDensity.value.map(week => {
-        const scaledHeight = (week.density / maxD) * MAX_BAR_HEIGHT_PX;
+        // calculate percentage (min 10% to show bar even if empty/low)
+        const percent = maxD > 0 ? (week.density / maxD) * 100 : 0;
+        const safePercent = Math.max(10, percent); 
             
         return {
           ...week,
-          height: `${Math.max(5, scaledHeight) + 43}px`
+          height: `${safePercent}%`
         };
       });
     });
@@ -431,11 +482,12 @@ export default defineComponent({
     const weeksInEndMonth = computed(() => {
       const maxD = maxDensity.value;
       return endWeekDataDensity.value.map(week => {
-        const scaledHeight = (week.density / maxD) * MAX_BAR_HEIGHT_PX;
+        const percent = maxD > 0 ? (week.density / maxD) * 100 : 0;
+        const safePercent = Math.max(10, percent); 
             
         return {
           ...week,
-          height: `${Math.max(5, scaledHeight) + 43}px` 
+          height: `${safePercent}%` 
         };
       });
     });
@@ -511,9 +563,9 @@ export default defineComponent({
     };
 
     const selectBird = (bird: Bird) => {
-      birdSearch.value = bird.Species;
-      filteredBirds.value = [];
       analyticsStore.selectBird(bird);
+      birdSearch.value = '';  // clear search to allow quick addition of more birds
+      filteredBirds.value = [];
     };
 
     const handleSearchBlur = () => {
@@ -649,9 +701,9 @@ export default defineComponent({
 
 <style scoped>
 .analytics-config-panel {
-  padding: 16px;
-  background: #f4f7f9;
-  border-right: 1px solid #ddd;
+  padding: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px) 80px clamp(12px, 2vw, 20px);
+  background: var(--color-bg-seamless);
+  border-right: 1px solid var(--color-border-light);
   
   height: 100vh; 
   overflow-y: auto; 
@@ -660,7 +712,18 @@ export default defineComponent({
   box-sizing: border-box;
 }
 
-/* SCROLL INDICATOR STYLES */
+:deep(.v-field__outline__notch) {
+  display: none !important;
+}
+:deep(.v-field__outline__start) {
+  border-radius: 8px 0 0 8px !important;
+}
+:deep(.v-field__outline__end) {
+  border-radius: 0 8px 8px 0 !important;
+}
+:deep(.v-label.v-field-label--floating) {
+  display: none !important;
+}
 
 .scroll-indicator {
     position: sticky; 
@@ -671,123 +734,297 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to top, #fafafa 50%, rgba(0, 0, 0, 0) 100%);
-    color: #333;
+    background: transparent;
+    color: var(--color-text-muted);
     font-size: 1.2em;
     pointer-events: none; 
-    opacity: 0.8;
+    opacity: 0.6;
 }
 
-/* --- WEEK BAR STYLES --- */
-.week-bar-container {
+/* --- YEAR SECTION STYLES --- */
+.year-section {
+  padding-top: clamp(4px, 1vw, 10px);
+  padding-bottom: clamp(12px, 2vw, 24px);
+}
+
+.config-section.year-section h4 {
+  margin-bottom: 14px;
+}
+
+.year-inputs-row {
+  display: flex;
+  gap: clamp(12px, 2vw, 16px);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.confirm-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 0;
+  padding-bottom: clamp(8px, 1.5vw, 16px);
+}
+
+.confirm-btn {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: white !important;
+  background-color: #296239 !important;
+  border: 1px solid #296239 !important;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  background-color: white !important;
+  color: #296239 !important;
+  border-color: #296239 !important;
+}
+
+.confirm-btn:hover :deep(.v-btn__content),
+.confirm-btn:hover :deep(.v-btn__overlay) {
+  color: #296239 !important;
+}
+
+.confirm-btn :deep(.v-btn__overlay) {
+  opacity: 0 !important;
+}
+
+.unified-config-header {
+  font-size: clamp(12px, 1.5vw, 15px);
+  font-weight: 600;
+  margin-bottom: 8px; /* strict separation from container */
+  margin-top: 24px;   /* strict separation from previous section */
+  color: var(--color-text-primary) !important;
+  text-align: center;
+  position: relative;
+}
+
+
+/* first header shouldn't have top margin */
+.year-section .unified-config-header {
+    margin-top: 0;
+}
+
+.unified-inputs-container {
+    padding: 20px 16px !important;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     align-items: center;
-    width: 25%;
-    /*max-height: 120px; */
-    transition: background-color 0.15s ease;
-    border-radius: 4px;
-    padding-top: 2px;
+    justify-content: center;
 }
 
-.week-bar-container:hover {
-    background-color: #e0e0e0;
+/* keep previous rule for safety/specificity but renamed targets */
+.config-section h5 {
+  font-size: clamp(12px, 1.5vw, 15px);
+  font-weight: 600;
+  margin-bottom: clamp(6px, 1vw, 12px);
+  color: var(--color-text-primary) !important; 
 }
 
-.week-bar {
-    width: 60%;
-    background-color: #8EB5CC; 
-    border-radius: 3px 3px 0 0;
-    transition: background-color 0.15s ease, height 0.3s ease;
+.to-text {
+  font-weight: 600; 
+  font-size: 0.9rem; 
+  margin: 0 4px;
+  color: var(--color-text-primary) !important;
+}
+
+.config-text {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--color-text-primary) !important;
+}
+
+/* --- HELPER FOR TOP BIRDS ALIGNMENT --- */
+.top-birds-centered {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+:global(body.theme--dark) .top-birds-picker {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* --- UNIFIED TIME CONTAINER --- */
+.unified-time-container {
+  background: var(--color-bg-muted);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:global(body.theme--dark) .unified-time-container {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* container header - shows once */
+.container-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.header-main {
+  font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.header-sub {
+  font-size: clamp(0.6rem, 1vw, 0.75rem);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* mobile-only subtext (hidden by default) */
+.click-subtext-mobile {
+  display: none;
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* time block - minimal */
+.time-block-minimal {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 8px 16px;
+  width: 100%;
+  align-items: start;
+}
+
+.block-label {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  align-self: center;
+}
+
+.dropdown-minimal {
+  grid-column: 1;
+  grid-row: 2;
+  width: clamp(100px, 100%, 140px);
+  align-self: start;
+}
+
+/* center text in dropdowns */
+.dropdown-minimal :deep(.v-field__input) {
+  justify-content: center;
+  text-align: center;
+}
+
+.dropdown-minimal :deep(.v-select__selection) {
+  justify-content: center;
+  width: 100%;
+}
+
+/* bars - take maximum remaining space */
+.weeks-row-max {
+  grid-column: 2;
+  grid-row: 1 / 3; /* span both rows */
+  display: flex;
+  justify-content: center;
+  gap: clamp(6px, 1.5vw, 12px);
+  height: clamp(100px, 20vh, 160px);
+  align-items: flex-end;
+  width: 100%;
+}
+
+.week-bar-wrapper-max {
+  flex: 1;
+  max-width: 55px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-radius: 5px;
+  padding: 3px 2px;
+}
+
+.week-bar-wrapper-max:hover {
+  background-color: rgba(69, 121, 153, 0.15);
+}
+
+.week-bar-density {
+  font-size: clamp(9px, 1vw, 11px);
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.week-bar-max {
+  width: 70%;
+  min-height: 4px;
+  background-color: #4a7d99;
+  border-radius: 5px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+body.theme--dark .week-bar-max {
+  background-color: #8EB5CC;
 }
 
 .week-bar-selected {
-    background-color: #457999; 
-    box-shadow: 0 0 5px rgba(38, 67, 84, 0.5);
+  background-color: #457999;
+  box-shadow: 0 0 12px rgba(69, 121, 153, 0.5);
+  transform: scaleY(1.08);
 }
 
-.week-bar-label {
-    font-size: 11px;
-    margin-top: 4px;
-    color: #555;
-    font-weight: 500;
+.week-bar-text {
+  font-size: clamp(9px, 1vw, 11px);
+  margin-top: 3px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
-/* --- OTHER STYLES --- */
-
-.buttons-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.time-divider {
+  height: 1px;
+  background: var(--color-border-light);
+  margin: 12px 0;
   width: 100%;
-  height: 60px;
-  padding-top: 20px;
-  padding-inline: 40px;
-  padding-bottom: 20px;
-  color: #ffffffc9;
 }
 
-.button-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-  border: 1px solid #000000;
-  padding: 15px;
-  border-radius: 10px;
-  background-color: #ffffff;
-  color: #000000;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.home-button-wrapper:hover {
-  background-color: #d2d2d2;
-  color: rgb(3, 3, 42);
-}
-
-
-.panel-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  margin-top: 20px;
-}
-
-.config-section {
-  margin-top: 15px;
-}
-
-.config-section h4, .config-section h5 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.ui-block {
+/* --- SEARCH DROPDOWN STYLES --- */
+.search-container {
+  position: relative;
   width: 100%;
-  height: 36px;
-  background: #e3e3e3;
-  border-radius: 4px;
 }
 
 .search-results {
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-top: 6px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   max-height: 220px;
   overflow-y: auto;
-  box-shadow: 0px 2px 8px rgba(0,0,0,0.12);
-  text-align: left;
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border-light);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  margin-top: 4px;
 }
 
 .search-result-item {
-  padding: 10px 12px;
+  padding: 8px 12px;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background-color 0.15s ease;
+  text-align: left; /* Left align results */
 }
 
 .search-result-item:last-child {
@@ -795,7 +1032,293 @@ export default defineComponent({
 }
 
 .search-result-item:hover {
-  background: #f1f1f1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.search-result-item div:first-child {
+  color: #457999; /* light mode blue */
+  font-weight: 600;
+}
+
+body.theme--dark .search-result-item div:first-child {
+  color: #7eb8d9; /* Dark mode blue */
+}
+
+.search-result-subtext {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+body.theme--dark .search-results {
+  background: #252525;
+  border-color: #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+body.theme--dark .search-result-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* --- DESKTOP (>1330px) --- */
+@media (min-width: 1331px) {
+  .container-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  
+  .header-sub {
+    display: none;
+  }
+  
+  .click-subtext-mobile {
+    display: block;
+  }
+  
+  .time-block-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .block-label {
+    font-size: 1rem;
+    text-align: center;
+  }
+  
+  .dropdown-minimal {
+    width: clamp(140px, 60%, 200px);
+    align-self: center;
+  }
+  
+  .weeks-row-max {
+    height: clamp(120px, 22vh, 180px);
+    gap: 16px;
+  }
+  
+  .week-bar-wrapper-max {
+    flex: 1;
+    max-width: clamp(55px, 12vw, 80px);
+  }
+  
+  .week-bar-max {
+    width: 75%;
+  }
+}
+
+/* --- RESPONSIVE (minimal layout) --- */
+
+/* large tablet (768-1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+  
+  .header-sub {
+    display: none;
+  }
+  
+  .click-subtext-mobile {
+    display: block;
+  }
+  
+  .time-block-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .block-label {
+    text-align: center;
+  }
+  
+  .dropdown-minimal {
+    width: clamp(100px, 40%, 160px);
+    align-self: center;
+  }
+  
+  .weeks-row-max {
+    height: clamp(80px, 15vh, 120px);
+    gap: 10px;
+  }
+  
+  .week-bar-wrapper-max {
+    flex: 1;
+    max-width: clamp(35px, 8vw, 50px);
+  }
+}
+
+/* small desktop (1025-1330px) */
+@media (min-width: 1025px) and (max-width: 1330px) {
+  .container-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+  
+  .header-sub {
+    display: none;
+  }
+  
+  .click-subtext-mobile {
+    display: block;
+  }
+  
+  .time-block-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .block-label {
+    text-align: center;
+  }
+  
+  .dropdown-minimal {
+    width: clamp(120px, 50%, 180px);
+    align-self: center;
+  }
+  
+  .weeks-row-max {
+    height: clamp(100px, 18vh, 150px);
+    gap: 12px;
+  }
+  
+  .week-bar-wrapper-max {
+    flex: 1;
+    max-width: clamp(45px, 10vw, 60px);
+  }
+}
+
+/* phablet (600-768px) */
+@media (min-width: 600px) and (max-width: 767px) {
+  .container-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+  
+  .header-sub {
+    display: none;
+  }
+  
+  .click-subtext-mobile {
+    display: block;
+  }
+  
+  .time-block-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .block-label {
+    text-align: center;
+  }
+  
+  .dropdown-minimal {
+    width: 50%;
+    max-width: 180px;
+    align-self: center;
+  }
+  
+  .weeks-row-max {
+    height: clamp(100px, 22vh, 160px);
+    gap: 12px;
+  }
+  
+  .week-bar-wrapper-max {
+    flex: 1;
+    max-width: clamp(50px, 12vw, 70px);
+  }
+}
+
+/* mobile */
+@media (max-width: 599px) {
+  .unified-time-container {
+    padding: 12px 10px;
+  }
+  
+  .container-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+  
+  .header-main {
+    font-size: 0.85rem;
+  }
+  
+  .header-sub {
+    font-size: 0.6rem;
+  }
+  
+  .time-block-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .block-label {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .header-sub {
+    display: none;
+  }
+  
+  .click-subtext-mobile {
+    display: block;
+  }
+  
+  .dropdown-minimal {
+    width: 60%;
+    max-width: 160px;
+    align-self: center;
+  }
+  
+  .weeks-row-max {
+    height: clamp(120px, 35vh, 200px);
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .week-bar-wrapper-max {
+    flex: 1;
+    max-width: clamp(50px, 12vw, 70px);
+    padding: 4px 2px;
+  }
+  
+  .week-bar-max {
+    width: 75%;
+    border-radius: 6px;
+  }
+  
+  .week-bar-density {
+    font-size: 10px;
+  }
+  
+  .week-bar-text {
+    font-size: 9px;
+  }
+  
+  .time-divider {
+    margin: 10px 0;
+  }
 }
 
 </style>

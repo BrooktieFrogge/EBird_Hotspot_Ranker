@@ -1,6 +1,6 @@
 /* ===============================
-   Global Theme Variables
-   =============================== */
+      Global Theme Variables
+  =============================== */
 
 :root {
   /* Core colors */
@@ -21,6 +21,7 @@
   --color-bg-page: #f4f7f9;   /* light blue-gray */
   --color-bg-panel: #ffffff;
   --color-bg-muted: #f2f2f2;
+  --color-bg-seamless: #f4f7f9; /* light mode seamless base (match bg-page) */
 
   /* Borders */
   --color-border-light: rgba(69, 121, 153, 0.25);
@@ -30,6 +31,7 @@
   --color-text-primary: #0A0A0A;
   --color-text-secondary: #555555;
   --color-text-muted: #777777;
+  --color-accent-blue: #40718f;
 
   /* Shadows */
   --shadow-card: 0 8px 24px rgba(69, 121, 153, 0.12);
@@ -39,6 +41,188 @@
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont,
                "Segoe UI", Roboto, "Helvetica Neue",
                Arial, "Noto Sans", sans-serif;
+
+  /* button & interaction colors */
+  --color-primary-variation: #40718f; /* specific button blue */
+  --color-primary-dark: #396581;      /* hover state */
+  --color-bg-hover: #d0cfcf;          /* light button hover */
+  --shadow-text-strong: 0 0 .8rem rgba(32, 65, 90, 0.8);
+}
+
+/* ===============================
+    dark mode overrides
+   =============================== */
+body.theme--dark {
+  /* backgrounds - lighter to match previous seamless look */
+  --color-bg-page: #1a1a1a;
+  --color-bg-panel: #1e1e1e;
+  --color-bg-muted: #252525;
+  --color-bg-seamless: #1a1a1a; /* dark mode seamless base (dark page) */
+  
+  /* text */
+  --color-text-primary: #e0e0e0;
+  --color-text-secondary: #aaaaaa;
+  --color-text-muted: #777777;
+  
+  /* borders - very subtle */
+  --color-border-light: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  
+  /* shadows */
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-dropdown: 0 12px 28px rgba(0,0,0,0.6);
+  
+  /* button hovers */
+  --color-bg-hover: #2a2a2a;
+  
+  /* accent blue - lighter for dark backgrounds */
+  --color-accent-blue: #7eb8d9;
+  
+  /* primary - slightly lighter for dark mode */
+  --color-primary: #6aa5c7;
+  
+  /* warmer red for dark mode */
+  --color-danger: #ef5350;
+  
+  /* secondary (green) */
+  --color-secondary: #296239;
+}
+
+/* ===============================
+  dark mode input fields
+  =============================== */
+body.theme--dark .v-field {
+  background-color: #2a2a2a !important;
+}
+
+body.theme--dark .v-field__input {
+  color: #e0e0e0 !important;
+}
+
+body.theme--dark .v-field--variant-outlined .v-field__outline {
+  --v-field-border-opacity: 0.2;
+}
+
+/* dark mode select/dropdown */
+body.theme--dark .v-select .v-field,
+body.theme--dark .v-text-field .v-field,
+body.theme--dark .v-autocomplete .v-field {
+  background-color: #2a2a2a !important;
+}
+
+body.theme--dark .v-list {
+  background-color: #252525 !important;
+}
+
+/* ===============================
+  vuetify dropdown overrides (global)
+  =============================== */
+
+/* dark mode: darker grey background for menu */
+.v-overlay__content .v-list {
+  background-color: #e8e8e8 !important;
+}
+
+/* dark mode: active state (selection) */
+.v-overlay__content .v-list-item--active {
+  background-color: #b0b0b0 !important; /* visible grey */
+  color: #000000 !important;
+}
+
+/* dark mode: hover state */
+.v-overlay__content .v-list-item:hover {
+  background-color: #d0d0d0 !important; /* lighter grey hover */
+  color: #000000 !important;
+}
+
+/* fix overlay opacity issue */
+.v-overlay__content .v-list-item--active .v-list-item__overlay,
+.v-overlay__content .v-list-item:hover .v-list-item__overlay {
+  opacity: 0 !important;
+}
+
+/* dark mode overrides */
+body.theme--dark .v-overlay__content .v-list {
+  background-color: #2a2a2a !important;
+  border: 1px solid #444;
+}
+
+/* dark mode: active state */
+body.theme--dark .v-overlay__content .v-list-item--active {
+  background-color: #505050 !important;
+  color: #ffffff !important;
+}
+
+/* dark mode: hover state */
+body.theme--dark .v-overlay__content .v-list-item:hover {
+  background-color: #383838 !important; /* subtle hover */
+  color: #ffffff !important;
+}
+
+/* neutral grey in light mode */
+.v-field {
+  background-color: #e6e6e6 !important; /* neutral grey, no blue tint */
+}
+
+body.theme--dark .v-field {
+  background-color: #2a2a2a !important;
+}
+
+/* ===============================
+    toggle switch track visibility (dark mode)
+   =============================== */
+body.theme--dark .v-switch .v-switch__track {
+  background-color: #444444 !important;
+  opacity: 1 !important;
+}
+
+/* when toggle is ON in dark mode - green track */
+body.theme--dark .v-switch--dirty .v-switch__track,
+body.theme--dark .v-input--dirty .v-switch__track {
+  background-color: rgba(41, 98, 57, 0.6) !important;
+}
+
+/* ===============================
+    search box dark mode
+   =============================== */
+body.theme--dark input[type="text"],
+body.theme--dark input[type="search"],
+body.theme--dark .search-input,
+body.theme--dark .v-field__input {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+}
+
+/* ===============================
+    dropdown list item highlights
+   =============================== */
+
+/* light mode - dropdown highlight - subtle gray background */
+.v-list-item--active {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.v-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.v-list-item--active .v-list-item-title,
+.v-list-item .v-list-item-title {
+  color: #333333 !important;
+}
+
+/* dark mode - dropdown highlight - subtle light background */
+body.theme--dark .v-list-item--active {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.theme--dark .v-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.theme--dark .v-list-item--active .v-list-item-title,
+body.theme--dark .v-list-item .v-list-item-title {
+  color: #ffffff !important;
 }
 
 /* ===============================
@@ -89,4 +273,185 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+/* ===============================
+   vuetify dark mode overrides
+   =============================== */
+body.theme--dark .v-field {
+  background: var(--color-bg-muted) !important;
+  color: var(--color-text-primary) !important;
+}
+
+body.theme--dark .v-field__input {
+  color: var(--color-text-primary) !important;
+}
+
+body.theme--dark .v-field--variant-outlined .v-field__outline {
+  --v-field-border-opacity: 0.25;
+}
+
+body.theme--dark .v-select__selection-text,
+body.theme--dark .v-field__input input {
+  color: var(--color-text-primary) !important;
+}
+
+body.theme--dark .v-list {
+  background: var(--color-bg-panel) !important;
+  color: var(--color-text-primary) !important;
+}
+
+body.theme--dark .v-list-item {
+  color: var(--color-text-primary) !important;
+}
+
+body.theme--dark .v-list-item:hover {
+  background: var(--color-bg-muted) !important;
+}
+
+body.theme--dark .v-overlay__content {
+  background: var(--color-bg-panel) !important;
+}
+
+body.theme--dark .v-label {
+  color: var(--color-text-secondary) !important;
+}
+
+body.theme--dark .v-switch__track {
+  background: var(--color-bg-muted) !important;
+}
+
+body.theme--dark .v-switch--inset .v-switch__track {
+  background: var(--color-bg-muted) !important;
+}
+
+/* override vuetify field labels to not be orange */
+body.theme--dark .v-field__outline .v-field__outline__start,
+body.theme--dark .v-field__outline .v-field__outline__notch,
+body.theme--dark .v-field__outline .v-field__outline__end {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+body.theme--dark .v-field--focused .v-field__outline {
+  --v-field-border-opacity: 0.5;
+}
+
+/* override vuetify focus accent color from orange to light blue */
+body.theme--dark .v-field--focused .v-field__outline .v-field__outline__start,
+body.theme--dark .v-field--focused .v-field__outline .v-field__outline__notch,
+body.theme--dark .v-field--focused .v-field__outline .v-field__outline__end {
+  border-color: var(--color-primary) !important;
+}
+
+body.theme--dark .v-field--focused .v-label {
+  color: var(--color-text-primary) !important;
+}
+
+/* override vuetify autocomplete dropdown text from orange to light blue */
+body.theme--dark .v-list-item-title,
+body.theme--dark .v-autocomplete .v-list-item-title,
+body.theme--dark .v-menu .v-list-item-title,
+body.theme--dark .v-overlay .v-list-item-title {
+  color: #7eb8d9 !important;
+}
+
+body.theme--dark .v-list-item-subtitle,
+body.theme--dark .v-autocomplete .v-list-item-subtitle,
+body.theme--dark .v-menu .v-list-item-subtitle {
+  color: #a0a0a0 !important;
+}
+
+/* vuetify menu/dropdown background */
+body.theme--dark .v-overlay__content .v-list,
+body.theme--dark .v-menu__content,
+body.theme--dark .v-autocomplete__content {
+  background: #2c2c2c !important;
+  background-color: #2c2c2c !important;
+}
+
+/* ===============================
+   modern input styling (thinner borders)
+   =============================== */
+   
+/* light mode inputs - very subtle borders */
+.v-field--variant-outlined .v-field__outline__start,
+.v-field--variant-outlined .v-field__outline__notch,
+.v-field--variant-outlined .v-field__outline__end {
+  border-width: 1px !important;
+  border-color: rgba(0, 0, 0, 0.08) !important; /* Much more subtle */
+}
+
+/* dark mode inputs - very subtle borders */
+body.theme--dark .v-field--variant-outlined .v-field__outline__start,
+body.theme--dark .v-field--variant-outlined .v-field__outline__notch,
+body.theme--dark .v-field--variant-outlined .v-field__outline__end {
+  border-width: 1px !important;
+  border-color: rgba(255, 255, 255, 0.08) !important; /* Much more subtle */
+}
+
+/* focused state - slightly more visible but still clean */
+.v-field--focused .v-field__outline__start,
+.v-field--focused .v-field__outline__notch,
+.v-field--focused .v-field__outline__end {
+  border-width: 1.5px !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* HR line color for dark mode */
+body.theme--dark hr {
+  border-color: var(--color-border-light);
+  opacity: 0.5;
+}
+
+/* dark scrollbar styling */
+body.theme--dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.theme--dark ::-webkit-scrollbar-track {
+  background: var(--color-bg-muted);
+}
+
+body.theme--dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+body.theme--dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* firefox dark scrollbar */
+body.theme--dark * {
+  scrollbar-color: #444 #1e1e1e;
+  scrollbar-width: thin;
+}
+
+/* hide horizontal scrollbar on mobile in dark mode */
+@media (max-width: 768px) {
+  body.theme--dark {
+    overflow-x: hidden;
+  }
+  
+  body.theme--dark *::-webkit-scrollbar:horizontal {
+    display: none;
+    height: 0;
+  }
+  
+  /* make all scrollbars dark on mobile */
+  body.theme--dark *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: #1e1e1e;
+  }
+  
+  body.theme--dark *::-webkit-scrollbar-track {
+    background: #1e1e1e;
+  }
+  
+  body.theme--dark *::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+  }
 }

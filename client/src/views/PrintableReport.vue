@@ -77,6 +77,7 @@
       <h2 class="section-title">Custom Birds</h2>
 
       <div class="table-header-custom">
+        <div style="text-align: right; padding-right: 5px;">#</div> <!-- Index Header -->
         <div>Species</div>
         <div>Rank</div>
         <div>List Likelihood</div>
@@ -88,8 +89,8 @@
         v-for="(bird, i) in customBirds"
         :key="'custom-' + i"
       >
+        <div class="index-cell">{{ i + 1 }}.</div> <!-- Index Cell -->
         <div class="species-cell">
-          <span class="index">{{ i + 1 }}.</span>
           <a v-if="bird.speciesUrl" :href="bird.speciesUrl" target="_blank" class="species-link">{{ bird.Species }}</a>
           <span v-else>{{ bird.Species }}</span>
         </div>
@@ -309,6 +310,11 @@ html, body {
   body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    background: white !important;
+  }
+  html {
+    background: white !important;
+    height: auto !important;
   }
 }
 </style>
@@ -374,6 +380,8 @@ html, body {
   font-weight: 600;
   margin-bottom: 12px;
   color: #457999;
+  break-after: avoid;
+  page-break-after: avoid;
 }
 
 /* chart */
@@ -381,6 +389,8 @@ html, body {
   width: 100%;
   min-height: 220px;
   max-height: 280px;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 /* bird table */
@@ -395,15 +405,20 @@ html, body {
   padding: 6px 0;
   border-bottom: 1px solid #e4e4e4;
   font-size: 11px;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .table-header-custom,
 .table-row-custom {
   display: grid;
-  grid-template-columns: 1fr .5fr .8fr .8fr;
+  grid-template-columns: 35px 1fr .5fr .8fr .8fr;
   padding: 6px 0;
   border-bottom: 1px solid #e4e4e4;
   font-size: 11px;
+  align-items: center;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .table-header,
@@ -437,6 +452,11 @@ html, body {
   text-align: center;
 }
 
+.index-cell {
+  color: #888;
+  width: 25px;
+}
+
 /* photo grid */
 .photos-section {
   margin-top: 25px;
@@ -450,10 +470,17 @@ html, body {
 
 .photo-card {
   width: 140px;
+  height: 200px;
   border: 1px solid #ddd;
   border-radius: 6px;
   overflow: hidden;
   background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .bird-photo {
@@ -475,6 +502,10 @@ html, body {
 }
 
 .photo-caption {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px;
   font-size: 10px;
   font-weight: 500;

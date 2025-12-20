@@ -1,15 +1,49 @@
 <template>
-  <div class="hotspot-search">
+  <div class="page-layout" @click="handlePageClick">
+    <TopNavBar />
+    <div class="hotspot-search">
 
-    <!-- LEFT PANEL -->
-    <div class="filters">
-      <!-- Buttons container -->
-      <div class="buttons-container">
-        <div id="home-button" @click="redirectToHomeScreen">
-          <div class="back-button-wrapper">
-            <BIconHouseFill />
-          </div>
-        </div>
+    <div class="mobile-search-bar mobile-only">
+      <button class="nav-btn filter-toggle-btn" @click.stop="showFiltersDrawer = !showFiltersDrawer">
+        <span style="font-size: 1.5rem; font-weight: bold; color: var(--color-primary);">&gt;</span>
+      </button>
+
+      <div class="search-input-wrapper" style="flex: 1; position: relative;">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search hotspots..."
+          @input="onHotspotInput"
+          @keyup.enter="applyFilters"
+          class="mobile-search-input compact"
+          style="width: 100%; padding-right: 30px;"
+        />
+        <button v-if="searchQuery" class="mobile-search-clear" @click="clearSearch" style="right: 8px;">✕</button>
+      </div>
+    </div>
+    
+    <!-- backdrop for drawer -->
+    <div 
+      class="drawer-backdrop" 
+      :class="{ open: showFiltersDrawer }" 
+      @click="showFiltersDrawer = false"
+    ></div>
+    
+    <!-- backdrop for summary sheet -->
+    <div 
+      class="sheet-backdrop mobile-only" 
+      :class="{ open: showSummarySheet }" 
+      @click="showSummarySheet = false"
+    ></div>
+
+    <!-- left panel (becomes slide drawer on mobile) -->
+    <div class="filters slide-drawer" :class="{ open: showFiltersDrawer }">
+      <!-- close button for mobile drawer -->
+      <button class="drawer-close-btn mobile-only" @click="showFiltersDrawer = false">✕</button>
+      
+      <!-- buttons container -->
+      <div class="buttons-container desktop-only">
+        <!-- home button removed -->
       </div>
 
       <h1 class="panel-title">Browse Hotspots</h1>
@@ -210,13 +244,24 @@
           :is-selected="analyticsStore.selectedHotspotId === hotspot.id"
           @click="selectHotspotById(hotspot.id)"
         />
-        <!-- infinite scroll -->
-        <div ref="scrollSentinel" style="height: 1px;"></div>
+      </div>
+      
+      <!-- infinite scroll sentinel -->
+      <div ref="scrollSentinel" style="height: 1px; width: 100%;"></div>
+
+      <!-- super mini loading indicator -->
+      <div v-if="analyticsStore.isLoading" class="bottom-loader">
+        <img :src="loadingImage" alt="Loading..." />
       </div>
     </div>
 
-    <!-- RIGHT PANEL -->
-    <div class="summary-panel">
+    <!-- right panel (becomes slide sheet on mobile) -->
+    <div class="summary-panel slide-sheet" :class="{ open: showSummarySheet }">
+      <!-- close button for mobile sheet -->
+      <button class="sheet-close-btn mobile-only" @click="showSummarySheet = false">✕</button>
+      
+      <div class="sheet-handle mobile-only"></div>
+      
       <div class="summary-header">
         <h2 v-if="analyticsStore.selectedHotspot">Selected Hotspot</h2>
         <h2 v-else>No Hotspot Selected</h2>
@@ -282,7 +327,38 @@
         </button>
       </div>
     </div>
+    
+    <!-- mobile/tablet floating get report button -->
+    <button 
+      class="floating-get-report-btn"
+      :class="{ 'btn-disabled': !analyticsStore.selectedHotspot }"
+      :disabled="!analyticsStore.selectedHotspot"
+      @click="goToSelectedHotspotDetail"
+    >
+      Get Report
+    </button>
+    
+    <!-- mobile bottom navigation -->
+    <div class="carousel-nav-bar mobile-only" :class="{ 'dock-lifted': navStore.mobileNavOpen }">
+      <button class="nav-btn back-btn" @click="handleBack" aria-label="Go Back">
+        <BIconArrowLeft />
+      </button>
 
+      <button
+        class="nav-btn primary-action"
+        :disabled="!analyticsStore.selectedHotspot"
+        :class="{ 'btn-disabled': !analyticsStore.selectedHotspot }"
+        @click="redirectToReport"
+      >
+        Get Report
+      </button>
+
+      <button class="nav-btn" @click="navStore.toggleMobileNav()" aria-label="Menu">
+        <BIconList v-if="!navStore.mobileNavOpen" style="font-size: 1.5rem;" />
+        <BIconArrowDown v-else style="font-size: 1.5rem;" />
+      </button>
+    </div>
+    </div>
   </div>
 </template>
 
@@ -300,9 +376,12 @@ import {
 import { storeToRefs } from "pinia";
 import { useRouter } from 'vue-router';
 import HotspotCard from "../components/HotspotCard.vue";
-import { BIconHouseFill, BIconFilter } from 'bootstrap-icons-vue';
+import { BIconHouseFill, BIconFilter, BIconEye, BIconArrowLeft, BIconList, BIconArrowDown } from 'bootstrap-icons-vue';
+import ThemeToggle from "../components/ThemeToggle.vue";
 import { useAnalyticsStore } from "../stores/useAnalyticsStore";
 import { useHotspotSearchUIStore } from "../stores/useHotspotSearchUIStore";
+import { useNavigationStore } from "../stores/useNavigationStore";
+import TopNavBar from "../components/TopNavBar.vue";
 import type { HotspotOverview } from '../types';
 
 export default defineComponent({
@@ -312,14 +391,25 @@ export default defineComponent({
     HotspotCard,
     BIconHouseFill,
     BIconFilter,
+    BIconEye,
+    BIconArrowLeft,
+    BIconList,
+    BIconArrowDown,
+    ThemeToggle,
+    TopNavBar,
   },
 
   setup() {
     const router = useRouter();
     const analyticsStore = useAnalyticsStore();
+    const navStore = useNavigationStore();
 
     // UI state store (persists across route changes)
     const uiStore = useHotspotSearchUIStore();
+    
+    // shared loading image
+    const loadingImage = "https://cdn.pixabay.com/animation/2024/07/04/20/46/20-46-07-872_512.gif";
+
     const {
       searchQuery,
       countrySearch,
@@ -329,6 +419,30 @@ export default defineComponent({
       selectedSubregion2,
       selectedHotspotId,
     } = storeToRefs(uiStore);
+
+    // mobile ui state
+    const showFiltersDrawer = ref(false);
+    const showSummarySheet = ref(false);
+    // mobileNavOpen removed (handled by navStore)
+    
+    // toggle filter drawer (for hamburger button)
+    const toggleFiltersDrawer = () => {
+      showFiltersDrawer.value = !showFiltersDrawer.value;
+    };
+    
+    // handle page click to close sheets when clicking outside
+    const handlePageClick = (e: Event) => {
+      // don't close if clicking inside summary panel or filters
+      const target = e.target as HTMLElement;
+      if (target.closest('.summary-panel') || target.closest('.filters') || 
+          target.closest('.mobile-header') || target.closest('.mobile-search-bar')) {
+        return;
+      }
+      // close summary sheet if open
+      if (showSummarySheet.value) {
+        showSummarySheet.value = false;
+      }
+    };
 
     const hotspots = computed(() => analyticsStore.allHotspots);
 
@@ -838,6 +952,10 @@ const selectHotspotSuggestion = (name: string) => {
     const selectHotspotById = (id: HotspotOverview['id']) => {
       analyticsStore.setHotspot(id);
       uiStore.setSelectedHotspotId(String(id));
+      // auto-open summary sheet on mobile when card is selected
+      if (window.innerWidth <= 768) {
+        showSummarySheet.value = true;
+      }
     };
 
     const goToSelectedHotspotDetail = () => {
@@ -852,21 +970,32 @@ const selectHotspotSuggestion = (name: string) => {
       });
     };
 
-    const redirectToHomeScreen = () => {
-      // persist state before leaving
-      uiStore.persist();
-      router.push({ name: "HomeScreen" });
+
+    const handleBack = () => {
+      // If summary sheet is open, close it first? 
+      // User requested "Back button" to mimic detail page.
+      if (showSummarySheet.value) {
+        showSummarySheet.value = false;
+        return;
+      }
+      // If drawer is open
+      if (showFiltersDrawer.value) {
+        showFiltersDrawer.value = false;
+        return;
+      }
+      // always go to Home
+      router.push('/');
     };
 
     // -------------------------
     // LIFECYCLE
     // -------------------------
-    onMounted(() => {
-      analyticsStore.fetchAllHotspots();
+    onMounted(async () => {
+      // fetch hotspots and wait for them to load
+      await analyticsStore.fetchAllHotspots();
 
-      // re-apply filters when returning to this page
-      // (important: ensures results match persisted filters)
-      // also restores selected card in analytics store
+      // restore selection from cached UI state
+      // This ensures button and card highlight stay in sync after refresh
       if (selectedHotspotId.value) {
         analyticsStore.setHotspot(selectedHotspotId.value as any);
       }
@@ -895,7 +1024,13 @@ const selectHotspotSuggestion = (name: string) => {
     return {
       hotspots,
       analyticsStore,
+      uiStore, // Expose uiStore so we can use selectedHotspotId from it if needed, or refs
+      // But we have refs below.
 
+      // Navigation / Actions
+      handleBack,
+      goToSelectedHotspotDetail, // original name
+      redirectToReport: goToSelectedHotspotDetail, // Alias for template usage
       // persisted filter state
       searchQuery,
       countrySearch,
@@ -903,6 +1038,7 @@ const selectHotspotSuggestion = (name: string) => {
       selectedSubregion,
       subregion2Search,
       selectedSubregion2,
+      selectedHotspotId,
 
       // dropdown state
       showCountryDropdown,
@@ -947,8 +1083,6 @@ const selectHotspotSuggestion = (name: string) => {
 
       // selection
       selectHotspotById,
-      goToSelectedHotspotDetail,
-      redirectToHomeScreen,
 
       // right panel species count
       selectedSpeciesCount,
@@ -959,17 +1093,34 @@ const selectHotspotSuggestion = (name: string) => {
       filteredHotspotSuggestions,
       onHotspotInput,
       selectHotspotSuggestion,
+      
+      // mobile UI
+      showFiltersDrawer,
+      showSummarySheet,
+      toggleFiltersDrawer,
+      handlePageClick,
+      // handlePageClick duplicate removed
+      navStore,
+      loadingImage,
     };
   },
 });
 </script>
 
 <style scoped>
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .hotspot-search {
   display: flex;
-  height: 100vh;
-  background: #f4f7f9;
-  color: #222;
+  flex: 1;
+  height: 100%;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
   font-family: Arial, sans-serif;
   overflow: hidden; 
 }
@@ -979,7 +1130,7 @@ const selectHotspotSuggestion = (name: string) => {
   width: 300px;                 
   padding: 20px 18px;           
   box-sizing: border-box;
-  background: #f4f7f9;
+  background: var(--color-bg-page);
   overflow-y: auto;
   margin-left: 20px;
 }
@@ -988,10 +1139,10 @@ const selectHotspotSuggestion = (name: string) => {
 .filters-card {
   margin-top: 16px;             
   padding: 16px;               
-  background: #ffffff;
+  background: var(--color-bg-panel);
   border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(69, 121, 153, 0.12);
-  border: 1px solid rgba(69, 121, 153, 0.15);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-light);
 }
 
 /* Dropdown wrapper */
@@ -1004,7 +1155,7 @@ const selectHotspotSuggestion = (name: string) => {
   flex: 1.5;
   padding: 24px 20px;
   box-sizing: border-box;
-  background: #f4f7f9;
+  background: var(--color-bg-page);
   overflow-y: auto;
 }
 
@@ -1020,8 +1171,8 @@ const selectHotspotSuggestion = (name: string) => {
   gap: 10px;
   padding: 10px 16px;
   border-radius: 18px;             
-  background: #ffffff;
-  border: 1px solid #457999;       
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-primary);       
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   font-size: 0.95rem;             
 }
@@ -1058,7 +1209,7 @@ const selectHotspotSuggestion = (name: string) => {
 .clear-filters {
   border: none;
   background: transparent;
-  color: #B31B1B; 
+  color: var(--color-danger, #B31B1B);
   cursor: pointer;
   padding: 0 4px;
   font-size: 0.9rem;
@@ -1077,10 +1228,10 @@ const selectHotspotSuggestion = (name: string) => {
   right: 0;
   max-height: 180px;
   overflow-y: auto;
-  background: white;
+  background: var(--color-bg-panel);
   border-radius: 10px;
-  border: 1px solid rgba(69, 121, 153, 0.25);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-dropdown);
   z-index: 20;
 }
 
@@ -1186,8 +1337,8 @@ const selectHotspotSuggestion = (name: string) => {
   width: 320px;
   box-sizing: border-box;
   padding: 20px;
-  background: #ffffff;
-  border-left: 1px solid rgba(69, 121, 153, 0.15);
+  background: var(--color-bg-panel);
+  border-left: 1px solid var(--color-border-light);
   box-shadow: -6px 0 16px rgba(0,0,0,0.04);
   display: flex;
   flex-direction: column;
@@ -1198,13 +1349,13 @@ const selectHotspotSuggestion = (name: string) => {
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 12px 0;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
   letter-spacing: 0.2px;
 }
 
 .summary-body {
   font-size: 0.95rem;
-  color: #333;
+  color: var(--color-text-secondary);
   margin: 0 0 0px 0;
 }
 
@@ -1219,7 +1370,7 @@ const selectHotspotSuggestion = (name: string) => {
   display: block;
   width: 40px;
   height: 3px;
-  background: #D09B2C;
+  background: var(--color-accent);
   margin-top: 6px;
   border-radius: 2px;
 }
@@ -1232,7 +1383,7 @@ const selectHotspotSuggestion = (name: string) => {
 .summary-label {
   width: 110px;
   font-weight: 500;
-  color: #457999;
+  color: var(--color-primary);
 }
 
 .summary-value {
@@ -1242,32 +1393,35 @@ const selectHotspotSuggestion = (name: string) => {
 .summary-footer {
   margin-top: auto; 
   padding-top: 12px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border-light);
   display: flex;
   justify-content: center;
 }
 
 .detail-button {
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 14px 28px;
+  border-radius: 12px;
   border: none;
   background: #457999;
   color: white;
-  cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 16px;
   font-weight: 500;
-  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 4px 16px rgba(69, 121, 153, 0.4);
+  transition: background 0.2s, box-shadow 0.2s;
+  text-transform: capitalize;
 }
 
 .detail-button:disabled {
-  border-color: #ccc;
-  color: #999;
+  background: #457999 !important;
+  opacity: 0.5;
+  color: white !important;
   cursor: not-allowed;
-  background: #f5f5f5;
+  box-shadow: none;
 }
 
 .detail-button:not(:disabled):hover {
-  background: #296239;
+  background: #3a6680;
+  box-shadow: 0 6px 20px rgba(69, 121, 153, 0.5);
 }
 
 .filter-heading {
@@ -1309,4 +1463,494 @@ const selectHotspotSuggestion = (name: string) => {
   padding: 0;
 }
 
+/* ===============================
+  responsive styles
+  =============================== */
+
+/* mobile header bar */
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* adjust main layout */
+  .hotspot-search {
+    flex-direction: column;
+    padding-top: 0;
+  }
+  
+  /* mobile header */
+  .mobile-header {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: var(--color-bg-page);
+    border-bottom: 1px solid var(--color-border-light);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .mobile-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-text-primary);
+  }
+  
+  #home-button-mobile {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #457999;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+  }
+  
+  /* hide desktop filters, show as drawer */
+  .filters {
+    padding-top: 60px;
+    margin-left: 0;
+  }
+  
+  .results {
+    width: 100%;
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+  
+  /* cards single column */
+  .cards-container {
+    flex-direction: column;
+  }
+  
+  .cards-container > * {
+    width: 100%;
+  }
+  
+  /* summary panel as slide-up sheet */
+  .summary-panel {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 70vh;
+    z-index: 999;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    border-left: none;
+  }
+  
+  .summary-panel.open {
+    transform: translateY(0);
+  }
+  
+  /* sheet handle */
+  .summary-panel::before {
+    display: none;
+  }
+  
+  /* sheet handle (drag indicator) */
+  .sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 8px auto 4px;
+  }
+  
+  /* sheet close button */
+  .sheet-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(0,0,0,0.1);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+  }
+  
+  /* sheet backdrop */
+  .sheet-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .sheet-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* drawer close button */
+  .drawer-close-btn {
+    position: absolute;
+    top: 70px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-border-light);
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  
+  /* hide panel title on mobile (shown in header) */
+  .panel-title {
+    display: none;
+  }
+  
+  /* filters card adjustments */
+  .filters-card {
+    margin-top: 60px;
+  }
+  
+  /* mobile search bar */
+  .mobile-search-bar {
+    position: relative;
+    padding: 12px 16px;
+    background: var(--color-bg-page);
+    border-bottom: 1px solid var(--color-border-light);
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  .mobile-search-input {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 10px;
+    font-size: 16px;
+    background: var(--color-bg-panel);
+    color: var(--color-text-primary);
+  }
+  
+  .mobile-search-input::placeholder {
+    color: var(--color-text-muted);
+  }
+  
+  .mobile-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(69, 121, 153, 0.2);
+  }
+  
+  .mobile-search-clear {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+
+  /* ensure active filters have breathing room from search bar */
+  .bottom-loader {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+  }
+  
+  .bottom-loader img {
+    width: 40px;
+    height: auto;
+  }
+  
+  .results-filters {
+    margin-top: 32px;
+    margin-bottom: 20px;
+    padding: 0 4px;
+    width: 100%;
+    position: relative;
+    z-index: 5;
+  }
+  
+  /* compact cards on mobile */
+  .cards-container > * {
+    width: 100%;
+  }
+  
+  /* mobile floating get report button */
+  .mobile-get-report-fab {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: #457999;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(69, 121, 153, 0.4);
+    cursor: pointer;
+    z-index: 95;
+    animation: fab-pulse 2s infinite;
+  }
+  
+  @keyframes fab-pulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(69, 121, 153, 0.4); }
+    50% { box-shadow: 0 4px 20px rgba(69, 121, 153, 0.7); }
+  }
+  
+  .mobile-get-report-fab:hover {
+    background: #3a6680;
+  }
+}
+
+/* ===============================
+  Tablet/Medium screens (769px - 1198px)
+  hide summary panel, show floating button, use grid layout
+  =============================== */
+
+@media (min-width: 769px) and (max-width: 1198px) {
+  /* hide the summary panel */
+  .summary-panel {
+    display: none !important;
+  }
+  
+  /* filters panel - consistent width */
+  .filters {
+    width: 240px;
+    padding: 12px 10px;
+  }
+  
+  .results {
+    flex: 1;
+    padding: 12px;
+  }
+  
+  /* card grid - consistent 3 columns for all tablet sizes */
+  .cards-container {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .cards-container > * {
+    width: 100% !important;
+    height: 100%;
+    min-height: 200px;
+    box-sizing: border-box;
+    flex: none !important; /* override any flex from default */
+  }
+  
+  /* show floating get report button */
+  .floating-get-report-btn {
+    display: flex !important;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 14px 28px;
+    background: #457999;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(69, 121, 153, 0.4);
+    cursor: pointer;
+    z-index: 100;
+    align-items: center;
+    gap: 8px;
+    text-transform: capitalize;
+  }
+  
+  .floating-get-report-btn:hover {
+    background: #3a6680;
+    box-shadow: 0 6px 20px rgba(69, 121, 153, 0.5);
+  }
+}
+
+/* larger screens (1199px+) - hide floating button, show summary panel */
+@media (min-width: 1199px) {
+  .floating-get-report-btn {
+    display: none !important;
+  }
+}
+
+/* mobile (below 769px) - floating button centered at bottom */
+@media (max-width: 768px) {
+  .floating-get-report-btn {
+    display: none !important; /* hidden on mobile, handled by dock */
+  }
+}
+
+/* default: hide floating button on desktop */
+.floating-get-report-btn {
+  display: none;
+}
+
+/* mobile drawer styles (scoped) */
+.nav-left {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-left.mobile-open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: auto;
+    bottom: 72px;
+    left: 0;
+    right: 0;
+    background: var(--color-bg-panel);
+    padding: 16px;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+    z-index: 99;
+    border-top: 1px solid var(--color-border-light);
+    border-radius: 16px 16px 0 0;
+    max-height: 50vh;
+  }
+
+  .nav-item {
+    padding: 12px;
+    font-size: 1.2rem;
+    border: none;
+    background: transparent;
+    text-align: left;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+  
+  .nav-item:hover {
+    background: var(--color-bg-muted);
+    border-radius: 8px;
+  }
+}
+
+/* filter toggle button (new) */
+@media (max-width: 768px) {
+  .filter-toggle-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--color-bg-panel);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid var(--color-border-light);
+      display: flex !important; /* Only on mobile */
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-right: 8px; 
+  }
+
+  .mobile-search-bar {
+    display: flex !important;
+    align-items: center;
+  }
+
+  .mobile-search-input.compact {
+    padding-left: 16px; 
+    padding-right: 30px;
+  }
+}
+
+.btn-disabled {
+  background-color: #457999 !important;
+  opacity: 0.5;
+  color: white !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* mobile bottom navigation styles */
+@media (max-width: 768px) {
+  .carousel-nav-bar.mobile-only {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: var(--color-bg-panel);
+    border-top: 1px solid var(--color-border-light);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+
+  /* get report button specific tweaks */
+  .nav-btn.primary-action {
+    background-color: #457999;
+    color: white;
+    border-radius: 6px;
+    padding: 0 16px;
+    height: 44px;
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: capitalize;
+    flex: none;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-btn.primary-action.btn-disabled {
+    background-color: #457999;
+    opacity: 0.5;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+/* utility to hide mobile nav on desktop */
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
 </style>

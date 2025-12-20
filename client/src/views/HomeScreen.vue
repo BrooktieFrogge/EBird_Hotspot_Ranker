@@ -1,43 +1,36 @@
 <template>
   <div class="homescreen-container">
+    <TopNavBar />
+
     <div class="page-shell">
-      <!-- PAGE TITLE BAR -->
-      <header class="title-bar" id="home">
-        <div class="title-content">
-          <img class="header-logo" :src="logo" alt="FeatherWeight Logo" />
-        </div>
-      </header>
 
-      <!-- TOP NAV / MENU -->
-      <nav class="top-nav">
-        <div class="nav-left">
-          <button class="nav-item nav-item-active"><a href="#home"> Home</a>
-          </button>
-          <button class="nav-item"><a href="#about"> About</a>
-          </button>
-        </div>
-
-        <div class="nav-right">
-          <button class="nav-search" @click="goToHotspotSearch">Search Hotspots</button>
-        </div>
-      </nav>
+      <div class="carousel-nav-bar mobile-only" :class="{ 'dock-lifted': navStore.mobileNavOpen }">
+        <div style="width: 44px;"></div>
+        
+        <button class="nav-btn nav-search-dock-text" @click="goToHotspotSearch" aria-label="Search">
+           <span>Search Hotspots</span>
+        </button>
+        
+        <button class="nav-btn" @click="navStore.toggleMobileNav()" aria-label="Toggle navigation">
+          <BIconList v-if="!navStore.mobileNavOpen" style="font-size: 1.5rem;" />
+          <BIconArrowDown v-else style="font-size: 1.5rem;" />
+        </button>
+      </div>
 
       <div class="cover-banner">
 
         <img class="cover-photo" :src="coverPhoto" alt="FeatherWeight Cover Photo, colorful bird"/>
-        <h1 class="cover-heading">Welcome to Hotspot FeatherWeight!</h1>
+        <div class="cover-content">
+          <h1 class="cover-heading">Welcome to FeatherWeight!</h1>
 
-          <h2 class="cover-subheading">the eBird Hotspot Likelihood Ranker</h2>
+            <h2 class="cover-subheading">the eBird Hotspot Likelihood Ranker</h2>
 
-          <div class="cover-left">
-          <button class="cover-item"><a href="#how-to"> How to Use</a>
-          </button>
-          </div>
 
-          <div class="cover-right">
-            <button class="cover-item cover-item-dark" ><a href="#learn"> Learn More</a>
-            </button>
-          </div>
+            <div class="cover-buttons">
+              <button class="cover-item" @click="scrollToSection('how-to')">How to Use</button>
+              <button class="cover-item cover-item-dark" @click="scrollToSection('learn')">Learn More</button>
+            </div>
+        </div>
 
       </div>
 
@@ -91,7 +84,7 @@
                     />
 
                     <figcaption  class="captions">
-                    <a href="https://ebird.org/hotspots" style="color:black"> eBird Explore Hotspots</a></figcaption>
+                    <a href="https://ebird.org/hotspots"> eBird Explore Hotspots</a></figcaption>
 
                   </figure>
                  
@@ -156,58 +149,43 @@
             </div>
             <div class="how-section" id="how-to">
               <div class="how-section-content">
-                <h2 class="section-heading">How to Use</h2>
-                <div class="cards">
-                  <div class="how-card blue-card">
-            
-                    <ol class="how-ol">
-                      <li>Enter the name of your eBird hotspot. Click on identifying card for your hotspot. </li>
-                    <li> Enter the start year and end year for your sample. Many birders select 10-15 year intervals to get a good sample of lists. Click “CONFIRM YEARS”</li>
-                    <li>Select the interval of weeks to include in your sample of lists. For example, if you were visiting a hotspot the 1st week or July, you might bracket this week with 5 weeks prior, and 5 weeks after (i.e., bracket week 4 in May to week 2 August, for an 11-week interval).</li>
-                    <li>Inspect the distribution of lists in that interval of weeks to see if you have a representative distribution of lists in that interval of weeks over several years. You can adjust weeks of the interval or years to increase or decrease the number of lists in your sample. Note that simply adding more years may not increase list sample if lists don't exist for the added years (i.e., extending years to 1900).</li>
-                    <li>Enter the number of species to display.</li>
-                    <li>Decide whether to show the List Likelihood curve for the hotspot, the List Likelihood curve as percent (i.e., normalized to top-ranked species for week interval), or both.</li>
-                    <li>For species you are curious about that may have a low ranking, enter names in “custom species…” You have choice to display photo of custom species.</li> 
-                    <li>Export: To obtain a file with your ranked likelihoods, select export file format (e.g., .docx, .pdf, .csv) and browse to location to download the file. </li>
-                      
-                    </ol>
-                
+                <div class="cards-grid">
+                  
+                  <div class="card-column">
+                    <h2 class="section-heading">How to Use</h2>
+                    <div class="how-card blue-card">
+                      <ol class="how-ol">
+                        <li>Enter the name of your eBird hotspot. Click on identifying card for your hotspot. </li>
+                        <li> Enter the start year and end year for your sample. Many birders select 10-15 year intervals to get a good sample of lists. Click “CONFIRM YEARS”</li>
+                        <li>Select the interval of weeks to include in your sample of lists. For example, if you were visiting a hotspot the 1st week or July, you might bracket this week with 5 weeks prior, and 5 weeks after (i.e., bracket week 4 in May to week 2 August, for an 11-week interval).</li>
+                        <li>Inspect the distribution of lists in that interval of weeks to see if you have a representative distribution of lists in that interval of weeks over several years. You can adjust weeks of the interval or years to increase or decrease the number of lists in your sample. Note that simply adding more years may not increase list sample if lists don't exist for the added years (i.e., extending years to 1900).</li>
+                        <li>Enter the number of species to display.</li>
+                        <li>Decide whether to show the List Likelihood curve for the hotspot, the List Likelihood curve as percent (i.e., normalized to top-ranked species for week interval), or both.</li>
+                        <li>For species you are curious about that may have a low ranking, enter names in “custom species…” You have choice to display photo of custom species.</li> 
+                        <li>Export: To obtain a file with your ranked likelihoods, select export file format (e.g., .docx, .pdf, .csv) and browse to location to download the file. </li>
+                      </ol>
+                    </div>
                   </div>
 
-                      <div class="how-card white-card">
-                        <h2 class="section-heading-2">Items to Keep in Mind</h2>
-                        <p class="how-subsection">
-                      A number of factors might increase or decrease the relative ranks of species at a hotspot for the interval of weeks and duration of years selected. For example,</p> 
-
-                        <ul class="how-ul">
-                          <li>
-                            hotspots that are new or on private property may have a relatively limited set of lists as part of the sample. One can assess total number of lists in sample after entering years and weeks.
-                          </li>
-                          <li>
-                            data in the lists is reported by birders with varying levels of experience, yet also reviewed for accuracy by local eBird moderators.
-                          </li>
-                          <li>
-                            rankings may be biased in favor of target species, particularly when birders and guides go to specific hotspots for hard-to-get species. But then again, that's what the rankings are intended to show -likelihood of spotting hard-to-get species when birders are trying to see them.
-                          </li>
-                          <li>
-                            similarly, lists may not include all common residents when birders are focused on target species.
-                          </li>
-                          <li>
-                            during migration, species passing through may have relatively narrow windows where they are relatively more likely. 
-                          </li>
-                          <li>
-                            birders might have included in their hotspot list species spotted in specialized habitats near the hotspot, but not exactly at the hotspot.
-                          </li>
-                          <li>
-                            likelihood rankings do not take into account number of individuals of a species on a list. It only accounts for whether or not the species was observed and included in a list.
-                          </li>
-                          <li>
-                            likelihoods may change for a hotspot depending on the years selected, or as new checklists are added to the database in the future.
-                          </li>
-                    
-                        </ul>
-                      </div>
+                  <div class="card-column">
+                    <h2 class="section-heading-2">Items to Keep in Mind</h2>
+                    <div class="how-card white-card">
+                      <p class="how-subsection">
+                        A number of factors might increase or decrease the relative ranks of species at a hotspot for the interval of weeks and duration of years selected. For example,
+                      </p>
+                      <ul class="how-ul">
+                        <li>hotspots that are new or on private property may have a relatively limited set of lists as part of the sample. One can assess total number of lists in sample after entering years and weeks.</li>
+                        <li>data in the lists is reported by birders with varying levels of experience, yet also reviewed for accuracy by local eBird moderators.</li>
+                        <li>rankings may be biased in favor of target species, particularly when birders and guides go to specific hotspots for hard-to-get species. But then again, that's what the rankings are intended to show -likelihood of spotting hard-to-get species when birders are trying to see them.</li>
+                        <li>similarly, lists may not include all common residents when birders are focused on target species.</li>
+                        <li>during migration, species passing through may have relatively narrow windows where they are relatively more likely.</li>
+                        <li>birders might have included in their hotspot list species spotted in specialized habitats near the hotspot, but not exactly at the hotspot.</li>
+                        <li>likelihood rankings do not take into account number of individuals of a species on a list. It only accounts for whether or not the species was observed and included in a list.</li>
+                        <li>likelihoods may change for a hotspot depending on the years selected, or as new checklists are added to the database in the future.</li>
+                      </ul>
+                    </div>
                   </div>
+                </div>
               </div>
             </div>
 
@@ -240,7 +218,7 @@
               <div class="footer-section-content">
                 <h2 class="footer-heading">Image Credits</h2>
           
-                 <p class="footer"><a href="https://media.ebird.org/" style="color:black"> Sources: "https://media.ebird.org/"</a> </p>
+                 <p class="footer"><a href="https://media.ebird.org/" class="footer-link"> Sources: "https://media.ebird.org/"</a> </p>
                 <p class="footer">Cover Photo:  © Fernando Saravia</p>
           
                 <h2 class="footer-heading">Project Acknowledgements</h2>
@@ -259,7 +237,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { BIconList, BIconArrowDown } from "bootstrap-icons-vue";
+import TopNavBar from "../components/TopNavBar.vue";
+import { useNavigationStore } from "../stores/useNavigationStore";
 import birdImage from "../assets/bird.png";
 import birdImage2 from "../assets/bird2.png";
 import birdImage3 from "../assets/bird3.png";
@@ -267,52 +249,57 @@ import birdImage4 from "../assets/bird4.png";
 import graph from "../assets/graph.png";
 import coverPhoto from "../assets/coverPhoto.png";
 import eBirdStill from "../assets/ebird.png";
-import logo from "../assets/logo.png";
-
 const router = useRouter();
+const navStore = useNavigationStore();
+const isDarkMode = ref(false);
+
+// watch for theme changes
+const checkDarkMode = () => {
+  isDarkMode.value = document.body.classList.contains('theme--dark');
+};
+
+onMounted(() => {
+  checkDarkMode();
+  const observer = new MutationObserver(checkDarkMode);
+  observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+});
 
 function goToHotspotSearch() {
   router.push("/hotspot-search");
 }
 
+const scrollToSection = (id: string) => {
+  navStore.closeMobileNav();
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  } else if (id === 'home') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
 </script>
 
-<style>
-/* ---- App Colors ---- */
-:root {
-  --color-charcoal: #1a1a1a;
-  --color-offwhite: #f9fafb;
-  --color-lightgray: #e5e7eb;
 
-  --color-accent-red: #d64545;
-  --color-accent-green: #57a773;
-  --color-accent-teal: #3cafaf;
-
-  --color-border: #d1d5db;
-  --color-muted: #6b7280;
-}
-</style>
 
 <style scoped>
 
 
-*{
+* {
+  box-sizing: border-box;
   font-family: CloSans, CloSans override, Noto Sans, Noto Sans Hebrew, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
 }
-/* Outer blue margins similar to the ECM page */
 .homescreen-container {
-  min-height: 100vh;
-  background: white;
+  height: 100vh;
+  background: var(--color-bg-page);
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* White central panel */
 .page-shell {
   width: 100%;
-  height: 100vh;
-  background: white;
+  flex: 1;
+  background: var(--color-bg-page);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -325,10 +312,16 @@ function goToHotspotSearch() {
 
 /* Title bar */
 .title-bar {
-  background-color: white;
+  background-color: var(--color-bg-panel);
   padding: 25px 40px 29x;
   text-align: center;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+@media (min-width: 769px) {
+  .title-bar {
+    display: none;
+  }
 }
 
 .title-bar h1 {
@@ -350,155 +343,119 @@ function goToHotspotSearch() {
   aspect-ratio: 343/47;
   border-radius: 5px;
 }
-
 /* Top blue strip */
-.top-nav {
-  max-height: 55px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 10px 40px;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
 
-.nav-left,
-.nav-right {
-  display: flex;
-  width: auto;
-  gap: 12px;
-}
-.nav-search{
-  width: auto;
-  color: white;
+.nav-search-dock {
+  background: var(--color-danger) !important;
+  color: white !important;
   border-radius: 6px;
-  cursor: pointer;
-  background: #b31b1b;
-  border: black;
-  justify-content:center;
+  width: 44px;
+  height: 44px;
+  display: flex;
   align-items: center;
-  padding: 8px;
-  font-style: bold;
-  font-weight: 400;
-  font-size: 20px;
-  line-height: 100%;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.35);
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.nav-search:hover {
-  background: #8b1515;
-}
-
-.nav-item {
+  justify-content: center;
+  padding: 0;
   border: none;
-  background: transparent;
-  color: black;
-  padding: 7px;
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 6px;
-  font-style: bold;
-  font-weight: 400;
-  line-height: 100%;
-  transition: background 0.15s ease, color 0.15s ease;
-  
 }
 
-.nav-item-active,
-.nav-item:hover {
-  text-decoration: underline;
-  text-decoration-color: #b31b1b;
-  text-decoration-thickness: 3px;
-  text-underline-offset: 0.4em;
+.nav-search-dock-text {
+  background: var(--color-danger) !important;
+  color: white !important;
+  border-radius: 6px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: none !important;
+  font-size: 16px;
+  font-weight: 500;
+  width: auto;
+  flex: none;
 }
 .cover-banner{
-  max-width: 100%;
+  width: 100%;
   position: relative;
   text-align: center; 
+  min-height: 500px;
 }
 .cover-photo{
   width:100%;
   height: 100%;
+  min-height: 500px;
+  object-fit: cover;
   opacity: 90%;
 }
 
-.cover-heading{
-  color: white;
-  font-size: 3.25rem;
-  word-spacing: .7rem;
-  font-style: bolder;
-  font-weight: 700;
-  line-height: 1.75;
-  justify-content: center;
+.cover-content {
   position: absolute;
-  top: 40%;
+  top: 0;
+  left: 0;
   width: 100%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: transparent;
-  text-shadow: 0 0 .5rem #20415a;
-  letter-spacing: -.03rem;
-  
-}
-
-.cover-subheading{
-  color: white;
-  font-size: 32px;
-  font-style: bold;
-  word-spacing: .2rem;
-  font-weight: 300;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  position: absolute;
-  top: 62%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: transparent;
-  text-shadow: 0 0 .5rem #20415a;
+  align-items: center;
+  z-index: 10;
+  padding: 40px 20px;
 }
 
-.cover-item{
+.cover-heading {
+  color: var(--color-white);
+  font-size: clamp(1.8rem, 7vw, 6rem);
+  text-align: center;
+  margin-bottom: 2vh; 
+  text-shadow: 0 0 .8rem var(--shadow-text-strong);
+  letter-spacing: -.03rem;
+  font-weight: 800;
+  line-height: 1.1;
+  max-width: 90%;
+}
 
-  background: white;
-  color: #000000;
+.cover-subheading {
+  color: var(--color-white);
+  font-size: clamp(1rem, 3vw, 2.5rem);
+  text-align: center;
+  margin-bottom: 4vh; 
+  text-shadow: 0 0 .8rem var(--shadow-text-strong);
+  font-weight: 400;
+  max-width: 90%;
+}
+
+.cover-item {
+  background: var(--color-white);
+  color: var(--color-black);
   width: 160px;
   font-weight: 400;
-  font-size:20px;
+  font-size: 20px;
   font-style: normal;
   border-radius: 6px;
-  padding: 2px;
+  padding: 8px 16px;
   border: none;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35);
+  cursor: pointer;
 }
 
-.cover-item-dark{
-  background: #40718f;
-  color: white;
+.cover-item-dark {
+  background: var(--color-primary-variation);
+  color: var(--color-white);
 }
 
-.cover-item:hover{
-  background: #d0cfcf;
-}
-.cover-item-dark:hover{
-  background: #396581;
+.cover-item:hover {
+  background: var(--color-bg-hover);
 }
 
-.cover-left{
-  position: absolute;
-  top: 85%;
-  left: 50%;
-  transform: translate(-120%, -50%);
+.cover-item-dark:hover {
+  background: var(--color-primary-dark);
 }
 
-.cover-right{
-  position: absolute;
-  top: 85%;
-  left: 50%;
-  transform: translate(5%,-50%);
- 
+.cover-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 .main-layout {
   display: grid;
@@ -506,7 +463,7 @@ function goToHotspotSearch() {
 }
 
 .content {
-  color: black;
+  color: var(--color-text-primary);
 }
 
 .section-heading {
@@ -515,38 +472,36 @@ function goToHotspotSearch() {
   line-height: 1.111;;
   letter-spacing: -0.02rem;
   margin: 0 0 2rem 0;
-  color: black;
+  color: var(--color-text-primary);
 }
 
 .section-heading-2 {
   font-weight: 300;
-  font-size: 3rem;
+  font-size: 4rem;
   line-height: 1.111;;
   letter-spacing: -0.02rem;
   margin: 1rem  2rem ;
-  color: #203746;
+  color: var(--color-accent-blue);
 }
 
 .footer-heading {
   font-weight: 300;
   font-size: 2rem;
-  line-height: 1.111;;
+  line-height: 1.111;
   letter-spacing: -0.02rem;
-  margin: 1rem  2rem ;
-  color: #203746;
+  margin: 1rem 2rem;
+  color: var(--color-accent-blue);
 }
 
 
 .about-section{
   position: relative;
   z-index: 2;
-  max-height: 1800px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .about-section-content {
   align-items: start;
-  height: 100%;
   max-width: 1480px;
   margin-left: auto;
   margin-right: auto;
@@ -557,85 +512,74 @@ function goToHotspotSearch() {
 .about-subsection{
   font-weight: 400;
   font-size: 1.5rem;
-  color: black;
+  color: var(--color-text-primary);
 }
 
 .how-section {
   position: relative;
   z-index: 2;
-  background: #faf9f7;
-  max-height: 5900px;
+  background: var(--color-bg-muted);
   padding: 100px 10px 100px 80px ;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
-
-.cards{
+.cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  padding-top: 20px;
   position: relative;
-  top: 80px;
 }
 
-.how-section-content {
-  height: 1700px;
-  font-weight: 400;
-  font-size: 24px;
-  color: black;
+.card-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+.card-column .section-heading,
+.card-column .section-heading-2 {
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  width: 100%;
+}
 
-  max-width: 1480px;
-  margin-left: auto;
-  margin-right: auto;
+.how-card {
   position: relative;
-  padding: auto ;
-}
-
-.how-ol{
-color: black;
-padding: 20px 10px 40px 30px;
-font-weight: 400;
-font-size: 20px;
-margin: 0 50px;
-
-}
-.how-ul{
-color: #203746;
-padding: 0px 10px 40px 40px;
-font-weight: 400;
-font-size: 20px;
-margin: 0 50px;
-}
-
-.how-subsection{
-  margin: 20px 30px 0 30px ;
-  font-size: 25px;
-  width: 96%;
-  font-weight: 400;
-  color: #203746;;
-
-}
-.how-card{
-  position: absolute;
-  padding: 20px 0px 20px 0 ;
-  fill: #40718f;;
-  width: 96%;
-  margin-bottom: 0px;
+  padding: 40px;
+  width: 100%;
   border-radius: 12px;
-
+  box-sizing: border-box;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.blue-card{
-  background: white;
-  box-shadow: 0 4px 4px 4px rgb(0,0,0,0.25);
-  transform: translate(-50px,-50px);
-  filter: drop-shadow(10px 10px 4px rgba(0,0,0,0.25));
-
+.blue-card, .white-card {
+  background: var(--color-bg-panel);
+  z-index: 2;
+  border: none;
 }
-.white-card{
-  background: white ;
-  position: relative;
-  top: 670px;
-  z-index: 3;
-  box-shadow: 0 4px 4px 4px rgba(0, 0, 0, 0.35);
-  filter: drop-shadow(10px 10px 4px rgba(0,0,0,0.25));
-  transform: translate(24px,24px);;;
+
+:deep(body.theme--dark) .white-card {
+  background: var(--color-bg-panel); 
+  border: 1px solid var(--color-border-light);
+}
+
+/* ===============================
+  Desktop Layout (>1024px)
+  =============================== */
+@media (min-width: 1024px) {
+  .cards-grid {
+    display: grid; 
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: stretch;
+  }
+
+  .how-card {
+    width: 100%; 
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 ol li,
@@ -650,7 +594,7 @@ ul li{
   align-items: center;
   text-align: left;
   flex-direction: column;
-  color: black;
+  color: var(--color-text-primary);
   max-width: 1350px;
   margin-left: auto;
   margin-right: auto;
@@ -691,7 +635,7 @@ ul li{
 .doc-section-content{
   height: 100%;
   position: relative;
-  color: black;
+  color: var(--color-text-primary);
   max-width: 1480px;
   margin-left: auto;
   margin-right: auto;
@@ -702,7 +646,7 @@ ul li{
   margin-top: 10px;
   font-weight: 400;
   font-size: 24px;
-  color: black;
+  color: var(--color-text-primary);
 }
 
 .intro-section{
@@ -710,7 +654,8 @@ ul li{
   max-width: 1480px;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 3%;
+  margin-top: 40px;
+  padding: 10px 5%;
   position: relative;
   z-index: 2;
 }
@@ -724,9 +669,10 @@ ul li{
 }
 .intro-item{
   display: grid;
-  grid-template-rows: auto 300px;
+  grid-template-rows: 1fr 300px;
   flex-direction: column;
   height: 100%;
+  align-items: center;
 }
 
 .intro-item img{
@@ -737,28 +683,33 @@ ul li{
 
 .captions{
   text-align: left;
+  color: var(--color-text-secondary);
 }
 .standout {
   font-weight: 700;
   font-size: 21px;
   font-style: normal;
-  color: #40718f;
+  color: var(--color-accent-blue);
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 /* Rect image */
 .rect-image {
   width: 40em;
   height: 25em;
-  background: lightgray;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  background: transparent;
+  border: 1px solid var(--color-border-light); 
+  border-radius: 8px;
   margin-bottom: 10px;
 }
 
 .graph{
   width: 100%;
   height: 100%;
-  background: lightgray;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  background: transparent;
+  border: 1px solid var(--color-border-light); 
+  border-radius: 8px;
   margin-bottom: 10px;
 }
 
@@ -768,12 +719,12 @@ ul li{
  position: relative;
  bottom: 50%;
  justify-content:center;
- padding: 50px 20px 20px 20px ;
+ padding: 50px 5% 20px 5%;
  text-align:center;
 }
 
 .med-text{
-  color: #1e1e1e;
+  color: var(--color-text-primary);
   font-size: 28px;
   font-style: normal;
   font-weight: 400;
@@ -782,22 +733,20 @@ ul li{
   text-align: left;
 }
 
-.footer-section{
+.footer-section {
   position: relative;
   z-index: 2;
   max-width: 100%;
-  max-height: 300px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-
+  background: var(--color-bg-panel); 
 }
 
-.footer-section-content{
+.footer-section-content {
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
-  height: 100%;
-  padding: 20px 40px ;
-
+  height: auto;
+  padding: 40px;
 }
 
 a{
@@ -807,19 +756,320 @@ a{
 
 .footer{
   font-size: 18px;
-  color: rgb(62, 62, 62);
+  color: var(--color-text-secondary);
   margin-top: 16px;
   margin-left: 50px;
 }
 
-/* Responsive tweaks */
-@media (max-width: 900px) {
-  .main-layout {
-    grid-template-columns: 1fr;
+/* ===============================
+  Responsive Styles
+  =============================== */
+
+/* Large Tablet (1024-1430px) */
+@media (min-width: 1024px) and (max-width: 1430px) {
+  .cover-banner, .cover-photo {
+    min-height: 480px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .header-logo {
+    width: auto;
+    max-width: 450px;
+    height: auto !important;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+  
+  .cover-banner, .cover-photo {
+    min-height: 400px;
+  }
+  
+  .intro-section-imgs {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 0 20px;
+  }
+  
+  .rect-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .about-section-content,
+  .how-section,
+  .doc-section {
+    padding: 60px 30px;
+    height: auto !important;
+    min-height: auto;
+  }
+  
+  .doc-section {
+    margin-bottom: 200px;
+  }
+  
+  .intro-section {
+    margin-top: 50px;
+  }
+}
+
+/* Small Tablet (769-900px) */
+@media (min-width: 769px) and (max-width: 900px) {
+  .cover-banner, .cover-photo {
+    min-height: 360px;
+  }
+  
+  .intro-section {
+    margin-top: 50px;
+  }
+  
+  .cover-item {
+    min-width: 90px;
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  /* header & logo */
+  .title-bar {
+    padding: 10px 15px;
+    border-bottom: none;
+  }
+  
+  .header-logo {
+    width: 200px;
+    height: auto !important;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+  
+  /* navigation */
+  .top-nav {
+    padding: 0;
+    height: 0;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+    pointer-events: none;
   }
 
-  .image-panel {
-    justify-content: center;
+  .top-nav > * {
+    pointer-events: auto;
+  }
+  
+  .nav-left {
+    display: none;
+  }
+  
+  .nav-left.mobile-open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: auto;
+    bottom: 72px;
+    left: 0;
+    right: 0;
+    background: var(--color-bg-panel);
+    padding: 16px;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+    border-top: 1px solid var(--color-border-light);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    align-items: flex-start;
+  }
+  
+  .nav-left.mobile-open .nav-item {
+    text-align: left;
+    padding-left: 0;
+  }
+  
+  .nav-search {
+    font-size: 16px;
+    padding: 6px 12px;
+  }
+
+  /* cover banner - mobile tweaks */
+  .cover-banner {
+    min-height: 380px;
+  }
+  
+  .cover-photo {
+    height: 400px;
+    object-position: center 30%;
+  }
+  
+  .cover-heading {
+    white-space: normal;
+    padding: 0 10px;
+  }
+  
+  .cover-subheading {
+    padding: 0 10px;
+  }
+  
+  .cover-buttons {
+    gap: 12px;
+  }
+  
+  .cover-item {
+    width: auto;
+    min-width: 100px;
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+  
+  /* intro section - single column */
+  .intro-section {
+    margin-top: 60px;
+    padding: 0 16px;
+  }
+  
+  .intro-section-imgs {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .intro-item {
+    grid-template-rows: auto auto;
+  }
+  
+  .standout {
+    font-size: 18px;
+  }
+  
+  .gs-info {
+    padding: 30px 10px;
+  }
+  
+  .med-text {
+    font-size: 18px;
+  }
+  
+  .feature-list {
+    font-size: 16px;
+    padding-left: 20px;
+  }
+  
+  /* section headings */
+  .section-heading {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .section-heading-2 {
+  font-weight: 300;
+  font-size: 4rem;
+  line-height: 1.111;
+  letter-spacing: -0.02rem;
+  margin: 1rem 2rem;
+  color: var(--color-accent-blue);
+}
+  
+  /* about section */
+  .about-section-content {
+    padding: 40px 20px;
+  }
+  
+  .about-subsection {
+    font-size: 1rem;
+  }
+  
+  .right-image-panel,
+  .left-image-panel {
+    float: none;
+    margin: 20px auto;
+    width: 100%;
+  }
+  
+  .right-image-panel .rect-image,
+  .left-image-panel .rect-image {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+  }
+  
+  /* how section */
+  .how-section {
+    padding: 40px 20px;
+    max-height: none;
+  }
+  
+  .how-section-content {
+    height: auto;
+  }
+  
+  .cards {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .how-card {
+    position: static;
+    width: 100%;
+    transform: none;
+    filter: none;
+  }
+  
+  .blue-card,
+  .white-card {
+    transform: none;
+    margin-bottom: 20px;
+  }
+  
+  .how-ol,
+  .how-ul {
+    font-size: 16px;
+    padding: 15px 10px 20px 25px;
+    margin: 0;
+  }
+  
+  .how-subsection {
+    font-size: 18px;
+    margin: 15px;
+  }
+  
+  /* documentation section */
+  .doc-section {
+    padding: 40px 20px;
+    max-height: none;
+  }
+  
+  .doc-subsection {
+    font-size: 16px;
+  }
+  
+  .centered-image-panel {
+    margin: 20px 0;
+  }
+  
+  .centered-image-panel .rect-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  /* footer */
+  .footer-section {
+    max-height: none;
+  }
+  
+  .footer-section-content {
+    padding: 20px;
+  }
+  
+  .footer {
+    font-size: 14px;
+    margin-left: 0;
+  }
+  
+  .footer-heading {
+    font-size: 1.5rem;
   }
 }
 </style>
