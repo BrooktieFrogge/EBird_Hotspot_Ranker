@@ -16,12 +16,12 @@ HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 #limit concurrent API calls to prevent exceeding rate limits
 SEMAPHORE = asyncio.Semaphore(5)
 
-# cache hotspot rankings for 5 minutes to speed up pdf gen
-HOTSPOT_CACHE = TTLCache(maxsize=50, ttl=300)
+# cache hotspot rankings for 1 hour to speed up pdf gen
+HOTSPOT_CACHE = TTLCache(maxsize=500, ttl=3600)
 
 ## cache raw TSV data separately (keyed by hotspot+years only)
 ## this lets us instant re-filtering when only time params change
-RAW_DATA_CACHE = TTLCache(maxsize=20, ttl=300)
+RAW_DATA_CACHE = TTLCache(maxsize=500, ttl=3600)
 
 def get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week):
     """generate a unique cache key based on all filter parameters"""

@@ -35,6 +35,9 @@ export const useAnalyticsStore = defineStore("analytics", {
     _prefetchedData: null as HotspotOverview[] | null,
     _prefetchedOffset: null as number | null,
 
+    // client-side memory cache for hotspot details
+    hotspotDetailCache: {} as Record<string, DetailedHotspot>,
+
     // --- Analytics Panels / Toggles ---
     // dynamic year defaults: current year and 20 years prior
     startYear: new Date().getFullYear() - 20,
@@ -505,6 +508,15 @@ export const useAnalyticsStore = defineStore("analytics", {
       // 2. Construct the base URL using the path parameter
       const url = `/api/hotspots/report/${this.selectedHotspotId}`;
 
+      // 3. check cache
+      const cacheKey = `${this.selectedHotspotId}|${this.startYear}-${this.endYear}|${this.startMonth}-${this.startWeek}|${this.endMonth}-${this.endWeek}`;
+      if (this.hotspotDetailCache[cacheKey]) {
+        console.log("Using cached hotspot detail for:", cacheKey);
+        this.selectedHotspot = this.hotspotDetailCache[cacheKey];
+        this.isLoading = false;
+        return;
+      }
+
       try {
         console.log(
           "Fetching hotspot detail for hotspot ID:",
@@ -527,6 +539,8 @@ export const useAnalyticsStore = defineStore("analytics", {
 
               if (job.status === "completed") {
                 this.selectedHotspot = job.result;
+                // save to cache
+                this.hotspotDetailCache[cacheKey] = job.result;
                 (this as any)._fetchRetryCount = 0; // reset on success
                 console.log("Fetched hotspot detail (async):", job.result);
                 break;
@@ -564,6 +578,7 @@ export const useAnalyticsStore = defineStore("analytics", {
         } else {
           // fallback if backend returns immediate result\
           this.selectedHotspot = response.data;
+          this.hotspotDetailCache[cacheKey] = response.data;
           console.log("Fetched hotspot detail (immediate):", response.data);
         }
       } catch (e: any) {

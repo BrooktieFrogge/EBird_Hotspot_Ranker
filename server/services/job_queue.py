@@ -91,9 +91,9 @@ class JobManager:
         if self.running:
             return
         self.running = True
-        # 30 workers (should only hit max memory ~450MB)
+        # 40 workers (adjusted for small mem)
         self.worker_tasks = [
-            asyncio.create_task(self._worker_loop(i)) for i in range(30)
+            asyncio.create_task(self._worker_loop(i)) for i in range(40)
         ]
         # add cleanup task
         self.worker_tasks.append(asyncio.create_task(self._cleanup_loop()))

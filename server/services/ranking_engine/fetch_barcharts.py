@@ -41,11 +41,25 @@ async def is_session_valid(BROWSER):
             await context.close()
             
 session_lock = asyncio.Lock()
+import time
+LAST_SESSION_CHECK = 0
+
 # get new cookies via playwright
 async def ensure_session(BROWSER):
+    global LAST_SESSION_CHECK
+    
+    # fast path: in memory cache to allow parallel workers
+    if time.time() - LAST_SESSION_CHECK < 300:
+        return
+
     async with session_lock:
-        # await the session check
+        # check again after acquiring lock (double-checked locking)
+        if time.time() - LAST_SESSION_CHECK < 300:
+            return
+
+        # perform the slow network check (once per 5 mins)
         if await is_session_valid(BROWSER):
+            LAST_SESSION_CHECK = time.time()
             return
 
         print("[cookies] | session expired. autologging into ebird to restore cookies...")
@@ -85,6 +99,7 @@ async def ensure_session(BROWSER):
 
             # save the cookies
             await context.storage_state(path=SESSION_FILE)
+            LAST_SESSION_CHECK = time.time()
             print("[cookies] | session refreshed.")
 
         except Exception as e:
