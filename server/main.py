@@ -17,7 +17,7 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    #start the sechduler when app starts
+    # start scheduler on app startup
     scheduler = AsyncIOScheduler()
     trigger = CronTrigger(
         day=int((os.getenv("DATA_SYNC_DAY"))), 
@@ -61,5 +61,6 @@ app.include_router(jobs.router)
 
 @app.get("/")
 def main():
+    # health check
 
     return {"message": "backend online"}

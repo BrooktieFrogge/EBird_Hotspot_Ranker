@@ -13,9 +13,7 @@ _bird_cache = {}
 _taxonomy_list = []
 
 def load_metadata_cache():
-    """
-    loads the json cache if it exists and populates _bird_cache.
-    """
+    # loads json cache and populates _bird_cache
     global _bird_cache
     if os.path.exists(METADATA_CACHE_FILE):
         try:
@@ -37,9 +35,7 @@ def load_metadata_cache():
 load_metadata_cache()
 
 def load_taxonomy():
-    """
-    loads the taxonomy CSV file into a list of dicts.
-    """
+    # loads taxonomy csv into memory
     global _taxonomy_list
     if _taxonomy_list:
         return _taxonomy_list
@@ -73,9 +69,7 @@ def build_species_url(bird_code):
     return f"https://ebird.org/species/{bird_code}" if bird_code else None
 
 def get_bird_code(species_name):
-    """
-    finds the eBird species code using the taxonomy CSV.
-    """
+    # resolve species name to ebird code
     if species_name in _bird_cache:
         return _bird_cache[species_name]
     
@@ -113,9 +107,7 @@ def get_bird_code(species_name):
     return None, None
 
 async def get_species_image_url(bird_code, browser_page=None):
-    """
-    scrapes the image URL from the eBird species page via Playwright.
-    """
+    # scrapes image url via playwright
     if not bird_code or not browser_page:
         return None
     
@@ -151,9 +143,7 @@ async def get_species_image_url(bird_code, browser_page=None):
         return None
 
 async def enrich_data(species_list):
-    """
-    main function. enriches the list with species codes from csv and auto-fetches images for top 3 birds.
-    """
+    # populates image urls for top 3 birds (uses shared browser)
     enriched = []
     load_taxonomy()
     
@@ -253,9 +243,7 @@ async def enrich_data(species_list):
     return enriched
 
 async def prefetch_all_metadata(limit=None):
-    """
-    batches through the entire taxonomy list and saves metadata to json.
-    """
+    # helper to batch pre-fetch all metadata
     birds = load_taxonomy()
     if not birds:
         return

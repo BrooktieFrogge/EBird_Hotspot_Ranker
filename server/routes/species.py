@@ -11,16 +11,10 @@ router = APIRouter(
 
 @router.get("/image/{bird_code}")
 async def get_bird_image(bird_code: str):
-    """
-    fetch image URL for a specific bird code.
-    added in case we want to fetch images on-demand for specific birds.
-    
-    args:
-        bird_code: eBird bird code (ex. 'amecro' for American Crow)
-    
-    returns:
-        json with bird_code and imageUrl
-    """
+    '''
+    fetch image url for a specific bird code.
+    returns 202 accepted + job_id.
+    '''
     
     from services.job_queue import job_manager, JobType
     from fastapi.responses import JSONResponse
