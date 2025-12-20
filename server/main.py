@@ -32,9 +32,14 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     print("[Background Data Sync] | Waiting for trigger")
 
+    # start job queue worker
+    from services.job_queue import job_manager
+    await job_manager.start_worker()
+
     yield
 
     # cleanup on shutdown
+    await job_manager.stop_worker()
     scheduler.shutdown()
     await close_browser()
 
@@ -51,6 +56,8 @@ app.add_middleware(
 
 app.include_router(hotspots.router)
 app.include_router(species.router)
+from routes import jobs
+app.include_router(jobs.router)
 
 @app.get("/")
 def main():

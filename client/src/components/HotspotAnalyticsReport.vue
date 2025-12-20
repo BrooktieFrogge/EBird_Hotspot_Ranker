@@ -200,6 +200,7 @@
 <script lang="ts">
 import { computed, defineComponent, watch, ref } from "vue";
 import { useAnalyticsStore } from "../stores/useAnalyticsStore";
+import axios from "axios";
 import {
   BIconXCircle,
   BIconCamera,
@@ -326,15 +327,52 @@ export default defineComponent({
         });
         params.append("gen_date", today);
 
-        const pdfUrl = `/api/hotspots/report/${
+        const url = `/api/hotspots/report/${
           analyticsStore.selectedHotspotId
         }/pdf?${params.toString()}`;
 
-        // open PDF in new tab
-        window.open(pdfUrl, "_blank");
-      } catch (error) {
+        // enqueue job
+        const response = await axios.get(url);
+
+        let jobId = "";
+
+        if (response.status === 202) {
+          jobId = response.data.jobId;
+          console.log(`PDF Job enqueued: ${jobId}. Polling...`);
+        } else {
+          throw new Error("Unexpected response from PDF endpoint");
+        }
+
+        // poll for result
+        let base64Pdf = null;
+        while (true) {
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay
+          const pollResponse = await axios.get(`/api/jobs/${jobId}`);
+          const job = pollResponse.data;
+
+          if (job.status === "completed") {
+            base64Pdf = job.result;
+            break;
+          } else if (job.status === "failed") {
+            throw new Error(job.error || "PDF generation failed");
+          }
+        }
+
+        // open pdf
+        if (base64Pdf) {
+          const byteCharacters = atob(base64Pdf);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: "application/pdf" });
+          const pdfUrl = URL.createObjectURL(blob);
+          window.open(pdfUrl, "_blank");
+        }
+      } catch (error: any) {
         console.error("Export failed:", error);
-        alert("Failed to generate PDF. Please try again.");
+        alert(`Failed to generate PDF: ${error.message || "Unknown error"}`);
       } finally {
         isExporting.value = false;
       }

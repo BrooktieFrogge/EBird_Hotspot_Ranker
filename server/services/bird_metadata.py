@@ -181,57 +181,56 @@ async def enrich_data(species_list):
 
     # async context manager handles pulling up and tearing down browser
     if should_launch:
-        async with async_playwright() as p:
-            try:
-                print(f"[info] | launching browser for image fetching...")
-                browser = await p.chromium.launch(headless=True)
-                page = await browser.new_page(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            except Exception as e:
-                print(f"[error] | failed to launch browser: {e}")
-                import traceback
-                traceback.print_exc()
-                page = None
+        from services.browser_manager import get_browser
+        try:
+            print(f"[info] | using shared browser for image fetching...")
+            browser = await get_browser()
+            page = await browser.new_page(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        except Exception as e:
+            print(f"[error] | failed to get browser: {e}")
+            import traceback
+            traceback.print_exc()
+            page = None
 
-            try:
-                for idx, record in enumerate(species_list):
-                    species_name = record.get('Species', '')
+        try:
+            for idx, record in enumerate(species_list):
+                species_name = record.get('Species', '')
+                
+                if species_name:
+                    # get code
+                    bird_code, species_url = get_bird_code(species_name)
                     
-                    if species_name:
-                        # get code
-                        bird_code, species_url = get_bird_code(species_name)
-                        
-                        record['birdCode'] = bird_code
-                        record['speciesUrl'] = species_url
-                        
-                        # get image for top 3 birds
-                        cache_key = f"img_{bird_code}"
-                        
-                        if idx < 3 and bird_code:
-                            # check cache first
-                            if cache_key in _bird_cache:
-                                record['imageUrl'] = _bird_cache[cache_key]
-                            elif page:
-                                print(f"[info] | fetching image for top bird #{idx+1}: {species_name}")
-                                record['imageUrl'] = await get_species_image_url(bird_code, browser_page=page)
-                            else:
-                                record['imageUrl'] = None
+                    record['birdCode'] = bird_code
+                    record['speciesUrl'] = species_url
+                    
+                    # get image for top 3 birds
+                    cache_key = f"img_{bird_code}"
+                    
+                    if idx < 3 and bird_code:
+                        # check cache first
+                        if cache_key in _bird_cache:
+                            record['imageUrl'] = _bird_cache[cache_key]
+                        elif page:
+                            print(f"[info] | fetching image for top bird #{idx+1}: {species_name}")
+                            record['imageUrl'] = await get_species_image_url(bird_code, browser_page=page)
                         else:
-                            # outside top 3, check cache only
-                            if cache_key in _bird_cache:
-                                record['imageUrl'] = _bird_cache[cache_key]
-                            else:
-                                record['imageUrl'] = None
+                            record['imageUrl'] = None
                     else:
-                        record['birdCode'] = None
-                        record['speciesUrl'] = None
-                        record['imageUrl'] = None
-                    
-                    enriched.append(record)
-            
-            finally:
-                if browser:
-                    print(f"[info] | closing browser")
-                    await browser.close()
+                        # outside top 3, check cache only
+                        if cache_key in _bird_cache:
+                            record['imageUrl'] = _bird_cache[cache_key]
+                        else:
+                            record['imageUrl'] = None
+                else:
+                    record['birdCode'] = None
+                    record['speciesUrl'] = None
+                    record['imageUrl'] = None
+                
+                enriched.append(record)
+        
+        finally:
+            if page:
+                await page.close()
     else:
         # were cached, dont need to launch browser
         for idx, record in enumerate(species_list):

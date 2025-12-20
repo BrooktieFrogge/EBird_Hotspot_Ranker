@@ -22,17 +22,19 @@ async def get_bird_image(bird_code: str):
         json with bird_code and imageUrl
     """
     
-    try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            # user agent to avoid blocking
-            page = await browser.new_page(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            
-            try:
-                image_url = await get_species_image_url(bird_code, browser_page=page)
-                return {"birdCode": bird_code, "imageUrl": image_url}
-            finally:
-                await browser.close()
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"failed to fetch image: {str(e)}")
+    from services.job_queue import job_manager, JobType
+    from fastapi.responses import JSONResponse
+
+    job_id = await job_manager.enqueue_job(
+        JobType.FETCH_IMAGE,
+        bird_code=bird_code
+    )
+    
+    return JSONResponse(
+        status_code=202,
+        content={
+            "jobId": job_id,
+            "status": "queued",
+            "message": "Image fetch enqueued. Poll /jobs/{jobId} for results."
+        }
+    )

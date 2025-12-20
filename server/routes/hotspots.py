@@ -103,18 +103,28 @@ async def get_detailed_hotspot_data(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
         
-    data = await detailed_hotspot_data(
-        hotspotId,
-        filters.start_yr,
-        filters.end_yr,
+    from services.job_queue import job_manager, JobType
+    from fastapi.responses import JSONResponse
+
+    job_id = await job_manager.enqueue_job(
+        JobType.FETCH_HOTSPOT_REPORT,
+        hotspot_id=hotspotId,
+        start_yr=filters.start_yr,
+        end_yr=filters.end_yr,
         start_month=filters.start_month,
         start_week=filters.start_week,
         end_month=filters.end_month,
         end_week=filters.end_week
     )
-    if not data:
-        raise HTTPException(status_code=404, detail="No Information Found.")
-    return data
+    
+    return JSONResponse(
+        status_code=202,
+        content={
+            "jobId": job_id,
+            "status": "queued",
+            "message": "Report generation enqueued. Poll /jobs/{jobId} for results."
+        }
+    )
 
 
 '''
@@ -136,33 +146,34 @@ async def get_report_pdf(
     # get the client URL from environment, default to localhost
     client_url = os.getenv("CLIENT_URL", "http://localhost:5173")
     
-    try:
-        pdf_bytes = await generate_pdf(
-            client_url=client_url,
-            hotspot_id=hotspotId,
-            num_top_birds=num_top_birds,
-            num_top_photos=num_top_photos,
-            show_graph=show_graph,
-            show_photos=show_photos,
-            start_year=filters.start_yr,
-            end_year=filters.end_yr,
-            start_month=filters.start_month,
-            start_week=filters.start_week,
-            end_month=filters.end_month,
-            end_week=filters.end_week,
-            custom_ranks=custom_ranks,
-            photo_ranks=photo_ranks,
-            gen_date=gen_date,
-        )
-        
-        return StreamingResponse(
-            io.BytesIO(pdf_bytes),
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": f"inline; filename=hotspot_report_{hotspotId}.pdf"
-            }
-        )
-    except Exception as e:
-        print(f"[error] | PDF generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+    from services.job_queue import job_manager, JobType
+    from fastapi.responses import JSONResponse
+
+    job_id = await job_manager.enqueue_job(
+        JobType.GENERATE_PDF,
+        client_url=client_url,
+        hotspot_id=hotspotId,
+        num_top_birds=num_top_birds,
+        num_top_photos=num_top_photos,
+        show_graph=show_graph,
+        show_photos=show_photos,
+        start_year=filters.start_yr,
+        end_year=filters.end_yr,
+        start_month=filters.start_month,
+        start_week=filters.start_week,
+        end_month=filters.end_month,
+        end_week=filters.end_week,
+        custom_ranks=custom_ranks,
+        photo_ranks=photo_ranks,
+        gen_date=gen_date
+    )
+    
+    return JSONResponse(
+        status_code=202,
+        content={
+            "jobId": job_id,
+            "status": "queued",
+            "message": "PDF generation enqueued. Poll /jobs/{jobId} for results."
+        }
+    )
 

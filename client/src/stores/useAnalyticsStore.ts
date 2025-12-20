@@ -511,10 +511,33 @@ export const useAnalyticsStore = defineStore("analytics", {
           this.selectedHotspotId
         );
 
-        const response = await axios.get(url, { params, timeout: 120000 }); // 2 min timeout
+        // enqueue job
+        const response = await axios.get(url, { params });
 
-        this.selectedHotspot = response.data;
-        console.log("Fetched hotspot detail:", response.data);
+        if (response.status === 202) {
+          const jobId = response.data.jobId;
+          console.log(`Job enqueued: ${jobId}. Polling...`);
+
+          // poll for result
+          while (true) {
+            await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay
+            const pollResponse = await axios.get(`/api/jobs/${jobId}`);
+            const job = pollResponse.data;
+
+            if (job.status === "completed") {
+              this.selectedHotspot = job.result;
+              console.log("Fetched hotspot detail (async):", job.result);
+              break;
+            } else if (job.status === "failed") {
+              throw new Error(job.error || "Job failed");
+            }
+            // continue polling if queued or processing
+          }
+        } else {
+          // fallback if backend returns immediate result\
+          this.selectedHotspot = response.data;
+          console.log("Fetched hotspot detail (immediate):", response.data);
+        }
       } catch (e: any) {
         this.error = e.message ?? "Unknown error";
         console.log("ERROR:", e.message);
