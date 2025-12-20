@@ -1959,7 +1959,8 @@ export default defineComponent({
   }
 
   .initial-loader img {
-    width: 80px;
+    width: 85vw;
+    max-width: 400px;
     height: auto;
   }
 }
@@ -1976,8 +1977,9 @@ export default defineComponent({
 }
 
 .initial-loader img {
-  width: 100px;
-  height: auto;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
 }
 
 @media (max-width: 768px) {

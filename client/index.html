@@ -20,11 +20,27 @@
 
     <!-- web app manifest -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#457999" />
+    <!-- light mode theme color -->
+    <meta
+      name="theme-color"
+      content="#457999"
+      media="(prefers-color-scheme: light)"
+    />
+    <!-- dark mode theme color -->
+    <meta
+      name="theme-color"
+      content="#1a1a2e"
+      media="(prefers-color-scheme: dark)"
+    />
+    <!-- default theme color -->
+    <meta name="theme-color" id="theme-color-meta" content="#457999" />
 
     <!-- iOS home screen support -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Featherweight" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
