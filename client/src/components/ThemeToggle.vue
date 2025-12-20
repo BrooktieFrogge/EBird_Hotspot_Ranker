@@ -60,15 +60,14 @@ export default defineComponent({
 
     const isDark = computed(() => theme.global.name.value === "dark");
 
-    // Update Safari/iOS status bar theme color
+    // update Safari/iOS status bar theme color
     const updateThemeColor = (isDarkMode: boolean) => {
-      const themeColorMeta = document.getElementById("theme-color-meta");
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute(
-          "content",
-          isDarkMode ? "#1a1a2e" : "#457999"
-        );
-      }
+      const color = isDarkMode ? "#1a1a2e" : "#457999";
+
+      // update all theme-color meta tags to ensure Safari respects the override
+      document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+        meta.setAttribute("content", color);
+      });
     };
 
     const toggleTheme = () => {

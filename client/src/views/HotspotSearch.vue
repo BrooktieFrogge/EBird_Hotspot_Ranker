@@ -1187,13 +1187,15 @@ export default defineComponent({
     const selectHotspotById = (id: HotspotOverview["id"]) => {
       analyticsStore.setHotspot(id);
       uiStore.setSelectedHotspotId(String(id));
+
+      // close mobile nav drawer if open to prevent overlap with summary sheet
+      if (navStore.mobileNavOpen) {
+        navStore.closeMobileNav();
+      }
+
       // auto-open summary sheet on mobile when card is selected
       if (window.innerWidth <= 768) {
         showSummarySheet.value = true;
-        // close mobile nav drawer to prevent overlap with summary sheet
-        if (navStore.mobileNavOpen) {
-          navStore.closeMobileNav();
-        }
       }
     };
 
