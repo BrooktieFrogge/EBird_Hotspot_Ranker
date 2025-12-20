@@ -486,7 +486,7 @@ export const useAnalyticsStore = defineStore("analytics", {
       }
     },
 
-    async fetchHotspotDetail() {
+    async fetchHotspotDetail(): Promise<void> {
       if (!this.selectedHotspotId) return;
 
       this.isLoading = true;
@@ -520,18 +520,46 @@ export const useAnalyticsStore = defineStore("analytics", {
 
           // poll for result
           while (true) {
-            await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay
-            const pollResponse = await axios.get(`/api/jobs/${jobId}`);
-            const job = pollResponse.data;
+            await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
+            try {
+              const pollResponse = await axios.get(`/api/jobs/${jobId}`);
+              const job = pollResponse.data;
 
-            if (job.status === "completed") {
-              this.selectedHotspot = job.result;
-              console.log("Fetched hotspot detail (async):", job.result);
-              break;
-            } else if (job.status === "failed") {
-              throw new Error(job.error || "Job failed");
+              if (job.status === "completed") {
+                this.selectedHotspot = job.result;
+                (this as any)._fetchRetryCount = 0; // reset on success
+                console.log("Fetched hotspot detail (async):", job.result);
+                break;
+              } else if (job.status === "failed") {
+                throw new Error(job.error || "Job failed");
+              }
+              // continue polling if queued or processing
+            } catch (pollError: any) {
+              // if server restarted + job ID is gone, re-trigger the fetch
+              if (
+                axios.isAxiosError(pollError) &&
+                pollError.response?.status === 404
+              ) {
+                // limit retries to prevent infinite loops
+                const currentRetries = (this as any)._fetchRetryCount || 0;
+                if (currentRetries >= 3) {
+                  console.error("max retries reached, giving up.");
+                  throw new Error("server restarted - please refresh the page");
+                }
+                (this as any)._fetchRetryCount = currentRetries + 1;
+
+                console.warn(
+                  `Job ${jobId} not found (server restart?). Re-fetching in 1s... (retry ${
+                    currentRetries + 1
+                  }/3)`
+                );
+
+                // wait before retry to prevent overwhelming the server
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                return this.fetchHotspotDetail(); // recursive retry
+              }
+              throw pollError; // re-throw other errors
             }
-            // continue polling if queued or processing
           }
         } else {
           // fallback if backend returns immediate result\

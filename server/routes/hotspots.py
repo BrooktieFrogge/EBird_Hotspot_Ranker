@@ -52,8 +52,8 @@ async def location_search(request: HotspotSearchRequest = Depends()):
     return {"results" : data}
 
 '''
-Will eventually be background script that updates hotspot overview data monthly
-TODO add background scheduler and test refactor
+Background script that updates hotspot overview data monthly.
+Scheduler is configured in main.py using APScheduler.
 '''
 @router.get("/fetch-hotspot-data")
 async def fetch_hotspot_data():
@@ -68,9 +68,6 @@ Default: returns the first 100 hotspots overviews
 Custom Query: return the number of hotspots specified by the limit starting from the offset
     limit- adjusts the amount of hotspots returned
     offset- adjusts how many overviews to skip from the start of the data set
-
-   TODO add back to Query ,le=len(data)
-
 '''
 @router.get("/browse-hotspots", response_model=List[HotspotOverview])
 async def browse_hotspots(
@@ -102,6 +99,22 @@ async def get_detailed_hotspot_data(
         filters.validate_years()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    # if the user just viewed report, serve from RAM
+    from services.fetch_hotspots import HOTSPOT_CACHE, get_cache_key
+    cache_key = get_cache_key(
+        hotspotId, 
+        filters.start_yr, 
+        filters.end_yr, 
+        filters.start_month, 
+        filters.start_week, 
+        filters.end_month, 
+        filters.end_week
+    )
+    
+    if cache_key in HOTSPOT_CACHE:
+        print(f"[cache] | FAST PATH for {hotspotId} - returning cached result")
+        return HOTSPOT_CACHE[cache_key]
         
     from services.job_queue import job_manager, JobType
     from fastapi.responses import JSONResponse

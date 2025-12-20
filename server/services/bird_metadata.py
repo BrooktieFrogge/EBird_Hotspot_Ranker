@@ -121,6 +121,15 @@ async def get_species_image_url(bird_code, browser_page=None):
         url = build_species_url(bird_code)
         print(f"[debug] | navigating to {url}...")
         
+        # block requests to save bandwidth
+        async def route_intercept(route):
+            if route.request.resource_type in ["image", "stylesheet", "font", "media"]:
+                await route.abort()
+            else:
+                await route.continue_()
+        
+        await browser_page.route("**/*", route_intercept)
+
         await browser_page.goto(url, timeout=15000, wait_until='domcontentloaded')
         
         selector = 'img.Species-media-image'

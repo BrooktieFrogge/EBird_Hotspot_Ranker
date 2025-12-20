@@ -346,7 +346,7 @@ export default defineComponent({
         // poll for result
         let base64Pdf = null;
         while (true) {
-          await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay
+          await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
           const pollResponse = await axios.get(`/api/jobs/${jobId}`);
           const job = pollResponse.data;
 
@@ -368,7 +368,26 @@ export default defineComponent({
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: "application/pdf" });
           const pdfUrl = URL.createObjectURL(blob);
-          window.open(pdfUrl, "_blank");
+
+          // processing allows browsers to block windows opened after async delays
+          const link = document.createElement("a");
+          link.href = pdfUrl;
+
+          // generate filename
+          const filename = analyticsStore.selectedHotspot?.name
+            ? `${analyticsStore.selectedHotspot.name.replace(
+                /[^a-z0-9]/gi,
+                "_"
+              )}_Report.pdf`
+            : "HotspotReport.pdf";
+
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+
+          // cleanup
+          document.body.removeChild(link);
+          URL.revokeObjectURL(pdfUrl);
         }
       } catch (error: any) {
         console.error("Export failed:", error);

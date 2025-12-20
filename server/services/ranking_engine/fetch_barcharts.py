@@ -40,57 +40,62 @@ async def is_session_valid(BROWSER):
         if context:
             await context.close()
             
+session_lock = asyncio.Lock()
 # get new cookies via playwright
 async def ensure_session(BROWSER):
-    # await the session check
-    if await is_session_valid(BROWSER):
-        print("[cookies] | existing session ok. using saved cookies.")
-        return
+    async with session_lock:
+        # await the session check
+        if await is_session_valid(BROWSER):
+            return
 
-    print("[cookies] | session expired. autologging into ebird to restore cookies...")
+        print("[cookies] | session expired. autologging into ebird to restore cookies...")
 
-    context = None
-    page = None
-    try:
-        context = await BROWSER.new_context()
-        page = await context.new_page()
-        await page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US', timeout=60000)  # 60s for slow cloud
+        context = None
+        page = None
+        try:
+            context = await BROWSER.new_context()
+            page = await context.new_page()
 
-        await page.wait_for_selector('input[name="username"]', timeout=60000)  # 60s for cold starts
+            # optimize: block unnecessary resources
+            async def route_intercept(route):
+                if route.request.resource_type in ["image", "stylesheet", "font", "media"]:
+                    await route.abort()
+                else:
+                    await route.continue_()
+            
+            await page.route("**/*", route_intercept)
 
-        ## automated login
-        print("[playwright] | typing .env username...")
-        await page.click('input[name="username"]') 
-        await page.fill('input[name="username"]', EBIRD_USERNAME)
-        await asyncio.sleep(2)  # longer wait for cloud environments
+            await page.goto('https://secure.birds.cornell.edu/cassso/login?service=https%3A%2F%2Febird.org%2Flogin%2Fcas%3Fportal%3Debird&locale=en_US', timeout=60000)  # 60s for slow cloud
 
-        await page.keyboard.press("Tab")
+            await page.wait_for_selector('input[name="username"]', timeout=60000)  # 60s for cold starts
 
-        print("[playwright] | typing .env password...")
-        await page.fill('input[name="password"]', EBIRD_PASSWORD)
-        await asyncio.sleep(2)  # longer wait for cloud environments
+            ## automated login
+            await page.click('input[name="username"]') 
+            await page.fill('input[name="username"]', EBIRD_USERNAME)
+            await asyncio.sleep(2)  # longer wait for cloud environments
 
-        await page.keyboard.press("Enter")
+            await page.keyboard.press("Tab")
 
-        print("[playwright] | submitted. redirecting...")
-        await asyncio.sleep(5) # longer wait for redirect on cloud
+            await page.fill('input[name="password"]', EBIRD_PASSWORD)
+            await asyncio.sleep(2)  # longer wait for cloud environments
 
-        # save the cookies
-        await context.storage_state(path=SESSION_FILE)
-        print("[cookies] | playwright login success! session saved.")
+            await page.keyboard.press("Enter")
 
-    except Exception as e:
-        print(f"[error] | .env login skipped or failed: {e}")
-    finally:
-        if page: await page.close()
-        if context: await context.close()
+            await asyncio.sleep(5) # longer wait for redirect on cloud
 
+            # save the cookies
+            await context.storage_state(path=SESSION_FILE)
+            print("[cookies] | session refreshed.")
+
+        except Exception as e:
+            print(f"[error] | login failed: {e}")
+        finally:
+            if page: await page.close()
+            if context: await context.close()
+            
 async def fetch_data(BROWSER, loc, start, end):
-    print(f"[input] | connecting to eBird for {loc} ({start}-{end})...")
-    print("[info] | downloading data...")
-
     context = None
-    max_retries = 2  # try twice before giving up
+    max_retries = 2
     
     for attempt in range(max_retries):
         try:
@@ -98,11 +103,11 @@ async def fetch_data(BROWSER, loc, start, end):
             data_url = f"https://ebird.org/barchartData?r={loc}&byr={start}&eyr={end}&bmo=1&emo=12&fmt=tsv"
             
             request_context = context.request
-            response = await request_context.get(data_url, timeout=90000)  # 90s timeout
+            response = await request_context.get(data_url, timeout=30000)
             data_text = await response.text()
 
             if "<!doctype html>" in data_text.lower():
-                # session might be invalid or page failed to load properly
+                print(f"[error] | got HTML instead of data for {loc}")
                 return None
 
             return data_text
@@ -112,10 +117,9 @@ async def fetch_data(BROWSER, loc, start, end):
                 context = None
             
             if attempt < max_retries - 1:
-                print(f"[retry] | attempt {attempt + 1} failed: {e}. Retrying...")
-                await asyncio.sleep(2)  # Brief pause before retry
+                await asyncio.sleep(2)
             else:
-                print(f"[error] | all {max_retries} attempts failed: {e}")
+                print(f"[error] | fetch failed for {loc}: {e}")
                 raise
         finally:
             if context:

@@ -32,7 +32,7 @@ class JobManager:
     def __init__(self):
         self.queue = asyncio.Queue()
         self.jobs: Dict[str, Dict[str, Any]] = {}
-        self.worker_task = None
+        self.worker_tasks = []
         self.running = False
 
     # enqueue job and return id
@@ -57,28 +57,32 @@ class JobManager:
     def get_job(self, job_id: str) -> Optional[Dict[str, Any]]:
         return self.jobs.get(job_id)
 
-    # start background worker
+    # start background workers
     async def start_worker(self):
         if self.running:
             return
         self.running = True
-        self.worker_task = asyncio.create_task(self._worker_loop())
-        print("[JobQueue] worker started")
+        # spawn 2 workers for concurrency
+        self.worker_tasks = [
+            asyncio.create_task(self._worker_loop(i)) for i in range(2)
+        ]
+        print(f"[JobQueue] {len(self.worker_tasks)} workers started")
 
-    # stop background worker
+    # stop background workers
     async def stop_worker(self):
         self.running = False
-        if self.worker_task:
-            self.worker_task.cancel()
-            try:
-                await self.worker_task
-            except asyncio.CancelledError:
-                pass
-        print("[JobQueue] worker stopped")
+        if self.worker_tasks:
+            for task in self.worker_tasks:
+                task.cancel()
+            
+            await asyncio.gather(*self.worker_tasks, return_exceptions=True)
+            self.worker_tasks = []
+            
+        print("[JobQueue] all workers stopped")
 
     # background loop processing jobs
-    async def _worker_loop(self):
-        print("[JobQueue] worker loop runnning")
+    async def _worker_loop(self, worker_id: int):
+        print(f"[JobQueue] worker {worker_id} loop running")
         while self.running:
             try:
                 job_id = await self.queue.get()
@@ -96,7 +100,6 @@ class JobManager:
         if not job:
             return
 
-        print(f"[JobQueue] processing job {job_id}...")
         job["status"] = JobStatus.PROCESSING
         job["updated_at"] = datetime.now().isoformat()
         
@@ -104,6 +107,7 @@ class JobManager:
             # get shared browser instance
             # serialized access via worker loop
             browser = await get_browser()
+            payload = job["payload"]
             
             result = None
             
@@ -111,7 +115,6 @@ class JobManager:
                 from services.ranking_engine.fetch_barcharts import ensure_session
                 from services.ranking_engine.data_processing import get_rankings
                 
-                payload = job["payload"]
                 loc = payload["loc"]
                 
                 await ensure_session(browser)

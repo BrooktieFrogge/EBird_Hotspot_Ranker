@@ -750,77 +750,92 @@ export default defineComponent({
     // -------------------------
     // INPUT HANDLERS
     // -------------------------
+    let hotspotDebounceTimer: ReturnType<typeof setTimeout>;
     const onHotspotInput = () => {
       showHotspotDropdown.value = true;
-
       const q = searchQuery.value.trim();
+
       if (!q) {
         analyticsStore.hotspotSuggestions = [];
-        applyFilters(); // optional: keep current behavior
+        applyFilters();
         return;
       }
 
-      // pass current filters so suggestions respect location filters
-      const countryFilter = analyticsStore.selectedCountry ?? "";
-      const subregion1Filter = (
-        selectedSubregion.value || subregionSearch.value
-      ).trim();
-      const subregion2Filter = (
-        selectedSubregion2.value || subregion2Search.value
-      ).trim();
+      clearTimeout(hotspotDebounceTimer);
+      hotspotDebounceTimer = setTimeout(() => {
+        // pass current filters so suggestions respect location filters
+        const countryFilter = analyticsStore.selectedCountry ?? "";
+        const subregion1Filter = (
+          selectedSubregion.value || subregionSearch.value
+        ).trim();
+        const subregion2Filter = (
+          selectedSubregion2.value || subregion2Search.value
+        ).trim();
 
-      analyticsStore.fetchHotspotSuggestions(q, {
-        country: countryFilter,
-        subregion1: subregion1Filter,
-        subregion2: subregion2Filter,
-        limit: 10,
-      });
+        analyticsStore.fetchHotspotSuggestions(q, {
+          country: countryFilter,
+          subregion1: subregion1Filter,
+          subregion2: subregion2Filter,
+          limit: 10,
+        });
+      }, 300);
     };
 
+    let countryDebounceTimer: ReturnType<typeof setTimeout>;
     const onCountryInput = () => {
       showCountryDropdown.value = true;
       const q = countrySearch.value.trim();
 
-      if (q) {
-        analyticsStore.searchCountries(q);
-      } else {
-        analyticsStore.countrySuggestions = [];
-        analyticsStore.selectedCountry = null;
-        applyFilters();
-      }
+      clearTimeout(countryDebounceTimer);
+      countryDebounceTimer = setTimeout(() => {
+        if (q) {
+          analyticsStore.searchCountries(q);
+        } else {
+          analyticsStore.countrySuggestions = [];
+          analyticsStore.selectedCountry = null;
+          applyFilters();
+        }
+      }, 300);
     };
 
+    let subregionDebounceTimer: ReturnType<typeof setTimeout>;
     const onSubregionInput = () => {
       showSubregionDropdown.value = true;
       const q = subregionSearch.value.trim();
 
-      if (q) {
-        analyticsStore.fetchSubregion1Suggestions(
-          analyticsStore.selectedCountry ?? "",
-          q
-        );
-      } else {
-        analyticsStore.subregion1Suggestions = [];
-        selectedSubregion.value = "";
-        applyFilters();
-      }
+      clearTimeout(subregionDebounceTimer);
+      subregionDebounceTimer = setTimeout(() => {
+        if (q) {
+          analyticsStore.fetchSubregion1Suggestions(
+            analyticsStore.selectedCountry ?? "",
+            q
+          );
+        } else {
+          analyticsStore.subregion1Suggestions = [];
+          selectedSubregion.value = "";
+          applyFilters();
+        }
+      }, 300);
     };
 
+    let subregion2DebounceTimer: ReturnType<typeof setTimeout>;
     const onSubregion2Input = () => {
       showSubregion2Dropdown.value = true;
-
       const q = subregion2Search.value.trim();
-      const sr1Filter = (
-        selectedSubregion.value || subregionSearch.value
-      ).trim();
 
-      if (q) {
-        analyticsStore.fetchSubregion2Suggestions(sr1Filter, q);
-      } else {
-        analyticsStore.subregion2Suggestions = [];
-        selectedSubregion2.value = "";
-        applyFilters();
-      }
+      clearTimeout(subregion2DebounceTimer);
+      subregion2DebounceTimer = setTimeout(() => {
+        if (q) {
+          analyticsStore.fetchSubregion2Suggestions(
+            selectedSubregion.value ?? "",
+            q
+          );
+        } else {
+          analyticsStore.subregion2Suggestions = [];
+          selectedSubregion2.value = "";
+          applyFilters();
+        }
+      }, 300);
     };
 
     const selectHotspotSuggestion = (name: string) => {

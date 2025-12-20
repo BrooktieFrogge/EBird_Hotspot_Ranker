@@ -73,6 +73,44 @@ async def generate_pdf(
     
     try:
         page = await context.new_page()
+
+        async def intercept_report_api(route):
+            request = route.request
+            if "/api/hotspots/report/" in request.url:
+                print(f"[pdf_export] | Intercepting API call: {request.url}")
+                
+                try:
+                    from services.fetch_hotspots import detailed_hotspot_data
+                    import json
+                    
+                    # fetch data
+                    data = await detailed_hotspot_data(
+                        hotspotID=hotspot_id,
+                        start_yr=start_year,
+                        end_yr=end_year,
+                        start_month=start_month,
+                        start_week=start_week,
+                        end_month=end_month,
+                        end_week=end_week
+                    )
+                    
+                    if data:
+                        await route.fulfill(
+                            status=200,
+                            content_type="application/json",
+                            body=json.dumps(data)
+                        )
+                        print(f"[pdf_export] | Fulfilled API call locally")
+                    else:
+                        print(f"[pdf_export] | Failed to fetch local data, continuing to network...")
+                        await route.continue_()
+                except Exception as e:
+                    print(f"[pdf_export] | Interception error: {e}")
+                    await route.continue_()
+            else:
+                await route.continue_()
+
+        await page.route("**/api/hotspots/report/*", intercept_report_api)
         
         # nav to printable report
         print(f"[pdf_export] | Navigating to page...")

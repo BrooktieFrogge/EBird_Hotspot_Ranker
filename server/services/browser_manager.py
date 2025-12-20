@@ -21,7 +21,7 @@ BROWSER_ARGS = [
     '--disable-translate',
     '--no-first-run',
     '--disable-features=site-per-process',
-    '--js-flags=--max-old-space-size=256',
+    '--js-flags=--max-old-space-size=450',
     '--renderer-process-limit=1',
     '--disable-software-rasterizer',
 ]
