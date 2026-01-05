@@ -12,11 +12,18 @@ const theme = useTheme();
 watch(
   () => theme.global.current.value.dark,
   (isDark) => {
+    // update favicon
     const iconName = isDark ? "favicon-darkmode.png" : "favicon.png";
     const links = document.querySelectorAll("link[rel~='icon']");
     links.forEach((link: any) => {
       link.href = `/${iconName}`;
     });
+
+    // update status bar color
+    const metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", isDark ? "#1a1a1a" : "#ffffff");
+    }
   },
   { immediate: true }
 );
