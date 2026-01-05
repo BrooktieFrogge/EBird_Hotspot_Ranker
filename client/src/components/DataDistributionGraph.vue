@@ -185,11 +185,28 @@ export default defineComponent({
       return ((idx + 1) / 48) * 100;
     });
 
-    // fill style
-    const fillStyle = computed(() => ({
-      left: leftHandlePos.value + "%",
-      width: rightHandlePos.value - leftHandlePos.value + "%",
-    }));
+    // fill style - use gradient to handle both normal and wrapped ranges
+    const fillStyle = computed(() => {
+      const left = leftHandlePos.value;
+      const right = rightHandlePos.value;
+      const color = HIGHLIGHT_COLOR.value;
+
+      if (left <= right) {
+        // normal range: transparent / color / transparent
+        return {
+          left: "0%",
+          width: "100%",
+          background: `linear-gradient(to right, transparent 0%, transparent ${left}%, ${color} ${left}%, ${color} ${right}%, transparent ${right}%, transparent 100%)`,
+        };
+      } else {
+        // wrapped range: color / transparent / color
+        return {
+          left: "0%",
+          width: "100%",
+          background: `linear-gradient(to right, ${color} 0%, ${color} ${right}%, transparent ${right}%, transparent ${left}%, ${color} ${left}%, ${color} 100%)`,
+        };
+      }
+    });
 
     // labels - use 3-letter codes for consistent width
     const startLabel = computed(() => {
@@ -241,15 +258,11 @@ export default defineComponent({
         // floor left handle to get start of interval
         let newStart = Math.floor(rawValue);
         newStart = Math.max(0, Math.min(47, newStart));
-
-        // allow single week selection (start == end)
-        tempStartIndex.value = Math.min(newStart, tempEndIndex.value);
+        tempStartIndex.value = newStart;
       } else {
         let newEnd = Math.ceil(rawValue) - 1;
         newEnd = Math.max(0, Math.min(47, newEnd));
-
-        // allow single week selection (end == start)
-        tempEndIndex.value = Math.max(newEnd, tempStartIndex.value);
+        tempEndIndex.value = newEnd;
       }
     };
 
@@ -294,8 +307,16 @@ export default defineComponent({
 
       const backgroundColors: string[] = [];
       for (let i = 0; i < 48; i++) {
+        let isHighlighted = false;
+        if (start <= end) {
+          isHighlighted = i >= start && i <= end;
+        } else {
+          // wrapped range (ex. dec - feb)
+          isHighlighted = i >= start || i <= end;
+        }
+
         backgroundColors.push(
-          i >= start && i <= end ? HIGHLIGHT_COLOR.value : STANDARD_COLOR.value
+          isHighlighted ? HIGHLIGHT_COLOR.value : STANDARD_COLOR.value
         );
       }
 

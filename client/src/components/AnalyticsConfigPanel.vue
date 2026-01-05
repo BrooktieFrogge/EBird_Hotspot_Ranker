@@ -538,17 +538,6 @@ export default defineComponent({
         let eM = preset.endMonth!;
         let eW = preset.endWeek!;
 
-        // check if start > end (ex. winter: dec -> feb)
-        // swap to avoid slider break (feb -> dec)
-        if (sM > eM) {
-          const tempM = sM;
-          const tempW = sW;
-          sM = eM;
-          sW = eW;
-          eM = tempM;
-          eW = tempW;
-        }
-
         startMonth.value = sM;
         startWeek.value = sW;
         endMonth.value = eM;
