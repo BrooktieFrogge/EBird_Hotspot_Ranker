@@ -277,18 +277,18 @@
                     </p>
                     <ul class="how-ul">
                       <li>
-                        hotspots that are new or on private property may have a
+                        Hotspots that are new or on private property may have a
                         relatively limited set of lists as part of the sample.
                         One can assess total number of lists in sample after
                         entering years and weeks.
                       </li>
                       <li>
-                        data in the lists is reported by birders with varying
+                        Data in the lists is reported by birders with varying
                         levels of experience, yet also reviewed for accuracy by
                         local eBird moderators.
                       </li>
                       <li>
-                        rankings may be biased in favor of target species,
+                        Rankings may be biased in favor of target species,
                         particularly when birders and guides go to specific
                         hotspots for hard-to-get species. But then again, that's
                         what the rankings are intended to show -likelihood of
@@ -296,27 +296,27 @@
                         see them.
                       </li>
                       <li>
-                        similarly, lists may not include all common residents
+                        Similarly, lists may not include all common residents
                         when birders are focused on target species.
                       </li>
                       <li>
-                        during migration, species passing through may have
+                        During migration, species passing through may have
                         relatively narrow windows where they are relatively more
                         likely.
                       </li>
                       <li>
-                        birders might have included in their hotspot list
+                        Birders might have included in their hotspot list
                         species spotted in specialized habitats near the
                         hotspot, but not exactly at the hotspot.
                       </li>
                       <li>
-                        likelihood rankings do not take into account number of
+                        Likelihood rankings do not take into account number of
                         individuals of a species on a list. It only accounts for
                         whether or not the species was observed and included in
                         a list.
                       </li>
                       <li>
-                        likelihoods may change for a hotspot depending on the
+                        Likelihoods may change for a hotspot depending on the
                         years selected, or as new checklists are added to the
                         database in the future.
                       </li>

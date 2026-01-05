@@ -277,6 +277,10 @@
         </div>
       </div>
     </div>
+
+    <!-- spacer for mobile bottom nav -->
+    <div style="height: 100px; width: 100%; flex-shrink: 0"></div>
+
     <!---- scroll indicator ----->
     <div v-if="showScrollIndicator" class="scroll-indicator">
       <BIconArrowDown />
