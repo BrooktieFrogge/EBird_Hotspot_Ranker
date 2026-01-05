@@ -475,6 +475,12 @@ const scrollToSection = (id: string) => {
   overflow: hidden;
 }
 
+@media all and (display-mode: standalone) {
+  .homescreen-container {
+    padding-top: env(safe-area-inset-top) !important;
+  }
+}
+
 .page-shell {
   width: 100%;
   flex: 1;

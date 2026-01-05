@@ -181,10 +181,17 @@ function scrollToSection(id: string) {
   display: flex;
   align-items: center;
   padding: 10px 20px;
+  padding-top: calc(env(safe-area-inset-top) + 10px);
   border-bottom: 1px solid var(--color-border-light);
   width: 100%;
-  height: 68px; /* fixed height */
+  min-height: 68px;
   box-sizing: border-box;
+}
+
+@media all and (display-mode: standalone) {
+  .top-nav {
+    display: none !important;
+  }
 }
 
 /* left group */
@@ -332,8 +339,10 @@ function scrollToSection(id: string) {
     display: flex;
     align-items: center;
     position: relative;
-    height: 54px !important; /* compact fixed height */
+    min-height: 54px; /* allow growth */
     padding: 0 10px;
+    /* iOS safe area: standard logic */
+    padding-top: calc(env(safe-area-inset-top) + 0px);
   }
 
   .logo-wrapper {

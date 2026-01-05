@@ -180,11 +180,23 @@ export default defineComponent({
 .hotspot-detail {
   padding: 0;
   text-align: center;
-  height: 100vh;
+  height: 100vh; /* fallback */
+  height: 100dvh; /* dynamic viewport height for mobile web */
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: var(--color-bg-seamless);
+}
+
+/* ensure TopNavBar never shrinks on web */
+.hotspot-detail :deep(.top-nav) {
+  flex-shrink: 0;
+}
+
+@media all and (display-mode: standalone) {
+  .hotspot-detail {
+    height: calc(100vh - env(safe-area-inset-top));
+  }
 }
 
 /* desktop layout */
@@ -277,6 +289,12 @@ export default defineComponent({
   .slide-content {
     min-height: 100%;
     padding-bottom: 0px;
+  }
+
+  @media all and (display-mode: standalone) {
+    .slide-content {
+      padding-top: calc(env(safe-area-inset-top) + 20px);
+    }
   }
 
   /* fixed bottom navigation bar */

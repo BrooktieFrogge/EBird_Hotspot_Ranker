@@ -2,23 +2,33 @@
       Global Theme Variables
   =============================== */
 
+/* theme enforcement */
+:root {
+  color-scheme: dark light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
 :root {
   /* Core colors */
   --color-white: #ffffff;
-  --color-black: #0A0A0A;
+  --color-black: #0a0a0a;
 
   /* Brand / primary */
-  --color-primary: #457999;   /* eBird-style blue */
+  --color-primary: #457999; /* eBird-style blue */
   --color-secondary: #296239; /* deep green */
 
   /* Accent */
-  --color-accent: #D09B2C;    /* CC yellow */
+  --color-accent: #d09b2c; /* CC yellow */
 
   /* Destructive */
-  --color-danger: #B31B1B;
+  --color-danger: #b31b1b;
 
   /* Backgrounds */
-  --color-bg-page: #f4f7f9;   /* light blue-gray */
+  --color-bg-page: #f4f7f9; /* light blue-gray */
   --color-bg-panel: #ffffff;
   --color-bg-muted: #f2f2f2;
   --color-bg-seamless: #f4f7f9; /* light mode seamless base (match bg-page) */
@@ -28,25 +38,24 @@
   --color-border-strong: rgba(69, 121, 153, 0.45);
 
   /* Text */
-  --color-text-primary: #0A0A0A;
+  --color-text-primary: #0a0a0a;
   --color-text-secondary: #555555;
   --color-text-muted: #777777;
   --color-accent-blue: #40718f;
 
   /* Shadows */
   --shadow-card: 0 8px 24px rgba(69, 121, 153, 0.12);
-  --shadow-dropdown: 0 12px 28px rgba(0,0,0,0.12);
+  --shadow-dropdown: 0 12px 28px rgba(0, 0, 0, 0.12);
 
   /* Typography */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont,
-               "Segoe UI", Roboto, "Helvetica Neue",
-               Arial, "Noto Sans", sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
   /* button & interaction colors */
   --color-primary-variation: #40718f; /* specific button blue */
-  --color-primary-dark: #396581;      /* hover state */
-  --color-bg-hover: #d0cfcf;          /* light button hover */
-  --shadow-text-strong: 0 0 .8rem rgba(32, 65, 90, 0.8);
+  --color-primary-dark: #396581; /* hover state */
+  --color-bg-hover: #d0cfcf; /* light button hover */
+  --shadow-text-strong: 0 0 0.8rem rgba(32, 65, 90, 0.8);
 }
 
 /* ===============================
@@ -58,32 +67,32 @@ body.theme--dark {
   --color-bg-panel: #1e1e1e;
   --color-bg-muted: #252525;
   --color-bg-seamless: #1a1a1a; /* dark mode seamless base (dark page) */
-  
+
   /* text */
   --color-text-primary: #e0e0e0;
   --color-text-secondary: #aaaaaa;
   --color-text-muted: #777777;
-  
+
   /* borders - very subtle */
   --color-border-light: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.15);
-  
+
   /* shadows */
   --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-dropdown: 0 12px 28px rgba(0,0,0,0.6);
-  
+  --shadow-dropdown: 0 12px 28px rgba(0, 0, 0, 0.6);
+
   /* button hovers */
   --color-bg-hover: #2a2a2a;
-  
+
   /* accent blue - lighter for dark backgrounds */
   --color-accent-blue: #7eb8d9;
-  
+
   /* primary - slightly lighter for dark mode */
   --color-primary: #6aa5c7;
-  
+
   /* warmer red for dark mode */
   --color-danger: #ef5350;
-  
+
   /* secondary (green) */
   --color-secondary: #296239;
 }
@@ -229,17 +238,28 @@ body.theme--dark .v-list-item .v-list-item-title {
    Global Base Styles (eBird-like)
    =============================== */
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
   font-size: 16px;
   color: var(--color-text-primary);
   background: var(--color-bg-page);
+  background-color: var(--color-bg-page);
+}
+
+@media all and (display-mode: standalone) {
+  body.theme--dark {
+    background-color: #1e1e1e !important;
+    color: #ffffff;
+  }
 }
 
 /* Headings */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-weight: 600;
   letter-spacing: 0.2px;
   color: var(--color-text-primary);
@@ -254,7 +274,9 @@ label {
 }
 
 /* Body text */
-p, span, div {
+p,
+span,
+div {
   font-weight: 400;
 }
 
@@ -372,7 +394,7 @@ body.theme--dark .v-autocomplete__content {
 /* ===============================
    modern input styling (thinner borders)
    =============================== */
-   
+
 /* light mode inputs - very subtle borders */
 .v-field--variant-outlined .v-field__outline__start,
 .v-field--variant-outlined .v-field__outline__notch,
@@ -433,23 +455,23 @@ body.theme--dark * {
   body.theme--dark {
     overflow-x: hidden;
   }
-  
+
   body.theme--dark *::-webkit-scrollbar:horizontal {
     display: none;
     height: 0;
   }
-  
+
   /* make all scrollbars dark on mobile */
   body.theme--dark *::-webkit-scrollbar {
     width: 6px;
     height: 6px;
     background: #1e1e1e;
   }
-  
+
   body.theme--dark *::-webkit-scrollbar-track {
     background: #1e1e1e;
   }
-  
+
   body.theme--dark *::-webkit-scrollbar-thumb {
     background: #444;
     border-radius: 3px;

@@ -104,12 +104,16 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 72px; /* taller as requested */
+    min-height: calc(72px + env(safe-area-inset-bottom));
     display: flex !important;
     flex-direction: row !important;
     justify-content: space-between;
-    align-items: center;
-    padding: 0 24px;
+    align-items: flex-start;
+    padding-top: 14px;
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: calc(env(safe-area-inset-left) + 24px);
+    padding-right: calc(env(safe-area-inset-right) + 24px);
+
     width: 100%; /* ensure full width */
     box-sizing: border-box; /* include padding in width */
     background: var(--color-bg-panel);

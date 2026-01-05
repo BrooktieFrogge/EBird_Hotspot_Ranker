@@ -62,9 +62,8 @@ export default defineComponent({
 
     // update Safari/iOS status bar theme color
     const updateThemeColor = (isDarkMode: boolean) => {
-      const color = isDarkMode ? "#1a1a2e" : "#457999";
+      const color = isDarkMode ? "#1e1e1e" : "#ffffff";
 
-      // update all theme-color meta tags to ensure Safari respects the override
       document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
         meta.setAttribute("content", color);
       });
@@ -73,14 +72,12 @@ export default defineComponent({
     const toggleTheme = () => {
       const newTheme = isDark.value ? "light" : "dark";
 
-      // standard assignment (avoid vuetify warning)
       if ((theme as any).change) {
         (theme as any).change(newTheme);
       } else {
         theme.global.name.value = newTheme;
       }
 
-      // update persistent state
       if (newTheme === "dark") {
         document.body.classList.add("theme--dark");
         localStorage.setItem("user-theme", "dark");
@@ -89,12 +86,10 @@ export default defineComponent({
         localStorage.setItem("user-theme", "light");
       }
 
-      // update Safari status bar color
       updateThemeColor(newTheme === "dark");
     };
 
     // init from local storage
-    // theme already set by main.ts
     onMounted(() => {
       const savedTheme = localStorage.getItem("user-theme");
       const isDarkMode =

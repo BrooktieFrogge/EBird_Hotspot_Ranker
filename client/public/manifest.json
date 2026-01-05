@@ -4,8 +4,8 @@
   "description": "Discover and rank birding hotspots worldwide with eBird data analytics",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#457999",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1e1e1e",
   "orientation": "any",
   "icons": [
     {

@@ -4,11 +4,31 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
+import { useRoute } from "vue-router";
 import { useTheme } from "vuetify";
 
 const theme = useTheme();
+const route = useRoute();
 
-// dynamic favicon based on theme
+// enforce correct theme color
+const updateThemeColor = () => {
+  const isDark = theme.global.current.value.dark;
+  const color = isDark ? "#1e1e1e" : "#ffffff";
+
+  const metaTags = document.querySelectorAll("meta[name='theme-color']");
+  if (metaTags.length > 0) {
+    metaTags.forEach((meta) => {
+      meta.setAttribute("content", color);
+    });
+  } else {
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.content = color;
+    document.head.appendChild(meta);
+  }
+};
+
+// watch theme changes
 watch(
   () => theme.global.current.value.dark,
   (isDark) => {
@@ -19,13 +39,18 @@ watch(
       link.href = `/${iconName}`;
     });
 
-    // update status bar color
-    const metaThemeColor = document.querySelector("meta[name='theme-color']");
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute("content", isDark ? "#1a1a1a" : "#ffffff");
-    }
+    updateThemeColor();
   },
   { immediate: true }
+);
+
+// watch route changes to re-enforce theme color (nuclear option)
+watch(
+  () => route.path,
+  () => {
+    // small delay to override any component-level changes
+    setTimeout(updateThemeColor, 50);
+  }
 );
 </script>
 
@@ -57,6 +82,16 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+}
+
+@media all and (display-mode: standalone) {
+  #app {
+    background-color: var(--color-bg-panel);
+  }
+
+  body.theme--dark #app {
+    background-color: var(--color-bg-panel);
+  }
 }
 
 svg {
