@@ -176,12 +176,13 @@ export default defineComponent({
     // handle positions (0-100%)
     const leftHandlePos = computed(() => {
       const idx = isDragging.value ? tempStartIndex.value : startIndex.value;
-      return (idx / 47) * 100;
+      return (idx / 48) * 100;
     });
 
     const rightHandlePos = computed(() => {
       const idx = isDragging.value ? tempEndIndex.value : endIndex.value;
-      return (idx / 47) * 100;
+      // right handle is at the end of the week interval, so +1
+      return ((idx + 1) / 48) * 100;
     });
 
     // fill style
@@ -232,12 +233,23 @@ export default defineComponent({
         0,
         Math.min(100, ((clientX - rect.left) / rect.width) * 100)
       );
-      const newIndex = Math.round((percent / 100) * 47);
+
+      // map percent to 0..48
+      const rawValue = (percent / 100) * 48;
 
       if (dragHandle.value === "left") {
-        tempStartIndex.value = Math.min(newIndex, tempEndIndex.value - 1);
+        // floor left handle to get start of interval
+        let newStart = Math.floor(rawValue);
+        newStart = Math.max(0, Math.min(47, newStart));
+
+        // allow single week selection (start == end)
+        tempStartIndex.value = Math.min(newStart, tempEndIndex.value);
       } else {
-        tempEndIndex.value = Math.max(newIndex, tempStartIndex.value + 1);
+        let newEnd = Math.ceil(rawValue) - 1;
+        newEnd = Math.max(0, Math.min(47, newEnd));
+
+        // allow single week selection (end == start)
+        tempEndIndex.value = Math.max(newEnd, tempStartIndex.value);
       }
     };
 

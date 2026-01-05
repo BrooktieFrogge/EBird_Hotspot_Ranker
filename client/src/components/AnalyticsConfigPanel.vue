@@ -529,15 +529,31 @@ export default defineComponent({
       const preset =
         SEASONAL_PRESETS[presetKey as keyof typeof SEASONAL_PRESETS];
       if (preset && preset.startMonth !== null) {
-        startMonth.value = preset.startMonth;
-        startWeek.value = preset.startWeek!;
-        endMonth.value = preset.endMonth!;
-        endWeek.value = preset.endWeek!;
-        // Sync with store
-        analyticsStore.startMonth = preset.startMonth;
-        analyticsStore.startWeek = preset.startWeek!;
-        analyticsStore.endMonth = preset.endMonth!;
-        analyticsStore.endWeek = preset.endWeek!;
+        let sM = preset.startMonth;
+        let sW = preset.startWeek!;
+        let eM = preset.endMonth!;
+        let eW = preset.endWeek!;
+
+        // check if start > end (ex. winter: dec -> feb)
+        // swap to avoid slider break (feb -> dec)
+        if (sM > eM) {
+          const tempM = sM;
+          const tempW = sW;
+          sM = eM;
+          sW = eW;
+          eM = tempM;
+          eW = tempW;
+        }
+
+        startMonth.value = sM;
+        startWeek.value = sW;
+        endMonth.value = eM;
+        endWeek.value = eW;
+        // sync with store
+        analyticsStore.startMonth = sM;
+        analyticsStore.startWeek = sW;
+        analyticsStore.endMonth = eM;
+        analyticsStore.endWeek = eW;
         debouncedFetchHotspot();
       }
     };
