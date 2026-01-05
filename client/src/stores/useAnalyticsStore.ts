@@ -76,6 +76,9 @@ export const useAnalyticsStore = defineStore("analytics", {
   actions: {
     setHotspot(id: string) {
       this.selectedHotspotId = id;
+      // clear custom birds when switching hotspots
+      this.selectedBirds = [];
+      this.selectedBirdPhotos = [];
       const overview = this.allHotspots.find((h) => h.id === id);
       if (overview) {
         this.selectedHotspot = { ...overview, birds: [] } as any;

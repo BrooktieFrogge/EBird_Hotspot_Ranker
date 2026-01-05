@@ -1,10 +1,24 @@
 <template>
-  <div
-    class="analytics-container"
-    v-if="birds.length > 1 && analyticsStore.isLoading == false"
-  >
+  <div class="analytics-container" v-if="!analyticsStore.isLoading">
+    <!-- empty state if no birds -->
+    <div v-if="birds.length === 0" class="empty-state">
+      <div
+        style="
+          text-align: center;
+          padding: 40px;
+          color: var(--color-text-muted);
+        "
+      >
+        <BIconExclamationTriangle
+          style="font-size: 32px; margin-bottom: 16px"
+        />
+        <h3>No data available for this selection</h3>
+        <p>Try adjusting the filters or selecting a different year range.</p>
+      </div>
+    </div>
+
     <!-- graph and bird lists section -->
-    <div class="bird-lists-container" v-if="showGraphAndList">
+    <div class="bird-lists-container" v-else-if="showGraphAndList">
       <!--------------------------->
       <!--- HOTSPOT NAME/HEADER --->
       <!--------------------------->
