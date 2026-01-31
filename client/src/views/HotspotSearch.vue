@@ -1643,6 +1643,7 @@ export default defineComponent({
 .summary-footer {
   margin-top: auto;
   padding-top: 12px;
+  padding-bottom: 505px;;
   border-top: 1px solid var(--color-border-light);
   display: flex;
   justify-content: center;
@@ -1652,17 +1653,17 @@ export default defineComponent({
   padding: 14px 28px;
   border-radius: 12px;
   border: none;
-  background: #457999;
+  background:var(--color-danger);
   color: white;
   font-size: 16px;
-  font-weight: 500;
-  box-shadow: 0 4px 16px rgba(69, 121, 153, 0.4);
+  font-weight: 470;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   transition: background 0.2s, box-shadow 0.2s;
   text-transform: capitalize;
 }
 
 .detail-button:disabled {
-  background: #457999 !important;
+  background: #b04747 !important;
   opacity: 0.5;
   color: white !important;
   cursor: not-allowed;
@@ -1670,8 +1671,8 @@ export default defineComponent({
 }
 
 .detail-button:not(:disabled):hover {
-  background: #3a6680;
-  box-shadow: 0 6px 20px rgba(69, 121, 153, 0.5);
+  background: var(--color-danger);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .filter-heading {
@@ -2010,7 +2011,7 @@ export default defineComponent({
     left: 50%;
     transform: translateX(-50%);
     padding: 12px 24px;
-    background: #457999;
+    background: #b31b1b;
     color: white;
     border: none;
     border-radius: 25px;
@@ -2030,10 +2031,6 @@ export default defineComponent({
     50% {
       box-shadow: 0 4px 20px rgba(69, 121, 153, 0.7);
     }
-  }
-
-  .mobile-get-report-fab:hover {
-    background: #3a6680;
   }
 }
 
@@ -2082,13 +2079,13 @@ export default defineComponent({
     bottom: 20px;
     right: 20px;
     padding: 14px 28px;
-    background: #457999;
+    background: var(--color-danger);
     color: white;
     border: none;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
-    box-shadow: 0 4px 16px rgba(69, 121, 153, 0.4);
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35);
     cursor: pointer;
     z-index: 100;
     align-items: center;
@@ -2097,8 +2094,8 @@ export default defineComponent({
   }
 
   .floating-get-report-btn:hover {
-    background: #3a6680;
-    box-shadow: 0 6px 20px rgba(69, 121, 153, 0.5);
+    background: #b04747 ;
+    box-shadow:0 4px 4px 0 rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -2188,7 +2185,7 @@ export default defineComponent({
 }
 
 .btn-disabled {
-  background-color: #457999 !important;
+  background-color: #b04747  !important;
   opacity: 0.5;
   color: white !important;
   cursor: not-allowed;
@@ -2215,7 +2212,7 @@ export default defineComponent({
 
   /* get report button specific tweaks */
   .nav-btn.primary-action {
-    background-color: #457999;
+    background-color: var(--color-danger);
     color: white;
     border-radius: 6px;
     padding: 0 16px;
@@ -2231,7 +2228,7 @@ export default defineComponent({
   }
 
   .nav-btn.primary-action.btn-disabled {
-    background-color: #457999;
+    background-color: #b04747 ;
     opacity: 0.5;
     color: white;
     cursor: not-allowed;

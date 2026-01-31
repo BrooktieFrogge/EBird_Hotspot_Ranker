@@ -47,8 +47,8 @@ export const useAnalyticsStore = defineStore("analytics", {
     endMonth: 12,
     endWeek: 4,
 
-    numTopBirds: 10,
-    numTopPhotos: 3,
+    numTopBirds: 40,
+    numTopPhotos: 6,
     showLikelihoodCurve: true,
     showTopBirdPhotos: true,
     selectedBirds: [] as Bird[],

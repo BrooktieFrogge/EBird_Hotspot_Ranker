@@ -19,7 +19,7 @@
     <div class="nav-center-group desktop-only">
       <button class="nav-item" @click="handleNav('home')">Home</button>
       <button class="nav-item" @click="handleNav('about')">About</button>
-      <button class="nav-item" @click="handleNav('how-to')">Tutorial</button>
+      <button class="nav-item" @click="handleNav('how-to')">How to Use</button>
       <button class="nav-item" @click="handleNav('learn')">
         Documentation
       </button>

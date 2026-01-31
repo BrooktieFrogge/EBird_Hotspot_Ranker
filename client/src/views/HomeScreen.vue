@@ -60,8 +60,8 @@
             <div class="intro-section-imgs">
               <div class="intro-item">
                 <p class="standout">
-                  <b>Question:</b> At the Copalinga Lodge (Ecuador), what is the
-                  likelihood of seeing the rare, reclusive Gray Tinamou?!
+                  <b>Question:</b> <em> At the Copalinga Lodge (Ecuador), what is the
+                  likelihood of seeing the rare, reclusive Gray Tinamou?!</em>
                 </p>
                 <figure>
                   <img
@@ -69,14 +69,14 @@
                     alt="Bird illustration"
                     class="rect-image"
                   />
-                  <figcaption class="captions">© Brandon Nidiffer</figcaption>
+                  <figcaption class="captions">© Steve Getty</figcaption>
                 </figure>
               </div>
 
               <div class="intro-item">
                 <p class="standout">
-                  <b>Question:</b> Is it a “sure-bet”, or not, to see the
-                  stunning Green-and-gold Tanager?
+                  <b>Question:</b> <em>Is it a “sure-bet”, or not, to see the
+                  stunning Green-and-gold Tanager?</em> 
                 </p>
                 <figure>
                   <img
@@ -92,9 +92,9 @@
 
               <div class="intro-item">
                 <p class="standout">
-                  <b>Question:</b> For any eBird Hotspot, what are the top 40-50
+                  <b>Question:</b> <em>For any eBird Hotspot, what are the top 40-50
                   most likely bird species that you might spot at the time you
-                  will be there??
+                  will be there?</em>
                 </p>
 
                 <figure>
@@ -158,7 +158,7 @@
                   alt="Bird illustration"
                   class="rect-image"
                 />
-                <figcaption class="captions">©John Clough</figcaption>
+                <figcaption class="captions">© Steve Getty</figcaption>
               </figure>
 
               <p class="about-subsection">
@@ -268,9 +268,9 @@
                 </div>
 
                 <div class="card-column">
-                  <h2 class="section-heading-2">Items to Keep in Mind</h2>
+                  <h2 class="section-heading">Items to Keep in Mind</h2>
                   <div class="how-card white-card">
-                    <p class="how-subsection">
+                    <p class="med-text">
                       A number of factors might increase or decrease the
                       relative ranks of species at a hotspot for the interval of
                       weeks and duration of years selected. For example,
@@ -554,7 +554,7 @@ const scrollToSection = (id: string) => {
   padding: 0 16px;
   border: none !important;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 350;
   width: auto;
   flex: none;
 }
@@ -588,12 +588,12 @@ const scrollToSection = (id: string) => {
 
 .cover-heading {
   color: var(--color-white);
-  font-size: clamp(1.8rem, 7vw, 6rem);
+  font-size: clamp(2.5rem, 7vw, 6rem);
   text-align: center;
   margin-bottom: 2vh;
   text-shadow: 0 0 0.8rem var(--shadow-text-strong);
   letter-spacing: -0.03rem;
-  font-weight: 800;
+  font-weight: 100;
   line-height: 1.1;
   max-width: 90%;
 }
@@ -604,7 +604,7 @@ const scrollToSection = (id: string) => {
   text-align: center;
   margin-bottom: 4vh;
   text-shadow: 0 0 0.8rem var(--shadow-text-strong);
-  font-weight: 400;
+  font-weight: 350;
   max-width: 90%;
 }
 
@@ -612,7 +612,7 @@ const scrollToSection = (id: string) => {
   background: var(--color-white);
   color: var(--color-black);
   width: 160px;
-  font-weight: 400;
+  font-weight: 350;
   font-size: 20px;
   font-style: normal;
   border-radius: 6px;
@@ -652,30 +652,30 @@ const scrollToSection = (id: string) => {
 }
 
 .section-heading {
-  font-weight: 300;
+  font-weight: 150;
   font-size: 4rem;
   line-height: 1.111;
   letter-spacing: -0.02rem;
   margin: 0 0 2rem 0;
-  color: var(--color-text-primary);
-}
-
-.section-heading-2 {
-  font-weight: 300;
-  font-size: 4rem;
-  line-height: 1.111;
-  letter-spacing: -0.02rem;
-  margin: 1rem 2rem;
   color: var(--color-accent-blue);
 }
 
+.section-heading-2 {
+  font-weight: bold;
+  font-size: 1.5rem;
+  line-height: 1.111;
+  letter-spacing: -0.02rem;
+  margin: 1rem 2rem;
+  color: var(--color-text-primary);
+}
+
 .footer-heading {
-  font-weight: 300;
+  font-weight: 150;
   font-size: 2rem;
   line-height: 1.111;
   letter-spacing: -0.02rem;
   margin: 1rem 2rem;
-  color: var(--color-accent-blue);
+  color: white;
 }
 
 .about-section {
@@ -688,14 +688,14 @@ const scrollToSection = (id: string) => {
 .about-section-content {
   align-items: start;
   max-width: 1480px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 2%;
+  margin-right: 2%;
   position: relative;
-  padding: 100px 10px 100px 80px;
+  padding: 100px 40px 100px ;
 }
 
 .about-subsection {
-  font-weight: 400;
+  font-weight: 350;
   font-size: 1.5rem;
   color: var(--color-text-primary);
 }
@@ -704,7 +704,7 @@ const scrollToSection = (id: string) => {
   position: relative;
   z-index: 2;
   background: var(--color-bg-muted);
-  padding: 100px 10px 100px 80px;
+  padding: 100px 50px 100px ;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset,
     0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
@@ -712,7 +712,7 @@ const scrollToSection = (id: string) => {
   display: flex;
   flex-direction: column;
   gap: 60px;
-  padding-top: 20px;
+  padding: 20px 10px 20px;
   position: relative;
 }
 
@@ -724,7 +724,6 @@ const scrollToSection = (id: string) => {
 }
 .card-column .section-heading,
 .card-column .section-heading-2 {
-  margin: 0 0 1.5rem 0;
   text-align: center;
   width: 100%;
 }
@@ -741,7 +740,6 @@ const scrollToSection = (id: string) => {
 .blue-card,
 .white-card {
   background: var(--color-bg-panel);
-  z-index: 2;
   border: none;
 }
 
@@ -756,9 +754,8 @@ const scrollToSection = (id: string) => {
 @media (min-width: 1024px) {
   .cards-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 40px;
-    align-items: stretch;
   }
 
   .how-card {
@@ -769,21 +766,23 @@ const scrollToSection = (id: string) => {
   }
 }
 
-ol li,
+
+ul,ol,ol li,
 ul li {
   margin-bottom: 25px;
+  font-weight: 350;
+  font-size:  1.5rem; 
 }
 .feature-list {
-  margin: 0 0 16px;
   line-height: 1.6;
-  font-size: 23px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 350;
   align-items: center;
   text-align: left;
   flex-direction: column;
   color: var(--color-text-primary);
   max-width: 1350px;
-  margin-left: auto;
+  margin-left: 5%;
   margin-right: auto;
 }
 
@@ -832,8 +831,9 @@ ul li {
 
 .doc-subsection {
   margin-top: 10px;
-  font-weight: 400;
-  font-size: 24px;
+  padding: 0px 50px ;
+  font-weight: 350;
+  font-size: 1.5rem;
   color: var(--color-text-primary);
 }
 
@@ -856,7 +856,7 @@ ul li {
 }
 .intro-item {
   display: grid;
-  grid-template-rows: 1fr 300px;
+  grid-template-rows: repeat(1, 1fr);
   flex-direction: column;
   height: 100%;
   align-items: center;
@@ -864,7 +864,7 @@ ul li {
 
 .intro-item img {
   width: 100%;
-  height: 100%;
+  height: 250px;
   object-fit: cover;
 }
 
@@ -873,8 +873,8 @@ ul li {
   color: var(--color-text-secondary);
 }
 .standout {
-  font-weight: 700;
-  font-size: 21px;
+  font-weight: 350;
+  font-size: 1.5rem;
   font-style: normal;
   color: var(--color-accent-blue);
   text-align: center;
@@ -883,7 +883,7 @@ ul li {
 
 /* Rect image */
 .rect-image {
-  width: 40em;
+  width: 35em;
   height: 25em;
   background: transparent;
   border: 1px solid var(--color-border-light);
@@ -912,9 +912,9 @@ ul li {
 
 .med-text {
   color: var(--color-text-primary);
-  font-size: 28px;
+  font-size: 1.5rem;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 350;
   margin-left: auto;
   margin-right: auto;
   text-align: left;
@@ -926,7 +926,7 @@ ul li {
   max-width: 100%;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset,
     0 4px 4px 0 rgba(0, 0, 0, 0.25);
-  background: var(--color-bg-panel);
+  background: var(--color-accent-blue);
 }
 
 .footer-section-content {
@@ -944,7 +944,7 @@ a {
 
 .footer {
   font-size: 18px;
-  color: var(--color-text-secondary);
+  color: white;
   margin-top: 16px;
   margin-left: 50px;
 }
@@ -1097,7 +1097,7 @@ a {
 
   .cover-photo {
     height: 400px;
-    object-position: 75% center; /* shift right to show the bird */
+    object-position: 71% center; /* shift right to show the bird */
   }
 
   .cover-heading {
@@ -1135,20 +1135,14 @@ a {
     grid-template-rows: auto auto;
   }
 
-  .standout {
-    font-size: 18px;
-  }
-
   .gs-info {
     padding: 30px 10px;
   }
 
-  .med-text {
-    font-size: 18px;
-  }
-
+ul li, ol li {
+  font-size: 1rem;
+}
   .feature-list {
-    font-size: 16px;
     padding-left: 20px;
   }
 
@@ -1158,13 +1152,8 @@ a {
     margin-bottom: 1rem;
   }
 
-  .section-heading-2 {
-    font-weight: 300;
-    font-size: 4rem;
-    line-height: 1.111;
-    letter-spacing: -0.02rem;
-    margin: 1rem 2rem;
-    color: var(--color-accent-blue);
+  .med-text{
+   font-size: 1rem;
   }
 
   /* about section */
@@ -1172,7 +1161,7 @@ a {
     padding: 40px 20px;
   }
 
-  .about-subsection {
+  .about-subsection{
     font-size: 1rem;
   }
 
@@ -1193,7 +1182,7 @@ a {
 
   /* how section */
   .how-section {
-    padding: 40px 20px;
+    padding: 20px 15px;
     max-height: none;
   }
 
@@ -1208,6 +1197,9 @@ a {
     gap: 20px;
   }
 
+  .standout{
+    font-size: 1rem;
+  }
   .how-card {
     position: static;
     width: 100%;
@@ -1218,29 +1210,23 @@ a {
   .blue-card,
   .white-card {
     transform: none;
-    margin-bottom: 20px;
   }
 
   .how-ol,
   .how-ul {
-    font-size: 16px;
-    padding: 15px 10px 20px 25px;
-    margin: 0;
-  }
 
-  .how-subsection {
-    font-size: 18px;
-    margin: 15px;
+    padding: 5px 5px;
+    margin: 0;
   }
 
   /* documentation section */
   .doc-section {
-    padding: 40px 20px;
+    padding: 40px 10px;
     max-height: none;
   }
 
   .doc-subsection {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .centered-image-panel {
@@ -1259,15 +1245,18 @@ a {
 
   .footer-section-content {
     padding: 20px;
+    margin-bottom: 50px;
   }
 
   .footer {
     font-size: 14px;
     margin-left: 0;
+    
   }
 
   .footer-heading {
     font-size: 1.5rem;
+    margin-left: 0;
   }
 }
 </style>

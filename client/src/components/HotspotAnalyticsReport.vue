@@ -493,27 +493,27 @@ export default defineComponent({
 }
 
 .checklist-count {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--color-text-muted);
 }
 
 .export-btn {
   margin-left: auto;
   color: white !important;
-  background-color: #296239 !important;
-  border: 1px solid #296239 !important;
+  background-color: var(--color-danger) !important;
+  border: 1px solid var(--color-danger) !important;
   transition: all 0.3s ease;
 }
 
 .export-btn:hover {
   background-color: white !important;
-  color: #296239 !important;
-  border-color: #296239 !important;
+  color: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
 }
 
 .export-btn:hover :deep(.v-btn__content),
 .export-btn:hover :deep(.v-btn__overlay) {
-  color: #296239 !important;
+  color: var(--color-danger) !important;
 }
 
 .export-btn :deep(.v-btn__overlay) {
