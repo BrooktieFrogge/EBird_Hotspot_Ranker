@@ -711,8 +711,7 @@ const scrollToSection = (id: string) => {
 
 .how-section-content{
     max-width: 1480px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 30px auto;
 }
 .cards-grid {
   display: flex;
