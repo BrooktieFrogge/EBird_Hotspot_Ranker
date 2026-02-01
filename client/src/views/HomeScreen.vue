@@ -213,7 +213,7 @@
               </p>
             </div>
           </div>
-          <div class="how-section" id="how-to">
+          <div class="how-  " id="how-to">
             <div class="how-section-content">
               <div class="cards-grid">
                 <div class="card-column">
@@ -688,8 +688,8 @@ const scrollToSection = (id: string) => {
 .about-section-content {
   align-items: start;
   max-width: 1480px;
-  margin-left: 2%;
-  margin-right: 2%;
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
   padding: 100px 40px 100px ;
 }
@@ -707,6 +707,12 @@ const scrollToSection = (id: string) => {
   padding: 100px 50px 100px ;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset,
     0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.how-section-content{
+    max-width: 1480px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .cards-grid {
   display: flex;
@@ -1188,6 +1194,7 @@ ul li, ol li {
 
   .how-section-content {
     height: auto;
+   
   }
 
   .cards {
