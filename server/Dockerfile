@@ -6,6 +6,7 @@ WORKDIR /app
 # download dependencies
 COPY requirements.txt server/
 RUN pip install --no-cache-dir -r server/requirements.txt
+RUN playwright install chromium
 # copy server files to /app/server
 COPY . server/
 
