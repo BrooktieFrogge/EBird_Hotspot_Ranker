@@ -68,7 +68,7 @@ export const useAnalyticsStore = defineStore("analytics", {
 
     getAllBirds(state) {
       return [...(state.selectedHotspot?.birds ?? [])].sort(
-        (a, b) => a.Rank - b.Rank
+        (a, b) => a.Rank - b.Rank,
       );
     },
   },
@@ -108,14 +108,14 @@ export const useAnalyticsStore = defineStore("analytics", {
       console.log("deselected bird");
       this.selectedBirds = this.selectedBirds.filter((b) => b !== bird);
       this.selectedBirdPhotos = this.selectedBirdPhotos.filter(
-        (b) => b !== bird
+        (b) => b !== bird,
       );
     },
 
     displayBirdPhoto(bird: Bird) {
       console.log("pushed:", bird.Species);
       const alreadySelected = this.selectedBirdPhotos.some(
-        (p: Bird) => p.Species === bird.Species
+        (p: Bird) => p.Species === bird.Species,
       );
 
       if (!alreadySelected) {
@@ -321,7 +321,7 @@ export const useAnalyticsStore = defineStore("analytics", {
         subregion1?: string;
         subregion2?: string;
         limit?: number;
-      }
+      },
     ) {
       this.isLoading = true;
       this.error = null;
@@ -521,7 +521,7 @@ export const useAnalyticsStore = defineStore("analytics", {
       try {
         console.log(
           "Fetching hotspot detail for hotspot ID:",
-          this.selectedHotspotId
+          this.selectedHotspotId,
         );
 
         // enqueue job
@@ -534,7 +534,7 @@ export const useAnalyticsStore = defineStore("analytics", {
             response.data.trim().startsWith("<")
           ) {
             throw new Error(
-              "eBird blocked the request (got HTML). Try again later."
+              "eBird blocked the request (got HTML). Try again later.",
             );
           }
 
@@ -543,8 +543,18 @@ export const useAnalyticsStore = defineStore("analytics", {
 
           console.log(`Job enqueued: ${jobId}. Polling...`);
 
+          let pollCount = 0;
+          const maxPolls = 24; // 2 minutes timeout
+
           // poll for result
           while (true) {
+            pollCount++;
+            if (pollCount > maxPolls) {
+              throw new Error(
+                "Request timed out after 2 minutes. Please refresh and try again.",
+              );
+            }
+
             await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
             try {
               const pollResponse = await axios.get(`/api/jobs/${jobId}`);
@@ -579,7 +589,7 @@ export const useAnalyticsStore = defineStore("analytics", {
                 console.warn(
                   `Job ${jobId} not found (server restart?). Re-fetching in 1s... (retry ${
                     currentRetries + 1
-                  }/3)`
+                  }/3)`,
                 );
 
                 // wait before retry to prevent overwhelming the server
@@ -596,7 +606,7 @@ export const useAnalyticsStore = defineStore("analytics", {
           // safety check: ensure we didn't get an HTML error
           if (typeof data === "string" && data.trim().startsWith("<")) {
             throw new Error(
-              "Received HTML instead of JSON. The server may be overloaded."
+              "Received HTML instead of JSON. The server may be overloaded.",
             );
           }
           if (!data || typeof data !== "object") {
@@ -627,10 +637,13 @@ export const useAnalyticsStore = defineStore("analytics", {
           show_photos: this.showTopBirdPhotos.toString(),
         });
 
-        if (this.startYear) params.append("start_yr", this.startYear.toString());
+        if (this.startYear)
+          params.append("start_yr", this.startYear.toString());
         if (this.endYear) params.append("end_yr", this.endYear.toString());
-        if (this.startMonth) params.append("start_month", this.startMonth.toString());
-        if (this.startWeek) params.append("start_week", this.startWeek.toString());
+        if (this.startMonth)
+          params.append("start_month", this.startMonth.toString());
+        if (this.startWeek)
+          params.append("start_week", this.startWeek.toString());
         if (this.endMonth) params.append("end_month", this.endMonth.toString());
         if (this.endWeek) params.append("end_week", this.endWeek.toString());
 
@@ -642,12 +655,16 @@ export const useAnalyticsStore = defineStore("analytics", {
           const photoRanks = this.selectedBirdPhotos.map((b: any) => b.Rank);
           params.append("photo_ranks", photoRanks.join(","));
         }
-        
-        const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+        const today = new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
         params.append("gen_date", today);
 
         const url = `/api/hotspots/report/${this.selectedHotspotId}/pdf?${params.toString()}`;
-        
+
         console.log("Pre-building PDF silently...");
         // Fire and forget (server will handle and cache)
         axios.get(url).catch(() => {});

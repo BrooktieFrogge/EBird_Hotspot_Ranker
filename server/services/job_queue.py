@@ -91,9 +91,9 @@ class JobManager:
         if self.running:
             return
         self.running = True
-        # default 20 workers, configurable via env
+        # default 2 workers
         import os
-        worker_count = int(os.getenv('JOB_WORKER_COUNT', '20'))
+        worker_count = int(os.getenv('JOB_WORKER_COUNT', '2'))
         print(f"[JobQueue] Starting {worker_count} background workers...")
         
         self.worker_tasks = [

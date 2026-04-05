@@ -378,8 +378,16 @@ export default defineComponent({
           jobId = response.data.jobId;
           console.log(`PDF Job enqueued: ${jobId}. Polling...`);
           
+          let pollCount = 0;
+          const maxPolls = 24; // 2 minutes
+
           // poll for result
           while (true) {
+            pollCount++;
+            if (pollCount > maxPolls) {
+               throw new Error("PDF generation timed out after 2 minutes. The server may be busy.");
+            }
+            
             await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
             const pollResponse = await axios.get(`/api/jobs/${jobId}`);
             const job = pollResponse.data;

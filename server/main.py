@@ -30,6 +30,15 @@ if missing_vars:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # enable WAL for SQLite to handle traffic spikes
+    import sqlite3
+    try:
+        with sqlite3.connect('server/data/database/locations.db') as sqlConn:
+            sqlConn.execute("PRAGMA journal_mode=WAL;")
+            print("[Database] WAL mode enabled successfully.")
+    except Exception as e:
+        print(f"[Database] Failed to enable WAL mode: {e}")
+
     # start scheduler on app startup
     scheduler = AsyncIOScheduler()
     trigger = CronTrigger(
