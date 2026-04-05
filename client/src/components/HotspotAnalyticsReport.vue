@@ -662,8 +662,9 @@ export default defineComponent({
 }
 
 .loading-photo {
-  width: 200px;
-  height: 200px;
+  width: 85vw;
+  max-width: 400px;
+  height: auto;
   object-fit: contain;
 }
 

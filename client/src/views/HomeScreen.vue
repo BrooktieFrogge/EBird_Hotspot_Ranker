@@ -809,7 +809,8 @@ ul li {
 
 .centered-image-panel {
   max-width: 1200px;
-  margin: 40px 100px 20px 100px;
+  margin: 40px auto 20px auto; 
+  display: flex;
   justify-content: center;
   align-items: flex-start;
 }
@@ -897,8 +898,8 @@ ul li {
 }
 
 .graph {
-  width: 100%;
-  height: 100%;
+  width: 70%;
+  height: auto;
   background: transparent;
   border: 1px solid var(--color-border-light);
   border-radius: 8px;
