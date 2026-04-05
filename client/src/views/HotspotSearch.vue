@@ -1545,6 +1545,8 @@ export default defineComponent({
 
 .filter-group input {
   border: 1px solid rgba(69, 121, 153, 0.4);
+  background-color: var(--color-bg-panel);
+  color: var(--color-text-primary);
   transition: border 0.2s, box-shadow 0.2s;
 }
 .filter-group input:focus {

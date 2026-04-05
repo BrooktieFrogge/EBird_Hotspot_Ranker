@@ -30,17 +30,6 @@
         <span class="value">{{ subregion1 }}</span>
       </div>
 
-      <!-- Subregion 2 -->
-      <div class="row">
-        <span class="label">
-          <BIconGeoFill class="icon" />
-          County/District:
-        </span>
-        <span class="value">
-          {{ (!subregion2 || subregion2 === 'None') ? '—' : subregion2 }}
-        </span>
-      </div>
-
       <!-- Species Count + Color Dot -->
       <div class="row">
         <span class="label">
@@ -66,7 +55,6 @@
 <script lang="ts">
 import {
   BIconGeoAlt,
-  BIconGeoFill,
   BIconGlobe,
 
 
@@ -95,7 +83,6 @@ export default defineComponent({
   components: {
     BIconGlobe,
     BIconGeoAlt,
-    BIconGeoFill,
   },
 
   
