@@ -62,17 +62,17 @@ class JobManager:
         print("[JobQueue] Cleanup task started")
         while self.running:
             try:
-                await asyncio.sleep(3600)  # run every hour
+                await asyncio.sleep(86400)  # run daily
                 now = datetime.now()
-                # remove jobs older than 1 hour
+                # remove jobs older than 24 hours
                 expired_ids = []
                 for jid, job in self.jobs.items():
                     # check age
                     created = datetime.fromisoformat(job["created_at"]) 
                     age = (now - created).total_seconds()
                     
-                    # keep jobs for 1 hour for polling
-                    if age > 3600 and job["status"] in [JobStatus.COMPLETED, JobStatus.FAILED]:
+                    # keep jobs for 24 hours for polling
+                    if age > 86400 and job["status"] in [JobStatus.COMPLETED, JobStatus.FAILED]:
                         expired_ids.append(jid)
                 
                 for jid in expired_ids:
@@ -193,12 +193,20 @@ class JobManager:
                 
             elif job["type"] == JobType.GENERATE_PDF:
                 from services.pdf_export import generate_pdf
-                result_bytes = await generate_pdf(**job["payload"])
+                from routes.hotspots import PDF_CACHE
                 
-                # encode bytes to base64 string for json
+                # pop out cache key to prevent errs
+                payload_copy = dict(job["payload"])
+                cache_key = payload_copy.pop("cache_key", None)
+                
+                result_bytes = await generate_pdf(**payload_copy)
+                
                 import base64
                 if result_bytes:
                     result = base64.b64encode(result_bytes).decode('utf-8')
+                    # save to cache so follow up clicks are instant
+                    if cache_key:
+                        PDF_CACHE[cache_key] = result
                 else:
                     raise Exception("pdf generation returned no data")
                 

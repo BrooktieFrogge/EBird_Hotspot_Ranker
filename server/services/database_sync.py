@@ -104,6 +104,8 @@ async def sync_data():
         cursor.execute("ALTER TABLE 'hotspots' RENAME TO old_hotspots")
         cursor.execute("ALTER TABLE 'new_hotspots' RENAME TO hotspots ")
         cursor.execute("DROP TABLE 'old_hotspots' ")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_hotspots_species_count ON hotspots(species_count DESC)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_hotspots_norm_name ON hotspots(norm_name)")
         
 
         print("[Database Sync] | Database was successfuly updated! Sync Complete.")

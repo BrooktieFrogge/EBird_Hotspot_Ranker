@@ -12,8 +12,11 @@ from datetime import datetime
 import json
 import os
 import io
-from  typing import Annotated, List
+from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, Path, Query, Depends
+from cachetools import TTLCache
+
+PDF_CACHE = TTLCache(maxsize=100, ttl=86400)
 
 '''
 Backend router for retrieving eBird hotspot data.
@@ -156,11 +159,26 @@ async def get_report_pdf(
     photo_ranks: str = Query(None),
     gen_date: str = Query(None),
 ):
+    # generate cache key
+    cache_key = f"{hotspotId}|{filters.start_yr}-{filters.end_yr}|{filters.start_month}-{filters.start_week}|{filters.end_month}-{filters.end_week}|{num_top_birds}|{num_top_photos}|{show_graph}|{show_photos}|{custom_ranks}|{photo_ranks}|{gen_date}"
+    
+    from fastapi.responses import JSONResponse
+    
+    # check cache to avoid regen
+    if cache_key in PDF_CACHE:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "completed",
+                "result": PDF_CACHE[cache_key],
+                "message": "PDF recovered from cache."
+            }
+        )
+
     # get the client URL from environment, default to localhost
     client_url = os.getenv("CLIENT_URL", "http://localhost:5173")
     
     from services.job_queue import job_manager, JobType
-    from fastapi.responses import JSONResponse
 
     job_id = await job_manager.enqueue_job(
         JobType.GENERATE_PDF,
@@ -178,7 +196,8 @@ async def get_report_pdf(
         end_week=filters.end_week,
         custom_ranks=custom_ranks,
         photo_ranks=photo_ranks,
-        gen_date=gen_date
+        gen_date=gen_date,
+        cache_key=cache_key
     )
     
     return JSONResponse(

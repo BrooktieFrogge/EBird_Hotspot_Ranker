@@ -15,12 +15,12 @@ returns:
 HEADERS = {"X-eBirdApiToken":os.getenv("EBIRD_API_KEY")}
 
 
-# cache hotspot rankings for 1 hour to speed up pdf gen
-HOTSPOT_CACHE = TTLCache(maxsize=500, ttl=3600)
+# cache hotspot rankings for 24 hours to speed up pdf gen
+HOTSPOT_CACHE = TTLCache(maxsize=500, ttl=86400)
 
 ## cache raw TSV data separately (keyed by hotspot+years only)
 ## this lets us instant re-filtering when only time params change
-RAW_DATA_CACHE = TTLCache(maxsize=500, ttl=3600)
+RAW_DATA_CACHE = TTLCache(maxsize=500, ttl=86400)
 
 def get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week):
     """generate a unique cache key based on all filter parameters"""
@@ -104,7 +104,7 @@ async def detailed_hotspot_data(
         
         # store in result cache for pdf gen
         HOTSPOT_CACHE[cache_key] = ranked
-        print(f"[cache] | stored result for {hotspotID} in cache (expires in 5 min)")
+        print(f"[cache] | stored result for {hotspotID} in cache (expires in 24 hours)")
 
         return ranked
 

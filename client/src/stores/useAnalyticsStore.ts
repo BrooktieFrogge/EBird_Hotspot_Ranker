@@ -514,6 +514,7 @@ export const useAnalyticsStore = defineStore("analytics", {
         console.log("Using cached hotspot detail for:", cacheKey);
         this.selectedHotspot = this.hotspotDetailCache[cacheKey];
         this.isLoading = false;
+        this.prebuildPdf();
         return;
       }
 
@@ -555,6 +556,7 @@ export const useAnalyticsStore = defineStore("analytics", {
                 this.hotspotDetailCache[cacheKey] = job.result;
                 (this as any)._fetchRetryCount = 0; // reset on success
                 console.log("Fetched hotspot detail (async):", job.result);
+                this.prebuildPdf();
                 break;
               } else if (job.status === "failed") {
                 throw new Error(job.error || "Job failed");
@@ -604,12 +606,53 @@ export const useAnalyticsStore = defineStore("analytics", {
           this.selectedHotspot = data;
           this.hotspotDetailCache[cacheKey] = data;
           console.log("Fetched hotspot detail (immediate):", data);
+          this.prebuildPdf();
         }
       } catch (e: any) {
         this.error = e.message ?? "Unknown error";
         console.log("ERROR:", e.message);
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    async prebuildPdf() {
+      if (!this.selectedHotspotId || !this.selectedHotspot) return;
+
+      try {
+        const params = new URLSearchParams({
+          num_top_birds: this.numTopBirds.toString(),
+          num_top_photos: this.numTopPhotos.toString(),
+          show_graph: this.showLikelihoodCurve.toString(),
+          show_photos: this.showTopBirdPhotos.toString(),
+        });
+
+        if (this.startYear) params.append("start_yr", this.startYear.toString());
+        if (this.endYear) params.append("end_yr", this.endYear.toString());
+        if (this.startMonth) params.append("start_month", this.startMonth.toString());
+        if (this.startWeek) params.append("start_week", this.startWeek.toString());
+        if (this.endMonth) params.append("end_month", this.endMonth.toString());
+        if (this.endWeek) params.append("end_week", this.endWeek.toString());
+
+        if (this.selectedBirds.length > 0) {
+          const ranks = this.selectedBirds.map((b: any) => b.Rank);
+          params.append("custom_ranks", ranks.join(","));
+        }
+        if (this.selectedBirdPhotos.length > 0) {
+          const photoRanks = this.selectedBirdPhotos.map((b: any) => b.Rank);
+          params.append("photo_ranks", photoRanks.join(","));
+        }
+        
+        const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+        params.append("gen_date", today);
+
+        const url = `/api/hotspots/report/${this.selectedHotspotId}/pdf?${params.toString()}`;
+        
+        console.log("Pre-building PDF silently...");
+        // Fire and forget (server will handle and cache)
+        axios.get(url).catch(() => {});
+      } catch (e) {
+        // silent fail
       }
     },
   },

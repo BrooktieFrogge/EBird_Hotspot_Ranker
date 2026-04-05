@@ -365,31 +365,34 @@ export default defineComponent({
           analyticsStore.selectedHotspotId
         }/pdf?${params.toString()}`;
 
-        // enqueue job
+        // enqueue job or fetch from cache
         const response = await axios.get(url);
 
         let jobId = "";
+        let base64Pdf = null;
 
-        if (response.status === 202) {
+        if (response.status === 200 && response.data.status === "completed") {
+          console.log("PDF instantly loaded from cache!");
+          base64Pdf = response.data.result;
+        } else if (response.status === 202) {
           jobId = response.data.jobId;
           console.log(`PDF Job enqueued: ${jobId}. Polling...`);
+          
+          // poll for result
+          while (true) {
+            await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
+            const pollResponse = await axios.get(`/api/jobs/${jobId}`);
+            const job = pollResponse.data;
+
+            if (job.status === "completed") {
+              base64Pdf = job.result;
+              break;
+            } else if (job.status === "failed") {
+              throw new Error(job.error || "PDF generation failed");
+            }
+          }
         } else {
           throw new Error("Unexpected response from PDF endpoint");
-        }
-
-        // poll for result
-        let base64Pdf = null;
-        while (true) {
-          await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
-          const pollResponse = await axios.get(`/api/jobs/${jobId}`);
-          const job = pollResponse.data;
-
-          if (job.status === "completed") {
-            base64Pdf = job.result;
-            break;
-          } else if (job.status === "failed") {
-            throw new Error(job.error || "PDF generation failed");
-          }
         }
 
         // open pdf

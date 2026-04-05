@@ -373,7 +373,7 @@ import { useAnalyticsStore } from "../stores/useAnalyticsStore";
 import type { Bird } from "../types";
 import DataDistributionGraph from "../components/DataDistributionGraph.vue";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
+import axios from "axios";
 /**
  * A panel for configurating the analytics report.
  * It includes functionality for date range, etc. (has yet to be completed).
@@ -826,8 +826,53 @@ export default defineComponent({
           analyticsStore.selectedHotspotId
         }/pdf?${params.toString()}`;
 
-        // Open PDF in new tab - browser will show print dialog or PDF viewer
-        window.open(pdfUrl, "_blank");
+        const response = await axios.get(pdfUrl);
+
+        let jobId = "";
+        let base64Pdf = null;
+
+        if (response.status === 200 && response.data.status === "completed") {
+          base64Pdf = response.data.result;
+        } else if (response.status === 202) {
+          jobId = response.data.jobId;
+          
+          while (true) {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+            const pollResponse = await axios.get(`/api/jobs/${jobId}`);
+            const job = pollResponse.data;
+
+            if (job.status === "completed") {
+              base64Pdf = job.result;
+              break;
+            } else if (job.status === "failed") {
+              throw new Error(job.error || "PDF generation failed");
+            }
+          }
+        } else {
+          throw new Error("Unexpected response from PDF endpoint");
+        }
+
+        if (base64Pdf) {
+          const byteCharacters = atob(base64Pdf);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: "application/pdf" });
+          const objectUrl = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = objectUrl;
+          const filename = analyticsStore.selectedHotspot?.name
+            ? `${analyticsStore.selectedHotspot.name.replace(/[^a-z0-9]/gi, "_")}_Report.pdf`
+            : "HotspotReport.pdf";
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(objectUrl);
+        }
       } catch (error) {
         console.error("Export failed:", error);
         alert("Failed to generate PDF. Please try again.");
