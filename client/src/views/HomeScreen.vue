@@ -401,7 +401,7 @@
               <p class="footer">
                 Collaborators from Colorado College developing this version of
                 Hotspot Featherweight are Dr. Steve Getty and Computer Science
-                students Brooktie Frogge, Erin Liedeker, Jevon Lipsey, Zahara
+                students Brooktie Frogge, Erin Liedeker, Jevon Lipsey, Madeleine Johnson, Zahara
                 Love. The team acknowledges the work by Cornell Lab of
                 Ornithology to develop eBird and enable users access to eBird
                 hotspot raw data.

@@ -2,6 +2,7 @@ import csv
 import os
 import json
 import asyncio
+import re
 from rapidfuzz import fuzz
 from playwright.async_api import async_playwright
 
@@ -11,6 +12,22 @@ METADATA_CACHE_FILE = 'server/data/bird_metadata_cache.json'
 ## cache
 _bird_cache = {}
 _taxonomy_list = []
+
+def extract_macaulay_asset_id(image_url): 
+    """Extract the Macaulay Library asset ID from an image URL.""" 
+    if not image_url: 
+        return None 
+
+    match = re.search(r"/asset/(\d+)", image_url) 
+
+    if match: 
+        photographer = match.group(1).strip()
+
+        if " eBird " in photographer:
+            photographer = photographer.split(" eBird ")[0].strip()
+
+        return photographer
+    return None
 
 def load_metadata_cache():
     # loads json cache and populates _bird_cache
@@ -23,6 +40,8 @@ def load_metadata_cache():
                     # cache image url
                     if info.get('imageUrl'):
                         _bird_cache[f"img_{code}"] = info['imageUrl']
+                    if info.get('photographer'):
+                        _bird_cache[f"photographer_{code}"] = info['photographer']
                     # cache bird code lookup (name / code)
                     if info.get('comName'):
                         _bird_cache[info['comName']] = (code, info.get('speciesUrl'))
@@ -112,8 +131,14 @@ async def get_species_image_url(bird_code, browser_page=None):
         return None
     
     cache_key = f"img_{bird_code}"
+
+    photographer_cache_key = f"photographer_{bird_code}"
+
     if cache_key in _bird_cache and _bird_cache[cache_key] is not None:
-        return _bird_cache[cache_key]
+        if photographer_cache_key in _bird_cache:
+         #   print(f"[debug] | cached photographer for {bird_code}: {_bird_cache[photographer_cache_key]}")
+       
+            return _bird_cache[cache_key]
 
     print(f"[info] | fetching image for {bird_code}...")
 
@@ -138,8 +163,77 @@ async def get_species_image_url(bird_code, browser_page=None):
             img = await browser_page.query_selector(selector)
             if img:
                 src = await img.get_attribute('src')
+
+
+                print(f"[debug] | IMAGE URL: {src}")
+
+                asset_id = extract_macaulay_asset_id(src)
+
+                print(f"[debug] | MACAULAY ASSET ID: {asset_id}")
+
+                if not src:
+                    return None
+
+                #get asset ID
+                asset_id = extract_macaulay_asset_id(src)
+                print(f"[debug] | Macaulay asset ID for {bird_code}: " f"{asset_id}")
+
+                #find photographer
+                photographer = None
+
+                try: 
+                    # Walk upward until we find the image's media container. 
+                    photographer = await img.evaluate("""
+                        (element) => {
+                            let current = element;
+
+                            for (let i = 0; i < 5 && current; i++) {
+                                const text = current.innerText || "";
+
+                                if (text.includes("©")) {
+                                    const match = text.match(/©\\s*([^\\n]+)/);
+
+                                    if (match) {
+                                        let photographer = match[1].trim();
+
+                                        if (photographer.includes(" eBird ")) {
+                                            photographer = photographer.split(" eBird ")[0].trim();
+                                        }
+
+                                        return photographer;
+                                    }
+                                }
+
+                                current = current.parentElement;
+                            }
+
+                            return null;
+                        }
+                    """)
+
+                except Exception as e:
+                    print(
+                        f"[warning] | failed to find photographer "
+                        f"for {bird_code}: {e}"
+                    ) 
+                    
+
+
                 _bird_cache[cache_key] = src
+
+
+                _bird_cache[photographer_cache_key] = photographer
+
+
                 print(f"[success] | found image for {bird_code}: {src[:80]}...")
+
+
+                if photographer: 
+                    print( f"[success] | photographer for {bird_code}: " f"{photographer}" ) 
+
+                else: print( f"[warning] | no photographer found for " f"{bird_code}" )
+
+
                 return src
         except Exception as e:
             print(f"[warning] | timeout waiting for image selector for {bird_code}: {e}")
@@ -150,6 +244,19 @@ async def get_species_image_url(bird_code, browser_page=None):
     except Exception as e:
         print(f"[error] | image fetch error {bird_code}: {e}")
         return None
+
+
+
+def get_cached_photographer(bird_code): 
+    if not bird_code: 
+        return None 
+    
+    return _bird_cache.get( 
+        f"photographer_{bird_code}" 
+    )
+
+
+    
 
 async def enrich_data(species_list):
     # populates image urls for top 3 birds (uses shared browser)
@@ -205,25 +312,45 @@ async def enrich_data(species_list):
                     # get image for top 3 birds
                     cache_key = f"img_{bird_code}"
                     
+                    
                     if idx < 3 and bird_code:
                         # check cache first
                         if cache_key in _bird_cache:
                             record['imageUrl'] = _bird_cache[cache_key]
+
+
+                            record['photographer'] = _bird_cache.get(f"photographer_{bird_code}")
+
+                            print(
+                                f"[debug] | {species_name} photographer: "
+                                f"{record['photographer']}"
+                            )
+
+
                         elif page:
                             print(f"[info] | fetching image for top bird #{idx+1}: {species_name}")
                             record['imageUrl'] = await get_species_image_url(bird_code, browser_page=page)
+
+
+                            record['photographer'] = _bird_cache.get(f"photographer_{bird_code}")
+
+
                         else:
                             record['imageUrl'] = None
+                            record['photographer'] = None
                     else:
                         # outside top 3, check cache only
                         if cache_key in _bird_cache:
                             record['imageUrl'] = _bird_cache[cache_key]
+                            record['photographer'] = _bird_cache.get(f"photographer_{bird_code}")
                         else:
                             record['imageUrl'] = None
+                            record['photographer'] = None
                 else:
                     record['birdCode'] = None
                     record['speciesUrl'] = None
                     record['imageUrl'] = None
+                    record['photographer'] = None
                 
                 enriched.append(record)
         
@@ -239,14 +366,17 @@ async def enrich_data(species_list):
                 record['birdCode'] = bird_code
                 record['speciesUrl'] = species_url
                 cache_key = f"img_{bird_code}"
+                photographer_cache_key = f"photographer_{bird_code}"
                 if cache_key in _bird_cache:
                     record['imageUrl'] = _bird_cache[cache_key]
                 else:
                     record['imageUrl'] = None
+                record['photographer'] = _bird_cache.get(photographer_cache_key)
             else:
                 record['birdCode'] = None
                 record['speciesUrl'] = None
                 record['imageUrl'] = None
+                record['photographer'] = None
             enriched.append(record)
 
     return enriched
@@ -289,20 +419,32 @@ async def prefetch_all_metadata(limit=None):
             bird_code = bird['code']
 
             ## skip if cached
-            if bird_code in results and results[bird_code].get('imageUrl'):
+            if bird_code in results and results[bird_code].get('imageUrl') and results[bird_code].get('photographer'):
                 continue
 
             print(f"[{i+1}/{len(to_process)}] processing {species_name} ({bird_code})...")
             
             try:
                 image_url = await get_species_image_url(bird_code, browser_page=page)
+
+                photographer = _bird_cache.get( f"photographer_{bird_code}" )
+
+                print(
+                    f"[debug] | saving photographer for "
+                    f"{bird_code}: {photographer}"
+                )
+
             except:
+                print(f"[warning] | metadata fetch failed for {bird_code}: {e}")
                 image_url = None
+                photographer = None
+        
             
             results[bird_code] = {
                 "comName": species_name,
                 "code": bird_code,
                 "imageUrl": image_url,
+                "photographer": photographer,
                 "speciesUrl": build_species_url(bird_code)
             }
 
@@ -315,6 +457,6 @@ async def prefetch_all_metadata(limit=None):
 if __name__ == "__main__":
     print("starting taxonomy prefetch...")
     ## test
-    #asyncio.run(prefetch_all_metadata(limit=5))
+    #asyncio.run(prefetch_all_metadata(limit=1))
 
     asyncio.run(prefetch_all_metadata())

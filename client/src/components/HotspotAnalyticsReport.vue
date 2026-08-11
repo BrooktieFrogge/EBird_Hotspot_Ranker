@@ -176,7 +176,13 @@
           :key="i"
         >
           <img class="photo" :src="bird.imageUrl" alt="" />
-          <div class="photo-caption">{{ i + 1 }}. {{ bird.Species }}</div>
+          <div class="photo-caption">
+            {{ i + 1 }}. {{ bird.Species }}
+          </div> 
+
+          <div class="author-caption">
+            by {{ bird.photographer || 'NO PHOTOGRAPHER' }}; Cornell Lab of Ornithology | Macaulay Library
+          </div>
         </div>
       </div>
 
@@ -225,6 +231,7 @@
   <!-- DEFAULT: Loading Image -->
   <!---------------------------->
   <div class="loading-screen" v-else>
+    <div>Gulls are at “data-dump” retrieving your eBird hotspot data</div>
     <img class="loading-photo" :src="loadingImage" alt="" />
   </div>
 </template>
@@ -644,6 +651,12 @@ export default defineComponent({
 .photo-caption {
   padding: 8px;
   font-weight: 500;
+  text-align: center;
+}
+
+.author-caption {
+  padding: 8px;
+  font-weight: 100;
   text-align: center;
 }
 

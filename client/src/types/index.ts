@@ -6,6 +6,7 @@ export interface Bird {
   birdCode?: string,
   speciesUrl: string,
   imageUrl?: string
+  photographer?: string
 }
 
 

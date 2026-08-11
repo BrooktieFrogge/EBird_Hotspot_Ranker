@@ -76,7 +76,7 @@
     <!-- top bird photos grid -->
     <div
       class="section photos-section"
-      v-if="store.showTopBirdPhotos && topPhotoBirds.length > 0"
+      v-if="store.showTopBirdPhotos && topPhotoBirds.length < 0"
     >
       <h3 class="section-title">Top {{ store.numTopPhotos }} Birds</h3>
       <div class="photo-grid">

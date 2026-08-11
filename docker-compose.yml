@@ -17,6 +17,8 @@ services:
       - ./.env
     environment:
       - CLIENT_URL=http://client:80
+    volumes:
+      - ./server/data:/app/server/data
     networks:
       - app-network
 
