@@ -231,7 +231,7 @@
   <!-- DEFAULT: Loading Image -->
   <!---------------------------->
   <div class="loading-screen" v-else>
-    <div>Gulls are at “data-dump” retrieving your eBird hotspot data</div>
+    <div>Gulls are at “data-dump” retrieving your eBird hotspot data!</div>
     <img class="loading-photo" :src="loadingImage" alt="" />
   </div>
 </template>
@@ -678,7 +678,7 @@ export default defineComponent({
 
 .loading-photo {
   width: 85vw;
-  max-width: 400px;
+  max-width: 600px;
   height: auto;
   object-fit: contain;
 }

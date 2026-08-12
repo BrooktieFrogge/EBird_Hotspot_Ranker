@@ -324,7 +324,7 @@ export default defineComponent({
         labels: detailedLabels,
         datasets: [
           {
-            label: "Data Density by Month",
+            label: "Data Density by Week",
             data: chartData,
             backgroundColor: backgroundColors,
             borderColor: isDarkMode.value ? "#7eb8d9" : "#457999",
@@ -388,7 +388,7 @@ export default defineComponent({
 
 .range-slider-container {
   margin-top: 8px;
-  padding: 0 10px;
+  padding: 0 10px 0 50px;
 }
 
 .range-track {

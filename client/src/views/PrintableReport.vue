@@ -16,6 +16,16 @@
         {{ store.selectedHotspot?.country ?? "" }},
         {{ store.selectedHotspot?.subregion1 ?? "" }}
       </p>
+
+      
+        <span style="font-size: 11px; color: #666">
+          Based on
+          <strong>{{
+            store.selectedHotspot?.total_sample_size?.toLocaleString() ?? 0
+          }}</strong>
+          checklists
+        </span>
+        
     </div>
 
     <!-- observation likelihood graph -->
@@ -39,6 +49,7 @@
         <h2 class="section-title" style="margin-bottom: 0">
           Top {{ store.numTopBirds }} Birds
         </h2>
+        <!--
         <span style="font-size: 11px; color: #666">
           Based on
           <strong>{{
@@ -46,6 +57,7 @@
           }}</strong>
           checklists
         </span>
+        -->
       </div>
 
       <div class="table-header">
