@@ -9,3 +9,4 @@ class Bird(BaseModel):
     birdCode: Optional[str] = None
     speciesUrl: Optional[str] = None
     imageUrl: Optional[str] = None
+    photographer: Optional[str] = None

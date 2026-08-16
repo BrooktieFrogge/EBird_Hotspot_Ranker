@@ -366,12 +366,13 @@ async def enrich_data(species_list):
                 record['birdCode'] = bird_code
                 record['speciesUrl'] = species_url
                 cache_key = f"img_{bird_code}"
-                photographer_cache_key = f"photographer_{bird_code}"
+                photographer_cache_key = f"photographer_ {bird_code}"
                 if cache_key in _bird_cache:
                     record['imageUrl'] = _bird_cache[cache_key]
+                    record['photographer'] = _bird_cache.get(f"photographer_{bird_code}")
                 else:
                     record['imageUrl'] = None
-                record['photographer'] = _bird_cache.get(photographer_cache_key)
+                    record['photographer'] = None
             else:
                 record['birdCode'] = None
                 record['speciesUrl'] = None

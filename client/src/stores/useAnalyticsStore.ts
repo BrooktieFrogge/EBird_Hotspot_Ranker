@@ -565,6 +565,8 @@ export const useAnalyticsStore = defineStore("analytics", {
 
               if (job.status === "completed") {
                 this.selectedHotspot = job.result;
+
+
                 // save to cache
                 this.hotspotDetailCache[cacheKey] = job.result;
                 (this as any)._fetchRetryCount = 0; // reset on success
@@ -617,6 +619,12 @@ export const useAnalyticsStore = defineStore("analytics", {
           }
 
           this.selectedHotspot = data;
+
+          console.log("RESPONSE KEYS:", Object.keys(data));
+
+          console.log("RESPONSE DATA:",JSON.stringify(data, null, 2));
+
+
           this.hotspotDetailCache[cacheKey] = data;
           console.log("Fetched hotspot detail (immediate):", data);
           this.prebuildPdf();

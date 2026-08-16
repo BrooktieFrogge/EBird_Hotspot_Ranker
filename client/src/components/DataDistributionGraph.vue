@@ -1,4 +1,6 @@
 <template>
+
+
   <div class="chart-wrapper">
     <BarChart :chartData="data" :options="options" style="height: 250px" />
 

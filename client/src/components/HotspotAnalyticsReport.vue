@@ -657,6 +657,8 @@ export default defineComponent({
 .author-caption {
   padding: 8px;
   font-weight: 100;
+  font-size: 0.75rem;
+  font-style: italic;
   text-align: center;
 }
 

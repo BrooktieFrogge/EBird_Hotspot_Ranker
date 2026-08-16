@@ -42,7 +42,14 @@ async def detailed_hotspot_data(
     # check full result cache first
     cache_key = get_cache_key(hotspotID, start_yr, end_yr, start_month, start_week, end_month, end_week)
     if cache_key in HOTSPOT_CACHE:
+
+        cached_result = HOTSPOT_CACHE[cache_key]
+
         print(f"[cache] | FULL HIT for {hotspotID} - using cached result")
+
+        if cached_result.get("birds"):
+            print("[cache] | FIRST BIRD:",cached_result["birds"][0])
+
         return HOTSPOT_CACHE[cache_key]
     
     # check if we have cached raw data for this hotspot+years
@@ -68,6 +75,9 @@ async def detailed_hotspot_data(
 
     if ret:
         birds = ret['data']
+
+        print("[PHOTOGRAPHER TEST]",birds[0].get("Species") if birds else None,birds[0].get("photographer") if birds else None)
+
         total_sample_size = ret['total_sample_size']
         sample_sizes_by_week = ret['sample_sizes_by_week']
         

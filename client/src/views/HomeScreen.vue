@@ -158,7 +158,7 @@
                   alt="Bird illustration"
                   class="rect-image"
                 />
-                <figcaption class="captions">© Steve Getty</figcaption>
+                <figcaption class="captions">by Steve Getty; Colorado College</figcaption>
               </figure>
 
               <p class="about-subsection">
@@ -188,7 +188,7 @@
                   alt="Bird illustration"
                   class="rect-image"
                 />
-                <figcaption class="captions">©Andrés Posada</figcaption>
+                <figcaption class="captions">by Andrés Posada; Cornell Lab of Ornithology | Macaulay Library</figcaption>
               </figure>
 
               <p class="about-subsection">
@@ -394,17 +394,17 @@
                   Sources: "https://media.ebird.org/"</a
                 >
               </p>
-              <p class="footer">Cover Photo: © Fernando Saravia</p>
+              <p class="footer">Cover Photo: by Fernando Saravia; Cornell Lab of Ornithology | Macaulay Library</p>
 
               <h2 class="footer-heading">Project Acknowledgements</h2>
 
               <p class="footer">
-                Collaborators from Colorado College developing this version of
-                Hotspot Featherweight are Dr. Steve Getty and Computer Science
-                students Brooktie Frogge, Erin Liedeker, Jevon Lipsey, Madeleine Johnson, Zahara
-                Love. The team acknowledges the work by Cornell Lab of
-                Ornithology to develop eBird and enable users access to eBird
-                hotspot raw data.
+                Designers from Colorado College who developed Featherweight are Dr. Steve Getty and senior 
+                Computer Science thesis students Brooktie Frogge, Erin Liedeker, Jevon Lipsey,Zahara Love, 
+                and Computer Science major Madeleine Johnson. 
+                This website is non-commercial and strictly intended for educational, scientific, or 
+                recreational purposes. The team acknowledges the work by Cornell Lab of Ornithology to 
+                develop eBird and enable users access to eBird hotspot data.  
               </p>
             </div>
           </div>
