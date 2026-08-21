@@ -649,17 +649,22 @@ export default defineComponent({
 }
 
 .photo-caption {
-  padding: 8px;
+  margin-bottom: 0;
+  padding: 2px 8px 0;
   font-weight: 500;
   text-align: center;
+  line-height: 1.1;
 }
 
 .author-caption {
-  padding: 8px;
-  font-weight: 100;
+  margin: 0;
+  padding: 8px 8px 4px;
+  font-weight: 400;
   font-size: 0.75rem;
   font-style: italic;
   text-align: center;
+  line-height: 1.1;
+  color: var(--color-text-secondary);
 }
 
 .loading-screen {
@@ -680,7 +685,7 @@ export default defineComponent({
 
 .loading-photo {
   width: 85vw;
-  max-width: 600px;
+  max-width: 575px;
   height: auto;
   object-fit: contain;
 }
@@ -809,7 +814,7 @@ export default defineComponent({
   }
 
   .photo-caption {
-    flex-grow: 1;
+    flex-grow: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -926,7 +931,7 @@ export default defineComponent({
   }
 
   .photo-caption {
-    flex-grow: 1;
+    flex-grow: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -940,8 +945,9 @@ export default defineComponent({
   }
 
   .photo-caption {
-    padding: 8px 10px;
+    padding: 4px 8px 0 8px;
     font-size: 0.85rem;
+    margin-bottom: 0;
   }
 
   #linechart {
