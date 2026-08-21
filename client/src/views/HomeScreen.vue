@@ -33,6 +33,9 @@
           :src="coverPhoto"
           alt="FeatherWeight Cover Photo, colorful bird"
         />
+
+       
+
         <div class="cover-content">
           <h1 class="cover-heading">Welcome to FeatherWeight!</h1>
 
@@ -50,6 +53,12 @@
             </button>
           </div>
         </div>
+
+        
+      </div>
+
+      <div class="cover-credit">
+        by Fernando Saravia; Cornell Lab of Ornithology | Macaulay Library
       </div>
 
       <!-- MAIN CONTENT -->
@@ -69,7 +78,7 @@
                     alt="Bird illustration"
                     class="rect-image"
                   />
-                  <figcaption class="captions">© Steve Getty</figcaption>
+                  <figcaption class="captions">by Steve Getty</figcaption>
                 </figure>
               </div>
 
@@ -85,7 +94,7 @@
                     class="rect-image"
                   />
                   <figcaption class="captions">
-                    © Luis Alberto Salagaje Muela
+                    by Luis Alberto Salagaje Muela; Cornell Lab of Ornithology | Macaulay Library
                   </figcaption>
                 </figure>
               </div>
@@ -158,7 +167,7 @@
                   alt="Bird illustration"
                   class="rect-image"
                 />
-                <figcaption class="captions">by Steve Getty; Colorado College</figcaption>
+                <figcaption class="captions">by Steve Getty</figcaption>
               </figure>
 
               <p class="about-subsection">
@@ -213,6 +222,22 @@
               </p>
             </div>
           </div>
+
+
+          <p class="about-subsection2">
+            <span class="acknowledgements-heading">Project Development and Acknowledgements:</span>
+            Designers from Colorado College who developed Featherweight are Dr.
+            Steve Getty and senior Computer Science thesis students Brooktie
+            Frogge, Erin Liedeker, Jevon Lipsey, Zahara Love, and Computer Science
+            major Madeleine Johnson.
+
+            This website is non-commercial and strictly intended for educational,
+            scientific, or recreational purposes. The team acknowledges the work
+            by Cornell Lab of Ornithology to develop eBird and enable users access
+            to eBird hotspot data.
+          </p>
+
+
           <div class="how-  " id="how-to">
             <div class="how-section-content">
               <div class="cards-grid">
@@ -320,6 +345,11 @@
                         years selected, or as new checklists are added to the
                         database in the future.
                       </li>
+                      <li>
+                        Depending on your Hotspot location, the photo retrieved from eBird may not match the subspecies 
+                        typically found at your Hotspot. For example, the Red-shafted Flicker would be the most likely flicker 
+                        subspecies along the West Coast. However, the photo retrieved from Cornell by Featherweight is a Yellow-shafted Flicker.  
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -391,21 +421,11 @@
 
               <p class="footer">
                 <a href="https://media.ebird.org/" class="footer-link">
-                  Sources: "https://media.ebird.org/"</a
-                >
+                  Sources: "https://media.ebird.org/"</a>
               </p>
               <p class="footer">Cover Photo: by Fernando Saravia; Cornell Lab of Ornithology | Macaulay Library</p>
 
-              <h2 class="footer-heading">Project Acknowledgements</h2>
-
-              <p class="footer">
-                Designers from Colorado College who developed Featherweight are Dr. Steve Getty and senior 
-                Computer Science thesis students Brooktie Frogge, Erin Liedeker, Jevon Lipsey,Zahara Love, 
-                and Computer Science major Madeleine Johnson. 
-                This website is non-commercial and strictly intended for educational, scientific, or 
-                recreational purposes. The team acknowledges the work by Cornell Lab of Ornithology to 
-                develop eBird and enable users access to eBird hotspot data.  
-              </p>
+              
             </div>
           </div>
         </section>
@@ -564,6 +584,21 @@ const scrollToSection = (id: string) => {
   text-align: center;
   min-height: 500px;
 }
+
+.cover-credit {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: right;
+    padding: 4px 20px 0 20px;
+    margin: 0;
+    font-size: 0.68rem;
+    line-height: 1.2;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    position: static;
+  }
+
 .cover-photo {
   width: 100%;
   height: 100%;
@@ -685,6 +720,21 @@ const scrollToSection = (id: string) => {
     0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
+.about-subsection2 {
+  font-size: 1.5rem;
+  position: relative;
+  text-align: center;
+  width: calc(100% - 100px);
+  margin: 60px auto;
+  padding: 40px 60px;
+  z-index: 2;
+
+  background: #f4f7f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset,
+    0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
 .about-section-content {
   align-items: start;
   max-width: 1480px;
@@ -707,6 +757,11 @@ const scrollToSection = (id: string) => {
   padding: 100px 50px 100px ;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.35) inset,
     0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.acknowledgements-heading {
+  color: var(--color-accent-blue);
+  font-weight: 500;
 }
 
 .how-section-content{
@@ -875,6 +930,7 @@ ul li {
 }
 
 .captions {
+  font-size: 0.68rem;
   text-align: left;
   color: var(--color-text-secondary);
 }
@@ -1261,9 +1317,15 @@ ul li, ol li {
     
   }
 
+
   .footer-heading {
     font-size: 1.5rem;
     margin-left: 0;
   }
+
+  
+
+
+  
 }
 </style>

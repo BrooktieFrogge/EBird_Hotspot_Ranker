@@ -23,7 +23,11 @@
           <strong>{{
             store.selectedHotspot?.total_sample_size?.toLocaleString() ?? 0
           }}</strong>
-          checklists
+          checklists from
+
+      
+          {{ checklistRange }}
+
         </span>
         
     </div>
@@ -203,6 +207,31 @@ export default defineComponent({
     const store = useAnalyticsStore();
     const route = useRoute();
 
+
+    const checklistRange = computed(() => {
+      const monthNames = [
+        "",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
+
+    const startMonth = monthNames[store.startMonth] ?? "";
+    const endMonth = monthNames[store.endMonth] ?? "";
+
+    return `${startMonth} Wk ${store.startWeek} – ${endMonth} Wk ${store.endWeek}`;
+  });
+
+
     // custom bird ranks parsed from URL
     const customRanks = ref<number[]>([]);
     const photoRanks = ref<number[]>([]);
@@ -367,6 +396,7 @@ export default defineComponent({
       chartData,
       chartOptions,
       generatedDate,
+      checklistRange
     };
   },
 });
